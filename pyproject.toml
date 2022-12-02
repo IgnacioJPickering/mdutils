@@ -1,0 +1,41 @@
+[project]
+    name = "amber_utils"
+    authors = [{name = "Ignacio Pickering", email = "ign.pickering@gmail.com"}]
+    license = {file = "LICENSE"}
+    description = "Python package amber_utils"
+    requires-python = ">=3.9"
+    dynamic = ["version", "readme"]
+
+[tool.setuptools.dynamic]
+    readme = {file = ["README.md"]}
+
+[build-system]
+    requires = ["setuptools>=45", "setuptools-scm[toml]>=6.2"]
+    build-backend = "setuptools.build_meta"
+
+[project.urls]
+    homepage = "https://github.com/IgnacioJPickering/amber-utils.git"
+    repository = "https://github.com/IgnacioJPickering/amber-utils.git"
+    documentation = "https://github.com/IgnacioJPickering/amber-utils.git"
+
+[project.scripts]
+    amber-utils="amber_utils:cli.app"
+
+# triggers using the scm version
+[tool.setuptools-scm]
+
+[tool.setuptools]
+packages = ["amber_utils"]
+
+[tool.black]
+    line-length = 88
+    target_version = ["py39"]
+
+[tool.mypy]
+    ignore_missing_imports = true
+    warn_redundant_casts = true
+    warn_unused_configs = true
+    disallow_incomplete_defs = true
+    disallow_untyped_defs = true
+    disallow_any_generics = true
+    python_version = 3.9

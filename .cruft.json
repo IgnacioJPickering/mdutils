@@ -1,0 +1,26 @@
+{
+  "template": "git@github.com:IgnacioJPickering/cookiecutter-pycargo",
+  "commit": "f1961a0b667dd51ec06255ab5a04306f14b57f83",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "access": "private",
+      "repo_name": "amber-utils",
+      "package_name": "amber_utils",
+      "command": "amber-utils",
+      "conda_env_name": "amber-utils",
+      "author_name": "Ignacio Pickering",
+      "author_git_profile": "IgnacioJPickering",
+      "author_email": "ign.pickering@gmail.com",
+      "description": "Python package amber_utils",
+      "python_version_major": "3",
+      "python_version_minor": "9",
+      "year": "2022",
+      "github_dir": "IgnacioJPickering",
+      "python_version": "3.9",
+      "python_version_joint": "39",
+      "_template": "git@github.com:IgnacioJPickering/cookiecutter-pycargo"
+    }
+  },
+  "directory": null
+}

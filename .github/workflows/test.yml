@@ -1,0 +1,24 @@
+name: tests
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+jobs:
+  tests:
+    name: Pytest tests
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set up python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: echo "nothing"
+
+    - name: Test with pytest
+      run: python -m pytest -v --durations=0 --durations-min=1.0 tests/*
