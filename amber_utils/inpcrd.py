@@ -40,7 +40,7 @@ def read_box(inpcrd: Path) -> Tuple[NDArray[np.float_], NDArray[np.float_]]:
 
 def read_name_and_num_atoms(inpcrd: Path) -> Tuple[str, int]:
     with open(inpcrd, "r") as f:
-        for j, line in f.readlines():
+        for j, line in enumerate(f.readlines()):
             if j == 0:
                 name = line.strip()
             elif j == 1:
