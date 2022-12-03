@@ -4,12 +4,13 @@ from pathlib import Path
 from typing import Tuple
 
 import pandas
+import numpy as np
 from numpy.typing import NDArray
 
 
 def read_coordinates_and_box(
     inpcrd: Path,
-) -> Tuple[NDArray[float], NDArray[float], NDArray[float]]:
+) -> Tuple[NDArray[np.float], NDArray[np.float], NDArray[np.float]]:
     df = pandas.read_csv(inpcrd, skiprows=2, sep=r"\s+", header=None)
     box = df.iloc[-1, :].values
     df.drop(index=(df.shape[0] - 1), axis="rows", inplace=True)
