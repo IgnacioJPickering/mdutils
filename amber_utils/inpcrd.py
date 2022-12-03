@@ -10,7 +10,7 @@ from numpy.typing import NDArray
 
 def read_coordinates_and_box(
     inpcrd: Path,
-) -> Tuple[NDArray[np.float], NDArray[np.float], NDArray[np.float]]:
+) -> Tuple[NDArray[np.float_], NDArray[np.float_], NDArray[np.float_]]:
     df = pandas.read_csv(inpcrd, skiprows=2, sep=r"\s+", header=None)
     box = df.iloc[-1, :].values
     df.drop(index=(df.shape[0] - 1), axis="rows", inplace=True)
