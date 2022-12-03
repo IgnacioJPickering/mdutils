@@ -1,13 +1,8 @@
 from enum import Enum
 from pathlib import Path
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Optional
 
 
-# all of the formats are 80-lines long, except some shorter integer formats
-# 5 * 16 = 80
-# 20 * 4 = 80
-# 1 * 80 = 80
-# 10 * 8 = 80
 class Format(Enum):
     INTEGER = "10I8"  # integer
     SENTENCE = "1a80"  # character
@@ -100,7 +95,7 @@ _INTEGER_FORMATS = {Format.INTEGER, Format.ONE_INTEGER, Format.THREE_INTEGERS}
 def read_block(prmtop: Path, flag: Flag) -> None:
     with open(prmtop, "r", encoding="utf-8") as f:
         in_block = False
-        format_ = None
+        format_: Optional[Format] = None
         block = []
         for line in f:
             if not in_block:
@@ -108,8 +103,8 @@ def read_block(prmtop: Path, flag: Flag) -> None:
                     in_block = True
             else:
                 if line.startswith("%FORMAT"):
-                    format_ = line.split("(")[-1].replace(")", "").strip()
-                    format_ = Format(format_)
+                    format_string = line.split("(")[-1].replace(")", "").strip()
+                    format_ = Format(format_string)
                 elif line.startswith("%FLAG"):
                     break
                 else:
