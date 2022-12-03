@@ -121,11 +121,11 @@ def read_block(prmtop: Path, flag: Flag) -> None:
 def _read_line_with_format(line: str, format_: Format) -> List[Any]:
     line = line[:-1]
     if format_ in _INTEGER_FORMATS:
-        parsed_line = [int(line[i: i + 8]) for i in range(0, len(line), 8)]
+        parsed_line = [int(line[i : i + 8]) for i in range(0, len(line), 8)]
     elif format_ is Format.FLOAT:
-        parsed_line = [float(line[i: i + 16]) for i in range(0, len(line), 16)]
+        parsed_line = [float(line[i : i + 16]) for i in range(0, len(line), 16)]
     elif format_ is Format.CHARACTERS:
-        parsed_line = [line[i: i + 4] for i in range(0, len(line), 4)]
+        parsed_line = [line[i : i + 4] for i in range(0, len(line), 4)]
     elif format_ is Format.SENTENCE:
         parsed_line = [line]
     return parsed_line
