@@ -35,8 +35,8 @@ dependencies:
   - sphinx-gallery  # sphinx plugin
 
   # # numerical
-  # - numpy  # multidimensional array support
-  # - pandas  # csv support
+  - numpy  # multidimensional array support
+  - pandas  # csv support
 
   # # data
   # - pyarrow  # Parquet backend
