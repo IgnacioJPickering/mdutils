@@ -23,7 +23,7 @@ class AmberRestrtData(NamedTuple):
 
 def read_coordinates_velocities_and_box(
     restrt: Path,
-) -> Tuple[NDArray[np.float_], NDArray[np.float_], NDArray[np.float_]]:
+) -> Tuple[NDArray[np.float_], Optional[NDArray[np.float_]], NDArray[np.float_], NDArray[np.float_]]:
     dataset = netcdf.Dataset(str(restrt), "r", format="NETCDF3_64BIT_OFFSET")
     cell_lengths = dataset["cell_lengths"][:].data
     cell_angles = dataset["cell_angles"][:].data
@@ -49,7 +49,7 @@ def read_name_and_num_atoms(restrt: Path) -> Tuple[str, int]:
     return name, atoms_num
 
 
-def read_time(restrt: Path):
+def read_time(restrt: Path) -> float:
     dataset = netcdf.Dataset(str(restrt), "r", format="NETCDF3_64BIT_OFFSET")
     return dataset["time"][:].data.item()
 
@@ -57,5 +57,12 @@ def read_time(restrt: Path):
 def read_data(restrt: Path) -> AmberRestrtData:
     time = read_time(restrt)
     name, atoms_num = read_name_and_num_atoms(restrt)
-    coordinates, velocities, box_lengths, box_angles = read_coordinates_velocities_and_box(restrt)
-    return AmberRestrtData(name, atoms_num, coordinates, velocities, box_lengths, box_angles, time)
+    (
+        coordinates,
+        velocities,
+        box_lengths,
+        box_angles,
+    ) = read_coordinates_velocities_and_box(restrt)
+    return AmberRestrtData(
+        name, atoms_num, coordinates, velocities, box_lengths, box_angles, time
+    )
