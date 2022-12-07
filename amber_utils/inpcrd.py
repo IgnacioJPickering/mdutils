@@ -25,6 +25,7 @@ def read_coordinates_and_box(
     box = df.iloc[-1, :].values
     df.drop(index=(df.shape[0] - 1), axis="rows", inplace=True)
     coordinates = df.values.reshape(-1, 3)
+    coordinates = coordinates[~np.isnan(coordinates).any(axis=1)]
     box_lengths = box[:3]
     box_angles = box[3:]
     return coordinates, box_lengths, box_angles
