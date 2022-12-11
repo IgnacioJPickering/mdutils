@@ -104,9 +104,11 @@ def dynamics(
     write_velocities: bool = False,
     **kwargs: Any,
 ) -> str:
+    kwargs["template"] = template
     kwargs["write_forces"] = write_forces
     kwargs["write_velocities"] = write_velocities
     kwargs["shake"] = shake
+    kwargs["restart"] = restart
     kwargs["timestep_ps"] = timestep_fs * 1e-3
     kwargs["total_md_steps"] = get_dynamics_steps(time_ps, timestep_fs)
     return run(**kwargs)
