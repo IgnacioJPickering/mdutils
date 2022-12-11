@@ -1,0 +1,29 @@
+Control Namelist
+&cntrl
+{% block body %}
+{% endblock %}
+ntwx = {{ trajectory_output_interval_frames }}  ! Trajectory output interval frames
+ntpr = {{ thermo_output_interval_frames }}  ! Log output interval frames
+{% if write_velocites %}
+ntwv = {{ trajectory_output_interval_frames }}  ! Output velocities
+{% endif %}
+{% if write_forces %}
+ntwf = {{ trajectory_output_interval_frames }}  ! Output forces
+{% endif %}
+{% if restrained %}
+ntr = 1  ! Use restraints
+restraintmask = '{{ restraint_selection }}'  ! Restraint selection
+restraint_wt = {{ restraint_constant }}  ! Restraint constant in kcal / mol / A^2
+{% else %}
+ntr = 0  ! No restraints
+{% endif %}
+{% if implicit_solvent %}
+cut = 9999  ! Infinite cutoff
+igb = {{ implicit_solvent_model }}
+{% endif %}
+ioutfm = 1  ! Write netcdf trajectory files
+ntxo = 2  ! Write netcdf restart files
+iwrap = 0  ! No wrapping
+/
+{% block weight %}
+{% endblock %}
