@@ -25,8 +25,8 @@ env = Environment(
 
 def run(
     template: str,
-    thermo_output_interval_frames: int,
-    trajectory_output_interval_frames: int,
+    thermo_output_interval_frames: int = 0,
+    trajectory_output_interval_frames: int = 0,
     restrained: bool = False,
     restraint_selection: str = "",
     restraint_constant: float = 1.0,
@@ -75,6 +75,7 @@ def steepest_descent(
 ) -> str:
     assert not kwargs.pop("write_velocities", False)
     assert not kwargs.pop("write_forces", False)
+    assert not kwargs.pop("shake", False)
     kwargs["total_minimization_steps"] = total_minimization_steps
     kwargs["steepest_descent_steps"] = math.ceil(
         steepest_descent_fraction * total_minimization_steps
