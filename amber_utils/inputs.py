@@ -147,6 +147,7 @@ def dynamics_with_temperature_and_pressure(
     kwargs["pressure_start_bar"] = pressure_start_bar
     kwargs["compressibility_inv_megabar"] = compressibility_inv_megabar
     kwargs["inhomogeneous"] = inhomogeneous
+    kwargs["template"] = template
     return dynamics_with_temperature(**kwargs)
 
 
