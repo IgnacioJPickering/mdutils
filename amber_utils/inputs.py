@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 from pathlib import Path
 import math
 
@@ -35,7 +35,7 @@ def run(
     vacuum: bool = False,
     generalized_born: bool = False,
     poisson_boltzmann: bool = False,
-    **kwargs
+    **kwargs: Any,
 ) -> str:
     if vacuum:
         assert not generalized_born
@@ -45,9 +45,7 @@ def run(
     if generalized_born:
         assert not poisson_boltzmann
         assert not vacuum
-        raise ValueError(
-            "GB model will be fetched from the prmtop radii in the future"
-        )
+        raise ValueError("GB model will be fetched from the prmtop radii in the future")
         kwargs["implicit_solvent_model"] = 6
         kwargs["implicit_solvent"] = True
     if poisson_boltzmann:
@@ -66,14 +64,14 @@ def run(
         restraint_constant=restraint_constant,
         write_velocities=write_velocities,
         write_forces=write_forces,
-        **kwargs
+        **kwargs,
     )
 
 
 def steepest_descent(
     total_minimization_steps: int = 2000,
     steepest_descent_fraction: float = 0.1,
-    **kwargs
+    **kwargs: Any,
 ) -> str:
     assert not kwargs.pop("write_velocities", False)
     assert not kwargs.pop("write_forces", False)
@@ -84,9 +82,7 @@ def steepest_descent(
     return run(template="minimization.amber.in.jinja", **kwargs)
 
 
-def single_point(
-    **kwargs
-) -> str:
+def single_point(**kwargs: Any) -> str:
     kwargs["template"] = "md.amber.in.jinja"
     assert kwargs.pop("time_ps", None) is None
     assert kwargs.pop("timestep_ps", None) is None
@@ -94,7 +90,7 @@ def single_point(
         time_ps=0.0,
         thermo_output_interval_frames=1,
         trajectory_output_interval_frames=1,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -106,7 +102,7 @@ def dynamics(
     restart: bool = True,
     write_forces: bool = False,
     write_velocities: bool = False,
-    **kwargs
+    **kwargs: Any,
 ) -> str:
     kwargs["write_forces"] = write_forces
     kwargs["write_velocities"] = write_velocities
@@ -120,7 +116,7 @@ def dynamics_with_temperature(
     template: str,
     temperature_start_kelvin: float = 300.0,
     temperature_end_kelvin: Optional[float] = None,
-    **kwargs
+    **kwargs: Any,
 ) -> str:
     if temperature_end_kelvin is None:
         kwargs["heating"] = False
@@ -138,10 +134,12 @@ def dynamics_with_temperature_and_pressure(
     pressure_start_bar: float = 1.0,
     pressure_end_bar: Optional[float] = None,
     inhomogeneous: bool = False,
-    **kwargs
+    **kwargs: Any,
 ) -> str:
     if kwargs.pop("vacuum", False) or kwargs.pop("implicit_solvent", False):
-        raise ValueError("Can't perform pressure control in an implicit solvent calculation")
+        raise ValueError(
+            "Can't perform pressure control in an implicit solvent calculation"
+        )
     if pressure_end_bar is not None:
         raise ValueError("Pressure variation not implemented yet")
     kwargs["pressure_start_bar"] = pressure_start_bar
@@ -150,37 +148,26 @@ def dynamics_with_temperature_and_pressure(
     return dynamics_with_temperature(**kwargs)
 
 
-def nve(
-    temperture_start_kelvin: float = 300.0,
-    **kwargs
-) -> str:
+def nve(temperture_start_kelvin: float = 300.0, **kwargs: Any) -> str:
     kwargs["template"] = "md.amber.in.jinja"
     kwargs["temperature_start_kelvin"] = temperture_start_kelvin
     return dynamics(**kwargs)
 
 
-def langevin_nvt(
-    friction_inv_ps: float = 2.0,
-    **kwargs
-) -> str:
+def langevin_nvt(friction_inv_ps: float = 2.0, **kwargs: Any) -> str:
     kwargs["template"] = "langevin-nvt.amber.in.jinja"
     kwargs["friction_inv_ps"] = friction_inv_ps
     return dynamics_with_temperature(**kwargs)
 
 
-def berendsen_nvt(
-    temperature_tau_ps: float = 1.0,
-    **kwargs
-) -> str:
+def berendsen_nvt(temperature_tau_ps: float = 1.0, **kwargs: Any) -> str:
     kwargs["template"] = "berendsen-nvt.amber.in.jinja"
     kwargs["temperature_tau_ps"] = temperature_tau_ps
     return dynamics_with_temperature(**kwargs)
 
 
 def berendsen_npt(
-    temperature_tau_ps: float = 1.0,
-    pressure_tau_ps: float = 1.0,
-    **kwargs
+        temperature_tau_ps: float = 1.0, pressure_tau_ps: float = 1.0, **kwargs: Any
 ) -> str:
     kwargs["template"] = "berendsen-npt.amber.in.jinja"
     kwargs["temperature_tau_ps"] = temperature_tau_ps
