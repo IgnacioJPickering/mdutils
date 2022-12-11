@@ -55,8 +55,8 @@ def run(
         kwargs["implicit_solvent"] = True
     # if all these are false then a periodic calculation is the default
 
-    template = env.get_template(template)
-    return template.render(
+    template_renderer = env.get_template(template)
+    return template_renderer.render(
         thermo_output_interval_frames=thermo_output_interval_frames,
         trajectory_output_interval_frames=trajectory_output_interval_frames,
         restrained=restrained,
@@ -167,7 +167,7 @@ def berendsen_nvt(temperature_tau_ps: float = 1.0, **kwargs: Any) -> str:
 
 
 def berendsen_npt(
-        temperature_tau_ps: float = 1.0, pressure_tau_ps: float = 1.0, **kwargs: Any
+    temperature_tau_ps: float = 1.0, pressure_tau_ps: float = 1.0, **kwargs: Any
 ) -> str:
     kwargs["template"] = "berendsen-npt.amber.in.jinja"
     kwargs["temperature_tau_ps"] = temperature_tau_ps
