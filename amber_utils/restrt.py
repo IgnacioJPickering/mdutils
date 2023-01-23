@@ -34,7 +34,7 @@ def read_coordinates_velocities_and_box(
     cell_angles = dataset["cell_angles"][:].data
     coordinates = dataset["coordinates"][:].data
     try:
-        velocities = dataset["velocities"][:].data
+        velocities = dataset["velocities"][:].data * 20.455
     except IndexError:
         velocities = None
     return coordinates, velocities, cell_lengths, cell_angles
