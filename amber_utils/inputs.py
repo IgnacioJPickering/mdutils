@@ -37,21 +37,23 @@ def run(
     poisson_boltzmann: bool = False,
     **kwargs: Any,
 ) -> str:
+    non_periodic = vacuum or generalized_born or poisson_boltzmann
+
     if vacuum:
         assert not generalized_born
         assert not poisson_boltzmann
         kwargs["implicit_solvent_model"] = 6
-        kwargs["implicit_solvent"] = True
     if generalized_born:
         assert not poisson_boltzmann
         assert not vacuum
         raise ValueError("GB model will be fetched from the prmtop radii in the future")
-        kwargs["implicit_solvent_model"] = 6
-        kwargs["implicit_solvent"] = True
+        kwargs["implicit_solvent_model"] = 6  # this is vacuum
     if poisson_boltzmann:
         assert not vacuum
         assert not generalized_born
         kwargs["implicit_solvent_model"] = 10
+
+    if non_periodic:
         kwargs["implicit_solvent"] = True
     # if all these are false then a periodic calculation is the default
 
