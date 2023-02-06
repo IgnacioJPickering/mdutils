@@ -6,24 +6,25 @@ from typing import Optional
 # in leap, the second is the igb value in amber
 # they can be accessed with radii_name and mdin_int
 
-
 class ImplicitSolventModel(Enum):
-    GB = ("mbondi", 1)
-    MODIFIED_GB_I = ("mbondi2", 2)
-    MODIFIED_GB_II = ("mbondi2", 5)
-    GBN = ("bondi", 5)
-    MODIFIED_GBN = ("bondi", 7)
-    POISSON_BOLTZMANN = (None, 10)
-    VACUUM = (None, 6)
+    GB = "GB"
+    MODIFIED_GB_I = "modified-GB-I"
+    MODIFIED_GB_II = "modified-GB-II"
+    GBN = "GBn"
+    POISSON_BOLTZMANN = "PB"
+    VACUUM = "vacuum"
 
-    def __init__(self, radii_name: Optional[str], mdin_int: int):
-        self.radii_name = radii_name
-        self.mdin_int = mdin_int
 
-    @property
-    def leap_command(self) -> str:
-        # get the command necessary to set the appropriate radii
-        # in leap
-        if self.radii_name is not None:
-            return f"set default PBRadii {self.radii_name}"
-        return ""
+_MDIN_MAP = {
+    ImplicitSolventModel.GB: 1,
+    ImplicitSolventModel.MODIFIED_GB_I: 2,
+    ImplicitSolventModel.MODIFIED_GB_II: 5,
+    ImplicitSolventModel.GBN: 5,
+    ImplicitSolventModel.MODIFIED_GBN: 7,
+    ImplicitSolventModel.POISSON_BOLTZMANN: 10,
+    ImplicitSolventModel.VACUUM: 6,
+}
+
+
+def mdin_integer(model: ImplicitSolventModel) -> int:
+    return _MDIN_MAP[model]
