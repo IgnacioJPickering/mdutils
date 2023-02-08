@@ -30,9 +30,14 @@ def read_coordinates_velocities_and_box(
     NDArray[np.float_],
 ]:
     dataset = netcdf.Dataset(str(restrt), "r", format="NETCDF3_64BIT_OFFSET")
-    cell_lengths = dataset["cell_lengths"][:].data
-    cell_angles = dataset["cell_angles"][:].data
     coordinates = dataset["coordinates"][:].data
+    num_frames = coordinates.shape[0]
+    try:
+        cell_lengths = dataset["cell_lengths"][:].data
+        cell_angles = dataset["cell_angles"][:].data
+    except IndexError:
+        cell_lengths = np.zeros((num_frames, 3), dtype=np.float_)
+        cell_angles = np.full((num_frames, 3), fill_value=90., dtype=np.float_)
     try:
         velocities = dataset["velocities"][:].data * 20.455
     except IndexError:
@@ -42,8 +47,12 @@ def read_coordinates_velocities_and_box(
 
 def read_box(restrt: Path) -> Tuple[NDArray[np.float_], NDArray[np.float_]]:
     dataset = netcdf.Dataset(str(restrt), "r", format="NETCDF3_64BIT_OFFSET")
-    cell_lengths = dataset["cell_lengths"][:].data
-    cell_angles = dataset["cell_angles"][:].data
+    try:
+        cell_lengths = dataset["cell_lengths"][:].data
+        cell_angles = dataset["cell_angles"][:].data
+    except IndexError:
+        cell_lengths = np.array([0.0, 0.0, 0.0])
+        cell_angles = np.array([90.0, 90.0, 90.0])
     return cell_lengths, cell_angles
 
 
