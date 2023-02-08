@@ -20,8 +20,12 @@ class AmberInpcrdData(NamedTuple):
 
 def read_coordinates_and_box(
     inpcrd: Path,
+    implicit_input: bool = False,
 ) -> Tuple[NDArray[np.float_], NDArray[np.float_], NDArray[np.float_]]:
     df = pandas.read_csv(inpcrd, skiprows=2, sep=r"\s+", header=None)
+    if implicit_input:
+        coordinates = df.values.reshape(-1, 3)
+        return coordinates, np.array([0., 0., 0.]), np.array([90., 90., 90.])
     box = df.iloc[-1, :].values
     df.drop(index=(df.shape[0] - 1), axis="rows", inplace=True)
     coordinates = df.values.reshape(-1, 3)
@@ -31,7 +35,9 @@ def read_coordinates_and_box(
     return coordinates, box_lengths, box_angles
 
 
-def read_box(inpcrd: Path) -> Tuple[NDArray[np.float_], NDArray[np.float_]]:
+def read_box(inpcrd: Path, implicit_input: bool = False) -> Tuple[NDArray[np.float_], NDArray[np.float_]]:
+    if implicit_input:
+        return np.array([0., 0., 0.]), np.array([90., 90., 90.])
     last_line = read_last_line(inpcrd)
     box = [float(fl) for fl in last_line.split()]
     box_lengths = np.array(box[:3])
@@ -51,7 +57,7 @@ def read_name_and_num_atoms(inpcrd: Path) -> Tuple[str, int]:
     return name, atoms_num
 
 
-def read_data(inpcrd: Path) -> AmberInpcrdData:
+def read_data(inpcrd: Path, implicit_input: bool = False) -> AmberInpcrdData:
     name, atoms_num = read_name_and_num_atoms(inpcrd)
-    coordinates, box_lengths, box_angles = read_coordinates_and_box(inpcrd)
+    coordinates, box_lengths, box_angles = read_coordinates_and_box(inpcrd, implicit_input=implicit_input)
     return AmberInpcrdData(name, atoms_num, coordinates, box_lengths, box_angles)
