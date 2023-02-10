@@ -1,7 +1,7 @@
 r"""Utilities to deal with amber-style inpcrd files (formatted ascii)"""
 
 from pathlib import Path
-from typing import Tuple, NamedTuple
+from typing import Tuple, NamedTuple, Optional
 
 import pandas
 import numpy as np
@@ -14,18 +14,19 @@ class AmberInpcrdData(NamedTuple):
     name: str
     atoms_num: int
     coordinates: NDArray[np.float_]
-    box_lengths: NDArray[np.float_]
-    box_angles: NDArray[np.float_]
+    box_lengths: Optional[NDArray[np.float_]]
+    box_angles: Optional[NDArray[np.float_]]
 
 
 def read_coordinates_and_box(
     inpcrd: Path,
     implicit_input: bool = False,
-) -> Tuple[NDArray[np.float_], NDArray[np.float_], NDArray[np.float_]]:
+    infer_implicit_input: bool = True,
+) -> Tuple[NDArray[np.float_], Optional[NDArray[np.float_]], Optional[NDArray[np.float_]]]:
     df = pandas.read_csv(inpcrd, skiprows=2, sep=r"\s+", header=None)
-    if implicit_input:
+    if implicit_input or (infer_implicit_input and ".implicit." in inpcrd.name):
         coordinates = df.values.reshape(-1, 3)
-        return coordinates, np.array([0.0, 0.0, 0.0]), np.array([90.0, 90.0, 90.0])
+        return coordinates, None, None
     box = df.iloc[-1, :].values
     df.drop(index=(df.shape[0] - 1), axis="rows", inplace=True)
     coordinates = df.values.reshape(-1, 3)
@@ -36,10 +37,12 @@ def read_coordinates_and_box(
 
 
 def read_box(
-    inpcrd: Path, implicit_input: bool = False
-) -> Tuple[NDArray[np.float_], NDArray[np.float_]]:
-    if implicit_input:
-        return np.array([0.0, 0.0, 0.0]), np.array([90.0, 90.0, 90.0])
+    inpcrd: Path,
+    implicit_input: bool = False,
+    infer_implicit_input: bool = True,
+) -> Tuple[Optional[NDArray[np.float_]], Optional[NDArray[np.float_]]]:
+    if implicit_input or (infer_implicit_input and ".implicit." in inpcrd.name):
+        return None, None
     last_line = read_last_line(inpcrd)
     box = [float(fl) for fl in last_line.split()]
     box_lengths = np.array(box[:3])
@@ -59,9 +62,9 @@ def read_name_and_num_atoms(inpcrd: Path) -> Tuple[str, int]:
     return name, atoms_num
 
 
-def read_data(inpcrd: Path, implicit_input: bool = False) -> AmberInpcrdData:
+def read_data(inpcrd: Path, implicit_input: bool = False, infer_implicit_input: bool = True) -> AmberInpcrdData:
     name, atoms_num = read_name_and_num_atoms(inpcrd)
     coordinates, box_lengths, box_angles = read_coordinates_and_box(
-        inpcrd, implicit_input=implicit_input
+        inpcrd, implicit_input=implicit_input, infer_implicit_input=infer_implicit_input,
     )
     return AmberInpcrdData(name, atoms_num, coordinates, box_lengths, box_angles)

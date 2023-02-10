@@ -14,11 +14,11 @@ from numpy.typing import NDArray
 class AmberRestrtData(NamedTuple):
     name: str
     atoms_num: int
+    time: float
     coordinates: NDArray[np.float_]
     velocities: Optional[NDArray[np.float_]]
-    box_lengths: NDArray[np.float_]
-    box_angles: NDArray[np.float_]
-    time: float
+    box_lengths: Optional[NDArray[np.float_]]
+    box_angles: Optional[NDArray[np.float_]]
 
 
 def read_coordinates_velocities_and_box(
@@ -26,8 +26,8 @@ def read_coordinates_velocities_and_box(
 ) -> Tuple[
     NDArray[np.float_],
     Optional[NDArray[np.float_]],
-    NDArray[np.float_],
-    NDArray[np.float_],
+    Optional[NDArray[np.float_]],
+    Optional[NDArray[np.float_]],
 ]:
     dataset = netcdf.Dataset(str(restrt), "r", format="NETCDF3_64BIT_OFFSET")
     coordinates = dataset["coordinates"][:].data
@@ -35,8 +35,8 @@ def read_coordinates_velocities_and_box(
         cell_lengths = dataset["cell_lengths"][:].data
         cell_angles = dataset["cell_angles"][:].data
     except IndexError:
-        cell_lengths = np.array([0.0, 0.0, 0.0])
-        cell_angles = np.array([90.0, 90.0, 90.0])
+        cell_lengths = None
+        cell_angles = None
     try:
         velocities = dataset["velocities"][:].data * 20.455
     except IndexError:
@@ -44,14 +44,16 @@ def read_coordinates_velocities_and_box(
     return coordinates, velocities, cell_lengths, cell_angles
 
 
-def read_box(restrt: Path) -> Tuple[NDArray[np.float_], NDArray[np.float_]]:
+def read_box(
+    restrt: Path,
+) -> Tuple[Optional[NDArray[np.float_]], Optional[NDArray[np.float_]]]:
     dataset = netcdf.Dataset(str(restrt), "r", format="NETCDF3_64BIT_OFFSET")
     try:
         cell_lengths = dataset["cell_lengths"][:].data
         cell_angles = dataset["cell_angles"][:].data
     except IndexError:
-        cell_lengths = np.array([0.0, 0.0, 0.0])
-        cell_angles = np.array([90.0, 90.0, 90.0])
+        cell_lengths = None
+        cell_angles = None
     return cell_lengths, cell_angles
 
 
@@ -77,5 +79,5 @@ def read_data(restrt: Path) -> AmberRestrtData:
         box_angles,
     ) = read_coordinates_velocities_and_box(restrt)
     return AmberRestrtData(
-        name, atoms_num, coordinates, velocities, box_lengths, box_angles, time
+        name, atoms_num, time, coordinates, velocities, box_lengths, box_angles
     )
