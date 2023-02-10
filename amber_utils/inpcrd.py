@@ -22,7 +22,9 @@ def read_coordinates_and_box(
     inpcrd: Path,
     implicit_input: bool = False,
     infer_implicit_input: bool = True,
-) -> Tuple[NDArray[np.float_], Optional[NDArray[np.float_]], Optional[NDArray[np.float_]]]:
+) -> Tuple[
+    NDArray[np.float_], Optional[NDArray[np.float_]], Optional[NDArray[np.float_]]
+]:
     df = pandas.read_csv(inpcrd, skiprows=2, sep=r"\s+", header=None)
     if implicit_input or (infer_implicit_input and ".implicit." in inpcrd.name):
         coordinates = df.values.reshape(-1, 3)
@@ -62,9 +64,13 @@ def read_name_and_num_atoms(inpcrd: Path) -> Tuple[str, int]:
     return name, atoms_num
 
 
-def read_data(inpcrd: Path, implicit_input: bool = False, infer_implicit_input: bool = True) -> AmberInpcrdData:
+def read_data(
+    inpcrd: Path, implicit_input: bool = False, infer_implicit_input: bool = True
+) -> AmberInpcrdData:
     name, atoms_num = read_name_and_num_atoms(inpcrd)
     coordinates, box_lengths, box_angles = read_coordinates_and_box(
-        inpcrd, implicit_input=implicit_input, infer_implicit_input=infer_implicit_input,
+        inpcrd,
+        implicit_input=implicit_input,
+        infer_implicit_input=infer_implicit_input,
     )
     return AmberInpcrdData(name, atoms_num, coordinates, box_lengths, box_angles)
