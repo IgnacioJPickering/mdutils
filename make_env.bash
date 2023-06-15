@@ -1,32 +1,41 @@
+#!/bin/bash
+
+# Create conda env and update it with the dependencies of the submodules.
+# (maybe it is best to manually synchronize the dependencies?)
+
 _env_name='amber-utils'
 
-if which mamba > /dev/null; then
-    _mamba="mamba"
+if command -v mamba > /dev/null; then
+    _cmd="mamba"
+elif command -v conda > /dev/null; then
+    _cmd="conda"
 else
-    _mamba="conda"
+    echo "Please install mamba, mamba command could not be found."
+    exit 1
 fi
 
-# Return value of pipe is negated since grep returns 0 on success
-! $_mamba env list | awk 'NR>2 {print $1}' | grep -q $_env_name
-_env_exists="$?"
-if [ $_env_exists -eq 1 ]; then
-    _command=update
+if [ -d "$HOME/Conda/envs/$_env_name" ]; then
+    _scmd=update
 else
-    _command=create
+    _scmd=create
 fi
 
-_script_dir="$(dirname "$0")/"
-_submodules_dir="${_script_dir}submodules/"
-_env_file="${_script_dir}environment.yaml"
-$_mamba env "${_command}" -f "${_env_file}"
+_script_dir="$(dirname "$0")"
+"$_cmd $_scmd" -f "${_script_dir}/environment.yaml"
 
-for d in "${_submodules_dir}"*; do
-    _env_file="${d}/environment.yaml"
-    _env_file_alt="${d}/environment.yml"
-    if [[ -f "${_env_file}" ]]; then
-        $_mamba env update --name "${_env_name}" -f "${_env_file}"
-    elif [[ -f "${_env_file_short}" ]]; then
-        $_mamba env update --name "${_env_name}" -f "${_env_file_short}"
+_scmd=update
+_submodules_dir="${_script_dir}/submodules"
+for d in "${_submodules_dir}/"*; do
+    _env_fpath="${d}/environment.yaml"
+    if [ -f "${_env_fpath}" ]; then
+        "$_cmd" env "$_scmd" --name "${_env_name}" -f "${_env_fpath}"
     fi
 done
+unset _env_fpath
+unset d
+unset _submodules_dir
+unset _scmd
+unset _script_dir
+unset _cmd
+unset _env_name
 echo "Environment created and updated with submodules"
