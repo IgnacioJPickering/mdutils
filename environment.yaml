@@ -1,8 +1,8 @@
 name: amber-utils
 channels:
-  - https://conda.anaconda.org/conda-forge
-  - https://conda.anaconda.org/pytorch
   - https://conda.anaconda.org/nvidia
+  - https://conda.anaconda.org/pytorch
+  - https://conda.anaconda.org/conda-forge
 dependencies:
   # general
   - python >=3.9
@@ -10,11 +10,11 @@ dependencies:
 
   # automatic linters / checkers / tests / CI
   - pre-commit  # runs pre commit/push hooks
-  - isort  # imports sorter and grouper
   - black  # code formatter
   - flake8  # pep8 linter
   - autoflake  # remove unused imports / variables
-  - bandit  # find security issues
+  #- isort  # imports sorter and grouper
+  #- bandit  # find security issues
 
   # non automatic
   - mypy  # type checker
@@ -25,14 +25,14 @@ dependencies:
 
   # cli
   - typer  # handy cli library with support for type checking
-  - click  # more involved cli library, backend for typer
   - rich  # colorful styles and terminal outputs
-  - shellingham  # autodetect shell for auto completion
+  #- click  # more involved cli library, backend for typer
+  #- shellingham  # autodetect shell for auto completion
 
   # docs
   - sphinx  # documentation framework, uses restructured text (.rst)
-  - sphinx_rtd_theme  # nice theme for sphinx
-  - sphinx-gallery  # sphinx plugin
+  #- sphinx_rtd_theme  # nice theme for sphinx
+  #- sphinx-gallery  # sphinx plugin
 
   # # numerical
   - numpy  # multidimensional array support

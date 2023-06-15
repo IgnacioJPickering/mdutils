@@ -46,4 +46,7 @@ dmypy.json
 nohup.out
 
 # vscode
-/.vscode
+.vscode
+
+# language server
+.ccls-cache
