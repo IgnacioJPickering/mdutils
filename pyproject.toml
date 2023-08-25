@@ -18,9 +18,6 @@
     repository = "https://github.com/IgnacioJPickering/amber-utils.git"
     documentation = "https://github.com/IgnacioJPickering/amber-utils.git"
 
-[project.scripts]
-    amber-utils="amber_utils.cli:app"
-
 # triggers using the scm version
 [tool.setuptools_scm]
 
