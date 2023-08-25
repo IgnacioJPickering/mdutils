@@ -1,68 +1,33 @@
 name: amber-utils
 channels:
-  - https://conda.anaconda.org/nvidia
-  - https://conda.anaconda.org/pytorch
   - https://conda.anaconda.org/conda-forge
 dependencies:
-  # general
-  - python >=3.9
-  - pip  # python packaging tool
 
-  # automatic linters / checkers / tests / CI
-  - pre-commit  # runs pre commit/push hooks
-  - black  # code formatter
-  - flake8  # pep8 linter
-  - autoflake  # remove unused imports / variables
-  #- isort  # imports sorter and grouper
-  #- bandit  # find security issues
+# General
+    # Python / pip
+    - python >=3.9
+    - pip  # python packaging tool
 
-  # non automatic
-  - mypy  # type checker
-  - pylint  # heavyweight linter
-  - coverage  # code coverage
-  - pytest  # python testing framework
-  - cruft # keep up with cookiecutter updates
+    # Utils
+    - netCDF4
 
-  # cli
-  - typer  # handy cli library with support for type checking
-  - rich  # colorful styles and terminal outputs
-  #- click  # more involved cli library, backend for typer
-  #- shellingham  # autodetect shell for auto completion
+    # Numerical
+    - numpy  # multidimensional array support
+    - pandas  # csv support
 
-  # docs
-  - sphinx  # documentation framework, uses restructured text (.rst)
-  #- sphinx_rtd_theme  # nice theme for sphinx
-  #- sphinx-gallery  # sphinx plugin
+# Dev
+    # Automatic linters / checkers / tests / CI
+    - pre-commit  # runs pre commit/push hooks
+    - black  # code formatter
+    - flake8  # pep8 linter
+    - autoflake  # remove unused imports / variables
 
-  # # numerical
-  - numpy  # multidimensional array support
-  - pandas  # csv support
+    # Non-automatic linters / checkers / tests / CI
+    - mypy  # type checker
+    - coverage  # code coverage
+    - pytest  # python testing framework
+    - cruft # keep up with cookiecutter updates
 
-  # # data
-  # - pyarrow  # Parquet backend
-  # - h5py  # HDF5 backend
-  # - zarr  # Zarr backend
-
-  # # scientific / math
-  # - plotly  # interactive plotting
-  # - matplotlib  # plotting
-  # - pint  # units
-  # - scipy  # general scientific utils
-  # - sympy  # symbolic mathematical manipulation
-
-  # # DL
-  # - pytorch  # deep learning and cuda accelerated matrix computation
-  # - pytorch_lightning  # pytorch wrapper framework
-  # - wandb  # logging DL runs to cloud
-
-  # # utils
-  # - psutil  # process management
-  # - pydantic  # data validation for BaseModels
-  # - pyyaml  # yaml parser
-  # - tqdm  # progress bars
-  # - lark-parser
-  - netCDF4
-
-  # # web
-  # - requests  # for https requests
-  # - bs4  # beautiful soup 4, web scraping
+    # Docs
+    - sphinx  # documentation framework, uses restructured text (.rst)
+    - sphinx_rtd_theme  # nice theme for sphinx
