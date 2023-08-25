@@ -1,4 +1,3 @@
-from . import cli  # noqa
 from . import inputs
 from . import inpcrd
 from . import prmtop
