@@ -10,6 +10,7 @@ dependencies:
 
     # Utils
     - netCDF4
+    - jinja2
 
     # Numerical
     - numpy  # multidimensional array support
