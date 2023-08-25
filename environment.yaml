@@ -2,19 +2,19 @@ name: amber-utils
 channels:
   - https://conda.anaconda.org/conda-forge
 dependencies:
+# Specific
+    # Utils
+    - netCDF4
+    - jinja2
+
+    # Numerical / Sci
+    - numpy  # multidimensional array support
+    - pandas  # csv support
 
 # General
     # Python / pip
     - python >=3.9
     - pip  # python packaging tool
-
-    # Utils
-    - netCDF4
-    - jinja2
-
-    # Numerical
-    - numpy  # multidimensional array support
-    - pandas  # csv support
 
 # Dev
     # Automatic linters / checkers / tests / CI
