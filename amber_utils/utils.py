@@ -4,9 +4,11 @@ import re
 import math
 from pathlib import Path
 
+PICOSECOND_TO_FEMTOSECOND = 1000
+
 
 def get_dynamics_steps(time_ps: float, timestep_fs: float) -> int:
-    steps = math.ceil(time_ps * 1000 / timestep_fs)
+    steps = math.ceil(time_ps * PICOSECOND_TO_FEMTOSECOND / timestep_fs)
     return steps
 
 
