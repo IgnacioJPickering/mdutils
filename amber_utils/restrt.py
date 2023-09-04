@@ -54,10 +54,10 @@ def write(
     spatial_label[:] = "xyz"
     coordinates_var = dataset.createVariable("coordinates", "f8", ("atom", "spatial"))
     coordinates_var.units = "angstrom"
-    dataset["coordinates"] = coordinates
+    dataset["coordinates"][:] = coordinates
     time_var = dataset.createVariable("time", "f8", ("frame",))
     time_var.units = "picosecond"
-    dataset["time"] = np.array(time_ps, dtype=np.float64)
+    dataset["time"][:] = np.array(time_ps, dtype=np.float64)
 
     if velocities is not None:
         velocities_var = dataset.createVariable("velocities", "f8", ("atom", "spatial"))
@@ -65,12 +65,12 @@ def write(
         # In order for velocities to actually be in angstrom / picosecond, they
         # must be multiplied by the scale factor
         velocities_var.scale_factor = AMBER_VELOCITIES_SCALE_FACTOR
-        dataset["velocities"] = velocities
+        dataset["velocities"][:] = velocities
 
     if forces is not None:
         forces_var = dataset.createVariable("forces", "f8", ("atom", "spatial"))
         forces_var.units = "kilocalorie/mole/angstrom"
-        dataset["forces"] = forces
+        dataset["forces"][:] = forces
 
     if box_lengths is not None:
         dataset.createDimension("cell_spatial", 3)
@@ -100,8 +100,8 @@ def write(
         )
         cell_lengths_var.units = "angstrom"
         cell_angles_var.units = "degree"
-        dataset["cell_lengths"] = box_lengths
-        dataset["cell_angles"] = box_angles
+        dataset["cell_lengths"][:] = box_lengths
+        dataset["cell_angles"][:] = box_angles
 
 
 def read_coordinates_velocities_forces_and_box(
