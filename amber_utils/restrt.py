@@ -35,9 +35,7 @@ def write(
     program: str = "mdrun",
 ) -> None:
     if bool(box_lengths) != bool(box_angles):
-        raise ValueError(
-            "Box lengths and box angles should both be present"
-        )
+        raise ValueError("Box lengths and box angles should both be present")
     dataset = netcdf.Dataset(str(restrt), "w", format="NETCDF3_64BIT_OFFSET")
 
     # Global Attributes
@@ -54,9 +52,7 @@ def write(
 
     spatial_label = dataset.createVariable("spatial", "c", ("spatial",))
     spatial_label[:] = "xyz"
-    coordinates_var = dataset.createVariable(
-        "coordinates", "f8", ("atom", "spatial")
-    )
+    coordinates_var = dataset.createVariable("coordinates", "f8", ("atom", "spatial"))
     coordinates_var.units = "angstrom"
     dataset["coordinates"] = coordinates
     time_var = dataset.createVariable("time", "f8", ("frame",))
@@ -64,9 +60,7 @@ def write(
     dataset["time"] = np.array(time_ps, dtype=np.float64)
 
     if velocities is not None:
-        velocities_var = dataset.createVariable(
-            "velocities", "f8", ("atom", "spatial")
-        )
+        velocities_var = dataset.createVariable("velocities", "f8", ("atom", "spatial"))
         velocities_var.units = "angstrom/picosecond"
         # In order for velocities to actually be in angstrom / picosecond, they
         # must be multiplied by the scale factor
@@ -74,9 +68,7 @@ def write(
         dataset["velocities"] = velocities
 
     if forces is not None:
-        forces_var = dataset.createVariable(
-            "forces", "f8", ("atom", "spatial")
-        )
+        forces_var = dataset.createVariable("forces", "f8", ("atom", "spatial"))
         forces_var.units = "kilocalorie/mole/angstrom"
         dataset["forces"] = forces
 
