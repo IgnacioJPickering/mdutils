@@ -55,7 +55,7 @@ def write(
     coordinates_var = dataset.createVariable("coordinates", "f8", ("atom", "spatial"))
     coordinates_var.units = "angstrom"
     dataset["coordinates"][:] = coordinates
-    time_var = dataset.createVariable("time", "f8", ("frame",))
+    time_var = dataset.createVariable("time", "f8")
     time_var.units = "picosecond"
     dataset["time"][:] = np.array(time_ps, dtype=np.float64)
 
