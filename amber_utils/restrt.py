@@ -34,7 +34,9 @@ def write(
     name: str = "restrt",
     program: str = "mdrun",
 ) -> None:
-    if bool(box_lengths) != bool(box_angles):
+    if (box_lengths is not None and box_angles is None) or (
+        box_angles is not None and box_lengths is None
+    ):
         raise ValueError("Box lengths and box angles should both be present")
     dataset = netcdf.Dataset(str(restrt), "w", format="NETCDF3_64BIT_OFFSET")
 
