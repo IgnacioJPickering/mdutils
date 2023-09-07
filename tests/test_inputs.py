@@ -16,24 +16,18 @@ _DATA = Path(__file__).parent / "test_data"
 
 class TestInputs(unittest.TestCase):
     def testSinglePoint(self) -> None:
-        string = amber_utils.inputs.single_point(
-            MdArgs(torchani_args=AniArgs())
-        )
+        string = amber_utils.inputs.single_point(MdArgs(torchani_args=AniArgs()))
 
         expect = (_DATA / "expect-single-point.amber.in").read_text()
         self.assertEqual(expect.rstrip(), string.rstrip())
 
     def testMixedSdcg(self) -> None:
-        string = amber_utils.inputs.mixed_sdcg(
-            MixedSdcgArgs(torchani_args=AniArgs())
-        )
+        string = amber_utils.inputs.mixed_sdcg(MixedSdcgArgs(torchani_args=AniArgs()))
         expect = (_DATA / "expect-mixed-sdcg.amber.in").read_text()
         self.assertEqual(expect.rstrip(), string.rstrip())
 
     def testNve(self) -> None:
-        string = amber_utils.inputs.nve(
-            NveArgs(torchani_args=AniArgs())
-        )
+        string = amber_utils.inputs.nve(NveArgs(torchani_args=AniArgs()))
         expect = (_DATA / "expect-nve.amber.in").read_text()
         self.assertEqual(expect.rstrip(), string.rstrip())
 
