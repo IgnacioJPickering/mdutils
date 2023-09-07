@@ -256,4 +256,6 @@ def nvt_berendsen(
 def npt_berendsen_bbaro(
     args: NptBerendsenBbaroArgs,
 ) -> str:
-    return _dynamics_with_temperature_and_pressure(args, "npt-berendsen-bbaro.amber.in.jinja")
+    return _dynamics_with_temperature_and_pressure(
+        args, "npt-berendsen-bbaro.amber.in.jinja"
+    )
