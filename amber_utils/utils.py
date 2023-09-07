@@ -4,8 +4,7 @@ import re
 import math
 from pathlib import Path
 
-PICOSECOND_TO_FEMTOSECOND = 1000
-AMBER_VELOCITIES_SCALE_FACTOR = 20.455
+from amber_utils.units import PICOSECOND_TO_FEMTOSECOND
 
 
 def get_dynamics_steps(time_ps: float, timestep_fs: float) -> int:

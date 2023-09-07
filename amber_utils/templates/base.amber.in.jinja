@@ -13,17 +13,53 @@ ntwf = {{ trajectory_output_interval_frames }}  ! Output forces
 {% if restrained %}
 ntr = 1  ! Use restraints
 restraintmask = '{{ restraint_selection }}'  ! Restraint selection
-restraint_wt = {{ restraint_constant }}  ! Restraint constant in kcal / mol / A^2
+restraint_wt = {{ restraint_constant }}  ! Restraint constant in kcal / mol / Ang^2
 {% else %}
 ntr = 0  ! No restraints
 {% endif %}
 {% if implicit_solvent %}
-cut = 9999  ! Infinite cutoff
-igb = {{ implicit_solvent_model }}
+cut = 9999  ! Infinite cutoff, for implicit solvent
+igb = {{ implicit_solvent_model }}  ! Implicit solvent model
 {% endif %}
 ioutfm = 1  ! Write netcdf trajectory files
 ntxo = 2  ! Write netcdf restart files
-iwrap = 0  ! No wrapping
+iwrap = 0  ! Do not wrap output
+{% if torchani %}
+iextpot = 1  ! Use torchani as an external potential
+{% endif %}
 /
-{% block weight %}
+{% block heating %}
 {% endblock %}
+
+{% if umbrella %}
+&wt
+TYPE = 'DUMPFREQ'  ! Set the umbrella restrained coord dump frequency
+istep1={{ umbrella_output_frequency }}  ! Umbrella restrained coord dump frequency
+/
+{% endif %}
+
+{% if torchani %}
+&extpot
+extprog = "torchani"  ! Use ani as an external potential
+/
+
+&torchani
+use_cuda_device = {{ ani_use_cuda }}  ! Whether ani uses GPU
+use_double_precision = {{ ani_double_precision }}  ! Whether ani uses float64
+use_torch_cell_list = {{ ani_torch_cell_list }}  ! Whether ani uses torch cell-list
+use_external_neighborlist = {{ ani_external_neighborlist }}  ! Use of amber neighborlist
+device_index = {{ ani_device_idx }}  ! GPU index (-1 -> CPU or first GPU)
+network_index = {{ ani_network_idx }}  ! Index of the ANI network (-1 -> full ensemble)
+torchani_model = {{ ani_model }} ! String with torchani model
+/
+{% endif %}
+
+{% if umbrella or heating %}
+&wt
+TYPE = 'END'  ! End weight-style namelists
+/
+{% endif %}
+{% if umbrella %}
+DISANG={{ umbrella_restraints_fpath }}  ! Path to umbrella restraints file
+DUMPAVE={{ umbrella_output_fpath }}  ! Path where the umbrella restraints are dumped to
+{% endif %}

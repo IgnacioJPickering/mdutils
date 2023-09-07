@@ -1,0 +1,35 @@
+Control Namelist
+&cntrl
+imin = 0  ! Perform MD
+dt = 0.001  ! Timestep in ps
+nstlim = 0  ! Total MD steps
+ntc = 2  ! SHAKE on H
+ntf = 2  ! SHAKE on H
+irest = 0  ! Not a restart
+ntx = 1  ! Not a restart
+nmropt = 0  ! Not changing scalars
+ntwx = 1  ! Trajectory output interval frames
+ntpr = 1  ! Log output interval frames
+ntr = 0  ! No restraints
+ioutfm = 1  ! Write netcdf trajectory files
+ntxo = 2  ! Write netcdf restart files
+iwrap = 0  ! Do not wrap output
+iextpot = 1  ! Use torchani as an external potential
+/
+
+
+&extpot
+extprog = "torchani"  ! Use ani as an external potential
+/
+
+&torchani
+use_cuda_device = .true.  ! Whether ani uses GPU
+use_double_precision = .false.  ! Whether ani uses float64
+use_torch_cell_list = .true.  ! Whether ani uses torch cell-list
+use_external_neighborlist = .false.  ! Use of amber neighborlist
+device_index = -1  ! GPU index (-1 -> CPU or first GPU)
+network_index = -1  ! Index of the ANI network (-1 -> full ensemble)
+torchani_model = "ani2x" ! String with torchani model
+/
+
+

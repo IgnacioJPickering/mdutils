@@ -1,6 +1,6 @@
 {% extends "base.amber.in.jinja" %}
 {% block body %}
-imin = 0  ! Perform md
+imin = 0  ! Perform MD
 dt = {{ timestep_ps }}  ! Timestep in ps
 nstlim = {{ total_md_steps }}  ! Total MD steps
 {% block md_body %}
@@ -16,30 +16,27 @@ ntf = 1  ! no SHAKE
 irest = 1  ! Restart
 ntx = 5  ! Restart
 {% else %}
-tempi = {{ temperature_start_kelvin }}
+{% if temperature_init_kelvin is defined %}
+tempi = {{ temperature_init_kelvin }}
+{% endif %}
 irest = 0  ! Not a restart
 ntx = 1  ! Not a restart
 {% endif %}
 {% if heating %}
-nmropt = 1
+nmropt = 1  ! Changing scalars
 {% else %}
-nmropt = 0
+nmropt = 0  ! Not changing scalars
 {% endif %}
 {% endblock body %}
 
-{% block weight %}
+{% block heating %}
 {% if heating %}
-
 &wt
-TYPE = 'TEMP0'
-ISTEP1 = 0
-ISTEP2 = {{ total_md_steps}}
-VALUE1 = {{ temperature_start_kelvin }}
-VALUE2 = {{ temperature_end_kelvin }}
-/
-
-&wt
-TYPE = 'END',
+TYPE = 'TEMP0'  ! Heating
+ISTEP1 = 0  ! Start heating from beginning of MD
+ISTEP2 = {{ total_md_steps}}  ! Heat throughout all MD
+VALUE1 = {{ temperature_start_kelvin }}  ! Heating start T
+VALUE2 = {{ temperature_end_kelvin }}  ! Heating end T
 /
 {% endif %}
-{% endblock weight %}
+{% endblock heating %}
