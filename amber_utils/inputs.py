@@ -138,7 +138,7 @@ class NvtBerendsenArgs(NvtArgs):
 
 
 @dataclass
-class NptBerendsenArgs(NptArgs):
+class NptBerendsenBbaroArgs(NptArgs):
     temperature_tau_ps: float = 1.0
     pressure_tau_ps: float = 1.0
 
@@ -253,7 +253,7 @@ def nvt_berendsen(
     return _dynamics_with_temperature(args, "nvt-berendsen.amber.in.jinja")
 
 
-def npt_berendsen(
-    args: NptBerendsenArgs,
+def npt_berendsen_bbaro(
+    args: NptBerendsenBbaroArgs,
 ) -> str:
-    return _dynamics_with_temperature_and_pressure(args, "npt-berendsen.amber.in.jinja")
+    return _dynamics_with_temperature_and_pressure(args, "npt-berendsen-bbaro.amber.in.jinja")

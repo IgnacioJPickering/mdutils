@@ -8,7 +8,7 @@ from amber_utils.inputs import (
     MixedSdcgArgs,
     NvtLangevinArgs,
     NvtBerendsenArgs,
-    NptBerendsenArgs,
+    NptBerendsenBbaroArgs,
 )
 
 _DATA = Path(__file__).parent / "test_data"
@@ -46,10 +46,10 @@ class TestInputs(unittest.TestCase):
         self.assertEqual(expect.rstrip(), string.rstrip())
 
     def testNptBerendsen(self) -> None:
-        string = amber_utils.inputs.npt_berendsen(
-            NptBerendsenArgs(torchani_args=AniArgs())
+        string = amber_utils.inputs.npt_berendsen_bbaro(
+            NptBerendsenBbaroArgs(torchani_args=AniArgs())
         )
-        expect = (_DATA / "expect-npt-berendsen.amber.in").read_text()
+        expect = (_DATA / "expect-npt-berendsen-bbaro.amber.in").read_text()
         self.assertEqual(expect.rstrip(), string.rstrip())
 
 
