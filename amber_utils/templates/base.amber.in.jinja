@@ -50,7 +50,7 @@ use_torch_cell_list = {{ ani_torch_cell_list }}  ! Whether ani uses torch cell-l
 use_external_neighborlist = {{ ani_external_neighborlist }}  ! Use of amber neighborlist
 device_index = {{ ani_device_idx }}  ! GPU index (-1 -> CPU or first GPU)
 network_index = {{ ani_network_idx }}  ! Index of the ANI network (-1 -> full ensemble)
-torchani_model = {{ ani_model }} ! String with torchani model
+torchani_model = "{{ ani_model }}" ! String with torchani model
 /
 {% endif %}
 
