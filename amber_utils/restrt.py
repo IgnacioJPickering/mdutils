@@ -6,12 +6,11 @@ import numpy as np
 import netCDF4 as netcdf
 from numpy.typing import NDArray
 
-from amber_utils.utils import AMBER_VELOCITIES_SCALE_FACTOR
+from amber_utils.units import AMBER_VELOCITIES_SCALE_FACTOR
 
-# data in restart files can optionally have velocities or forces if it is the
+
+# Data in restart files can optionally have velocities or forces if it is the
 # result of an MD, if it is the result of a min it only has coordinates
-
-
 class AmberRestrtData(tp.NamedTuple):
     name: str
     atoms_num: int

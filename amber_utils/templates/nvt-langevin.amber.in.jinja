@@ -2,5 +2,5 @@
 {% block md_body %}
 ntt = 3  ! Langevin thermostat
 gamma_ln = {{ friction_inv_ps }}  ! Langevin friction inverse ps
-temp0 = {{ temperature_start_kelvin }}
+temp0 = {{ temperature_start_kelvin }}  ! Target T for thermostat
 {% endblock %}

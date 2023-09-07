@@ -1,6 +1,6 @@
 {% extends "md.amber.in.jinja" %}
 {% block md_body %}
-ntt = 11  ! Stochastic berendsen thermostat
+ntt = 11  ! Stochastic Berendsen thermostat
 {% if inhomogeneous %}
 ntp = 2  ! Anisotropic barostat
 {% else %}
@@ -8,8 +8,8 @@ ntp = 1  ! Isotropic barostat
 {% endif %}
 barostat = 1  ! Berendsen barostat
 baroscalingdir = 0  ! Random scaling across X Y Z
-comp = {{ compressibility_inv_megabar }}
+comp = {{ compressibility_inv_megabar }}  ! Compressibility in 1 / Mbar
 tautp = {{ temperature_tau_ps }}
 taup = {{ pressure_tau_ps }}
-temp0 = {{ temperature_start_kelvin }}
+temp0 = {{ temperature_start_kelvin }}  ! Target T for thermostat
 {% endblock md_body %}
