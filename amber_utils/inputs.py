@@ -42,7 +42,7 @@ class AniArgs:
     torch_cell_list: bool = False
     device_idx: int = -1
     network_idx: int = -1
-    model: str = '"ani2x"'
+    model: str = "ani2x"
 
 
 def parse_umbrella_args(
