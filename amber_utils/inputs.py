@@ -1,4 +1,3 @@
-from enum import Enum
 import typing as tp
 from dataclasses import dataclass, asdict
 from pathlib import Path
@@ -6,6 +5,7 @@ import math
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from amber_utils.ani import AniNeighborlistKind
 from amber_utils.units import FEMTOSECOND_TO_PICOSECOND
 from amber_utils.options import Step
 from amber_utils.utils import get_dynamics_steps
@@ -21,12 +21,6 @@ env = Environment(
 )
 
 
-class NeighborlistKind(Enum):
-    EXTERNAL = 0
-    INTERNAL_CELL_LIST = 1
-    INTERNAL_ALL_PAIRS = 2
-
-
 @dataclass
 class UmbrellaArgs:
     output_fpath: Path
@@ -36,7 +30,7 @@ class UmbrellaArgs:
 
 @dataclass
 class AniArgs:
-    neighborlist: NeighborlistKind = NeighborlistKind.INTERNAL_CELL_LIST
+    neighborlist: AniNeighborlistKind = AniNeighborlistKind.INTERNAL_CELL_LIST
     use_cuda: bool = True
     double_precision: bool = False
     torch_cell_list: bool = False
@@ -69,11 +63,11 @@ def parse_torchani_args(
     out["ani_double_precision"] = ".true." if args["double_precision"] else ".false."
     out["ani_torch_cell_list"] = (
         ".true."
-        if args["neighborlist"] is NeighborlistKind.INTERNAL_CELL_LIST
+        if args["neighborlist"] is AniNeighborlistKind.INTERNAL_CELL_LIST
         else ".false."
     )
     out["ani_external_neighborlist"] = (
-        ".true." if args["neighborlist"] is NeighborlistKind.EXTERNAL else ".false."
+        ".true." if args["neighborlist"] is AniNeighborlistKind.EXTERNAL else ".false."
     )
     out["ani_device_idx"] = args["device_idx"]
     out["ani_network_idx"] = args["network_idx"]
