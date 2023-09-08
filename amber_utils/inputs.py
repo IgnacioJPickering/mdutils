@@ -165,7 +165,7 @@ def _run(
             args_dict["temperature_end_kelvin"] = temperature_kelvin[1]
             args_dict["heating"] = True
         else:
-            args_dict["temperature_end_kelvin"] = temperature_kelvin[0]
+            args_dict["temperature_start_kelvin"] = temperature_kelvin[0]
             args_dict["heating"] = False
 
     pressure_bar = args_dict.pop("pressure_bar", None)
