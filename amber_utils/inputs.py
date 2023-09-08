@@ -1,4 +1,3 @@
-from enum import Enum
 import typing as tp
 from dataclasses import dataclass, asdict
 from pathlib import Path
