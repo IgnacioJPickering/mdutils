@@ -1,0 +1,7 @@
+parm {{ prmtop_fpath }}
+trajin {{ traj_fpath }} {{ inital_frame }} {{ final_frame }} {{ sample_step }}
+{% for mask_tuple in mask_tuples %}
+dihedral out {{ name }}.{{ number_tuples[loop.index0][0] }}-{{ name_tuples[loop.index0][0] }}-to-{{ number_tuples[loop.index0][1] }}-{{ name_tuples[loop.index0][1] }}.{{ analysis_name }}.dat {{ mask_tuple[0] }} {{ mask_tuple[1] }} {{ mask_tuple[2] }} {{ mask_tuple[3] }} {{ range_360 }}
+{% endfor %}
+run
+exit

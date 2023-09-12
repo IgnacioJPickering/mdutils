@@ -1,0 +1,21 @@
+parm {{ prmtop_fpath }}
+trajin {{ traj_fpath }} 1 last {{ sample_step }}
+{% if autoimage %}
+autoimage
+{% endif %}
+{% if strip_wat %}
+strip :WAT
+{% endif %}
+{% if rms_fit %}
+reference {{ ref_fpath }} [InitialStructure]
+rmsd @1-{{ last_solute_atom_iidx }} ref [InitialStructure]
+{% endif %}
+trajout {{ out_traj_fpath }}
+run
+{% if strip_wat %}
+parm {{ prmtop_fpath }} [StripPrmtop]
+parmstrip :WAT parm [StripPrmtop]
+parmwrite out {{ out_prmtop_fpath }} parm [StripPrmtop]
+run
+{% endif %}
+exit
