@@ -1,0 +1,5 @@
+parm {{ prmtop_fpath }}
+trajin {{ traj_fpath }} {{ inital_frame }} {{ final_frame }} {{ sample_step }}
+multidihedral phi psi out {{ name }}.phi-psi.dat {{ range_360 }}
+run
+exit
