@@ -125,9 +125,7 @@ class CpptrajExecutor:
         range_360: bool = False,
     ) -> str:
         template = env.get_template("peptidic-dihedrals.cpptraj.in.jinja")
-        residue_names = read_block(
-            self._common_args.prmtop_fpath, Flag.RESIDUE_LABEL
-        )
+        residue_names = read_block(self._common_args.prmtop_fpath, Flag.RESIDUE_LABEL)
         mask_tuples: tp.List[tp.Tuple[str, str, str, str]] = []
         number_tuples: tp.List[tp.Tuple[int, int]] = []
         name_tuples: tp.List[tp.Tuple[str, str]] = []
