@@ -106,6 +106,19 @@ class CpptrajExecutor:
         )
         return render
 
+    def hmr_input(
+        self,
+        out_prmtop_fpath: Path,
+        modify_waters: bool,
+    ) -> str:
+        template = env.get_template("hmr.cpptraj.in.jinja")
+        render = template.render(
+            **asdict(self._common_args),
+            out_prmtop_fpath=out_prmtop_fpath,
+            modify_waters=modify_waters,
+        )
+        return render
+
     def diffusion_input(
         self,
         output_interval_ps: float,

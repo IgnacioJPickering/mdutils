@@ -1,5 +1,9 @@
 parm {{ prmtop_fpath }} [HmrPrmtop]
+{% if modify_waters %}
 hmassrepartition parm [HmrPrmtop] dowater
+{% else %}
+hmassrepartition parm [HmrPrmtop]
+{% endif %}
 parmwrite out {{ out_prmtop_fpath }} parm [HmrPrmtop]
 run
 exit
