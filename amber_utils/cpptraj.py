@@ -31,8 +31,8 @@ class CpptrajExecutor:
     def __init__(
         self,
         name: str,
-        traj_fpath: Path,
         prmtop_fpath: Path,
+        traj_fpath: Path = Path.cwd(),
         initial_frame: int = 0,
         final_frame: int = -1,
         sample_step: int = 1,
