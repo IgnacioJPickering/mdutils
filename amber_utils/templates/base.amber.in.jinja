@@ -10,14 +10,16 @@ ntwv = {{ trajectory_output_interval_frames }}  ! Output velocities
 {% if write_forces %}
 ntwf = {{ trajectory_output_interval_frames }}  ! Output forces
 {% endif %}
-{% if restrained %}
+{% if restraint_selection is defined %}
 ntr = 1  ! Use restraints
 restraintmask = '{{ restraint_selection }}'  ! Restraint selection
+{% if restraint_constant is defined %}
 restraint_wt = {{ restraint_constant }}  ! Restraint constant in kcal / mol / Ang^2
+{% endif %}
 {% else %}
 ntr = 0  ! No restraints
 {% endif %}
-{% if implicit_solvent %}
+{% if implicit_solvent_model is defined %}
 cut = 9999  ! Infinite cutoff, for implicit solvent
 igb = {{ implicit_solvent_model }}  ! Implicit solvent model
 {% endif %}
@@ -31,10 +33,10 @@ iextpot = 1  ! Use torchani as an external potential
 {% block heating %}
 {% endblock %}
 
-{% if umbrella %}
+{% if umbrella_restraints_fpath %}
 &wt
 TYPE = 'DUMPFREQ'  ! Set the umbrella restrained coord dump frequency
-istep1={{ umbrella_output_frequency }}  ! Umbrella restrained coord dump frequency
+istep1={{ thermo_output_interval_frames }}  ! Umbrella restrained coord dump frequency
 /
 {% endif %}
 
@@ -54,12 +56,12 @@ torchani_model = "{{ ani_model }}" ! String with torchani model
 /
 {% endif %}
 
-{% if umbrella or heating %}
+{% if umbrella_restraints_fpath or heating %}
 &wt
 TYPE = 'END'  ! End weight-style namelists
 /
 {% endif %}
-{% if umbrella %}
+{% if umbrella_restraints_fpath %}
 DISANG={{ umbrella_restraints_fpath }}  ! Path to umbrella restraints file
 DUMPAVE={{ umbrella_output_fpath }}  ! Path where the umbrella restraints are dumped to
 {% endif %}
