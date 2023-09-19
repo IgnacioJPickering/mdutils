@@ -25,7 +25,6 @@ env = Environment(
 class UmbrellaArgs:
     output_fpath: Path
     restraints_fpath: Path
-    output_frequency: int = 1
 
 
 @dataclass
@@ -42,14 +41,13 @@ class AniArgs:
 def parse_umbrella_args(
     args: tp.Optional[tp.Dict[str, tp.Any]] = None,
 ) -> tp.Dict[str, tp.Any]:
-    if args is None:
-        return {"umbrella": False}
-    out: tp.Dict[str, tp.Any] = {}
-    out["umbrella"] = True
-    out["umbrella_output_frequency"] = args["output_frequency"]
-    out["umbrella_restraints_fpath"] = args["restraints_fpath"]
-    out["umbrella_output_fpath"] = args["output_fpath"]
-    return out
+    if args is not None:
+        return {
+            "umbrella_restraints_fpath": args["restraints_fpath"],
+            "umbrella_output_fpath": args["output_fpath"],
+        }
+    else:
+        return {}
 
 
 def parse_torchani_args(
@@ -79,7 +77,6 @@ def parse_torchani_args(
 class CommonArgs:
     thermo_output_interval_frames: int = 1
     trajectory_output_interval_frames: int = 1
-    restrained: bool = False
     restraint_selection: str = ""
     restraint_constant: str = ""
     write_velocities: bool = False
@@ -145,11 +142,19 @@ def _run(
     template_renderer = env.get_template(template)
     args_dict = asdict(args)
     solvent = args_dict.pop("solvent_model")
+    restraint_selection = args_dict.pop("restraint_selection")
+    restraint_constant = args_dict.pop("restraint_constant")
     args_dict.update(parse_umbrella_args(args_dict.pop("umbrella_args")))
     args_dict.update(parse_torchani_args(args_dict.pop("torchani_args")))
 
+    # Restraints
+    if restraint_selection:
+        args_dict["restraint_selection"] = restraint_selection
+        if restraint_constant:
+            args_dict["restraint_constant"] = restraint_constant
+
+    # Implicit solvation
     if solvent is not SolventModel.EXPLICIT:
-        args_dict["implicit_solvent"] = True
         args_dict["implicit_solvent_model"] = mdin_integer(solvent)
 
     temperature_kelvin = args_dict.pop("temperature_kelvin", None)
