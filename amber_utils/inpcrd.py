@@ -28,6 +28,8 @@ def read_coordinates_and_box(
     df = pandas.read_csv(inpcrd, skiprows=2, sep=r"\s+", header=None)
     if implicit_input or (infer_implicit_input and ".implicit." in inpcrd.name):
         coordinates = df.values.reshape(-1, 3)
+        if np.isnan(coordinates[-1, :]).all():
+            coordinates = coordinates[:-1]
         return coordinates, None, None
     box = df.iloc[-1, :].values
     df.drop(index=(df.shape[0] - 1), axis="rows", inplace=True)
