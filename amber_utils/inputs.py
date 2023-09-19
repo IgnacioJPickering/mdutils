@@ -144,7 +144,7 @@ def _run(
 ) -> str:
     template_renderer = env.get_template(template)
     args_dict = asdict(args)
-    solvent = args_dict.pop("solvent")
+    solvent = args_dict.pop("solvent_model")
     args_dict.update(parse_umbrella_args(args_dict.pop("umbrella_args")))
     args_dict.update(parse_torchani_args(args_dict.pop("torchani_args")))
 
