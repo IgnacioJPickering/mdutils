@@ -9,7 +9,7 @@ from amber_utils.ani import AniNeighborlistKind
 from amber_utils.units import FEMTOSECOND_TO_PICOSECOND
 from amber_utils.options import Step
 from amber_utils.utils import get_dynamics_steps
-from amber_utils.implicit import ImplicitSolventModel, mdin_integer
+from amber_utils.solvent import SolventModel, mdin_integer
 
 _TEMPLATES_PATH = Path(__file__).parent.joinpath("templates")
 
@@ -84,7 +84,7 @@ class CommonArgs:
     restraint_constant: str = ""
     write_velocities: bool = False
     write_forces: bool = False
-    implicit_solvent: tp.Optional[ImplicitSolventModel] = None
+    solvent_model: SolventModel = SolventModel.EXPLICIT
     umbrella_args: tp.Optional[UmbrellaArgs] = None
     torchani_args: tp.Optional[AniArgs] = None
 
@@ -144,13 +144,13 @@ def _run(
 ) -> str:
     template_renderer = env.get_template(template)
     args_dict = asdict(args)
-    implicit_solvent = args_dict.pop("implicit_solvent")
+    solvent = args_dict.pop("solvent")
     args_dict.update(parse_umbrella_args(args_dict.pop("umbrella_args")))
     args_dict.update(parse_torchani_args(args_dict.pop("torchani_args")))
 
-    if implicit_solvent is not None:
+    if solvent is not SolventModel.EXPLICIT:
         args_dict["implicit_solvent"] = True
-        args_dict["implicit_solvent_model"] = mdin_integer(implicit_solvent)
+        args_dict["implicit_solvent_model"] = mdin_integer(solvent)
 
     temperature_kelvin = args_dict.pop("temperature_kelvin", None)
     if temperature_kelvin is not None:
@@ -164,7 +164,7 @@ def _run(
 
     pressure_bar = args_dict.pop("pressure_bar", None)
     if pressure_bar is not None:
-        if implicit_solvent is not None:
+        if solvent is not SolventModel.EXPLICIT:
             raise ValueError(
                 "Can't perform pressure control in an implicit solvent calculation"
             )
