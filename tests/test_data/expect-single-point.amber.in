@@ -11,6 +11,7 @@ nmropt = 0  ! Not changing scalars
 ntwx = 1  ! Trajectory output interval frames
 ntpr = 1  ! Log output interval frames
 ntr = 0  ! No restraints
+cut = 8.0  ! Cutoff radius
 ioutfm = 1  ! Write netcdf trajectory files
 ntxo = 2  ! Write netcdf restart files
 iwrap = 0  ! Do not wrap output
