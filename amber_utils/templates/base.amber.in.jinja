@@ -22,6 +22,8 @@ ntr = 0  ! No restraints
 {% if implicit_solvent_model is defined %}
 cut = 9999  ! Infinite cutoff, for implicit solvent
 igb = {{ implicit_solvent_model }}  ! Implicit solvent model
+{% else %}
+cut = {{ cutoff }}
 {% endif %}
 ioutfm = 1  ! Write netcdf trajectory files
 ntxo = 2  ! Write netcdf restart files

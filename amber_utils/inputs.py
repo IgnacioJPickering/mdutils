@@ -80,6 +80,7 @@ class CommonArgs:
     restraint_constant: str = ""
     write_velocities: bool = False
     write_forces: bool = False
+    cutoff: float = 8.0
     solvent_model: SolventModel = SolventModel.EXPLICIT
     umbrella_args: tp.Optional[UmbrellaArgs] = None
     torchani_args: tp.Optional[AniArgs] = None
