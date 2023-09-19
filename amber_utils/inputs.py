@@ -32,7 +32,6 @@ class AniArgs:
     neighborlist: AniNeighborlistKind = AniNeighborlistKind.INTERNAL_CELL_LIST
     use_cuda: bool = True
     double_precision: bool = False
-    torch_cell_list: bool = False
     device_idx: int = -1
     network_idx: int = -1
     model: str = "ani2x"
