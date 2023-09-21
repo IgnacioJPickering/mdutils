@@ -16,7 +16,7 @@ ntf = 1  ! no SHAKE
 irest = 1  ! Restart
 ntx = 5  ! Restart
 {% else %}
-{% if temperature_init_kelvin is defined %}
+{% if temperature_init_kelvin %}
 tempi = {{ temperature_init_kelvin }}
 {% endif %}
 irest = 0  ! Not a restart
