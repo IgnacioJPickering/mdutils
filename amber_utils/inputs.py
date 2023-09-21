@@ -31,6 +31,7 @@ class UmbrellaArgs:
 class AniArgs:
     neighborlist: AniNeighborlistKind = AniNeighborlistKind.INTERNAL_CELL_LIST
     use_cuda: bool = True
+    use_cuaev: bool = False
     double_precision: bool = False
     device_idx: int = -1
     network_idx: int = -1
@@ -56,6 +57,7 @@ def parse_torchani_args(
         return {"torchani": False}
     out: tp.Dict[str, tp.Any] = {}
     out["torchani"] = True
+    out["ani_use_cuaev"] = ".true." if args["use_cuaev"] else ".false."
     out["ani_use_cuda"] = ".true." if args["use_cuda"] else ".false."
     out["ani_double_precision"] = ".true." if args["double_precision"] else ".false."
     out["ani_torch_cell_list"] = (
