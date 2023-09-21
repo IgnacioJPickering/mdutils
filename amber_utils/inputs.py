@@ -110,7 +110,7 @@ class NptArgs(NvtArgs):
 
 @dataclass
 class NveArgs(MdArgs):
-    temperature_init_kelvin: float = 300.0
+    temperature_init_kelvin: tp.Optional[float] = None
 
 
 # Mixed SteepestDescent + ConjugateGradient
