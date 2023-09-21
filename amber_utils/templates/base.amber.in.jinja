@@ -48,6 +48,7 @@ extprog = "torchani"  ! Use ani as an external potential
 /
 
 &torchani
+use_cuaev = {{ ani_use_cuaev }}  ! Whether ani uses the cuAEV extension
 use_cuda_device = {{ ani_use_cuda }}  ! Whether ani uses GPU
 use_double_precision = {{ ani_double_precision }}  ! Whether ani uses float64
 use_torch_cell_list = {{ ani_torch_cell_list }}  ! Whether ani uses torch cell-list
