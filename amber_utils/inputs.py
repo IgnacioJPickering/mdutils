@@ -1,4 +1,5 @@
 import typing as tp
+import random
 from dataclasses import dataclass, asdict
 from pathlib import Path
 import math
@@ -86,6 +87,7 @@ class CommonArgs:
     solvent_model: SolventModel = SolventModel.EXPLICIT
     umbrella_args: tp.Optional[UmbrellaArgs] = None
     torchani_args: tp.Optional[AniArgs] = None
+    random_seed: tp.Optional[int] = None
 
 
 @dataclass
@@ -148,6 +150,12 @@ def _run(
     restraint_constant = args_dict.pop("restraint_constant")
     args_dict.update(parse_umbrella_args(args_dict.pop("umbrella_args")))
     args_dict.update(parse_torchani_args(args_dict.pop("torchani_args")))
+
+    random_seed = args_dict.pop("random_seed")
+    if random_seed is None:
+        args_dict["random_seed"] = random.randint(0, 2147483646)
+    else:
+        args_dict["random_seed"] = random_seed
 
     # Restraints
     if restraint_selection:

@@ -28,6 +28,7 @@ cut = {{ cutoff }}  ! Cutoff radius
 ioutfm = 1  ! Write netcdf trajectory files
 ntxo = 2  ! Write netcdf restart files
 iwrap = 0  ! Do not wrap output
+ig = {{ random_seed }}
 {% if torchani %}
 iextpot = 1  ! Use torchani as an external potential
 {% endif %}
