@@ -96,6 +96,7 @@ class MdArgs(CommonArgs):
     time_ps: float = 0.0
     restart: bool = False
     shake: bool = True
+    temperature_init_kelvin: tp.Optional[float] = None
 
 
 @dataclass
@@ -112,7 +113,7 @@ class NptArgs(NvtArgs):
 
 @dataclass
 class NveArgs(MdArgs):
-    temperature_init_kelvin: tp.Optional[float] = None
+    pass
 
 
 # Mixed SteepestDescent + ConjugateGradient
