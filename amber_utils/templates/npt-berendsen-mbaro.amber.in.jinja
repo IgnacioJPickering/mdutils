@@ -6,10 +6,11 @@ ntp = 2  ! Anisotropic barostat
 {% else %}
 ntp = 1  ! Isotropic barostat
 {% endif %}
-barostat = 1  ! Berendsen barostat
+barostat = 2  ! Monte Carlo barostat
 baroscalingdir = 0  ! Random scaling across X Y Z
 comp = {{ compressibility_inv_megabar }}  ! Compressibility in 1 / Mbar
 tautp = {{ temperature_tau_ps }}  ! Thermostat temperature relaxation time, in ps
 taup = {{ pressure_tau_ps }}  ! Barostat pressure relaxation time, in ps
-temp0 = {{ temperature_start_kelvin }}  ! Target T for thermostat
+temp0 = {{ temperature_start_kelvin }}  ! Target T for thermostat, in K
+mcbarint = {{ monte_carlo_attempt_interval_frames }} ! Frames between barostat MC moves
 {% endblock md_body %}

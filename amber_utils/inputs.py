@@ -21,6 +21,8 @@ env = Environment(
     lstrip_blocks=True,
 )
 
+_MAX_32_BIT_INT = 2147483647
+
 
 @dataclass
 class UmbrellaArgs:
@@ -141,6 +143,13 @@ class NptBerendsenBbaroArgs(NptArgs):
     pressure_tau_ps: float = 1.0
 
 
+@dataclass
+class NptBerendsenMbaroArgs(NptArgs):
+    temperature_tau_ps: float = 1.0
+    pressure_tau_ps: float = 1.0
+    monte_carlo_attempt_interval_frames: int = 100
+
+
 def _run(
     args: CommonArgs,
     template: str,
@@ -156,7 +165,7 @@ def _run(
 
     random_seed = args_dict.pop("random_seed")
     if random_seed is None:
-        args_dict["random_seed"] = random.randint(0, 2147483646)
+        args_dict["random_seed"] = random.randint(0, _MAX_32_BIT_INT - 1)
     else:
         args_dict["random_seed"] = random_seed
 
@@ -270,4 +279,12 @@ def npt_berendsen_bbaro(
 ) -> str:
     return _dynamics_with_temperature_and_pressure(
         args, "npt-berendsen-bbaro.amber.in.jinja"
+    )
+
+
+def npt_berendsen_mbaro(
+    args: NptBerendsenMbaroArgs,
+) -> str:
+    return _dynamics_with_temperature_and_pressure(
+        args, "npt-berendsen-mbaro.amber.in.jinja"
     )
