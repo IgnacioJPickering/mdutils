@@ -63,11 +63,13 @@ def parse_torchani_args(
     out["ani_double_precision"] = ".true." if args["double_precision"] else ".false."
     out["ani_torch_cell_list"] = (
         ".true."
-        if args["neighborlist"] is AniNeighborlistKind.INTERNAL_CELL_LIST
+        if args["neighborlist"].value == AniNeighborlistKind.INTERNAL_CELL_LIST.value
         else ".false."
     )
     out["ani_external_neighborlist"] = (
-        ".true." if args["neighborlist"] is AniNeighborlistKind.EXTERNAL else ".false."
+        ".true."
+        if args["neighborlist"].value == AniNeighborlistKind.EXTERNAL.value
+        else ".false."
     )
     out["ani_device_idx"] = args["device_idx"]
     out["ani_network_idx"] = args["network_idx"]
