@@ -67,7 +67,9 @@ def parse_torchani_args(
         else ".false."
     )
     out["ani_external_neighborlist"] = (
-        ".true." if args["neighborlist"].value == AniNeighborlistKind.EXTERNAL.value else ".false."
+        ".true."
+        if args["neighborlist"].value == AniNeighborlistKind.EXTERNAL.value
+        else ".false."
     )
     out["ani_device_idx"] = args["device_idx"]
     out["ani_network_idx"] = args["network_idx"]
