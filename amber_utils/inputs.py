@@ -150,6 +150,19 @@ class NptBerendsenMbaroArgs(NptArgs):
     monte_carlo_attempt_interval_frames: int = 100
 
 
+@dataclass
+class NptLangevinBbaroArgs(NptArgs):
+    friction_inv_ps: float = 2.0
+    pressure_tau_ps: float = 1.0
+
+
+@dataclass
+class NptLangevinMbaroArgs(NptArgs):
+    friction_inv_ps: float = 2.0
+    pressure_tau_ps: float = 1.0
+    monte_carlo_attempt_interval_frames: int = 100
+
+
 def _run(
     args: CommonArgs,
     template: str,
@@ -287,4 +300,20 @@ def npt_berendsen_mbaro(
 ) -> str:
     return _dynamics_with_temperature_and_pressure(
         args, "npt-berendsen-mbaro.amber.in.jinja"
+    )
+
+
+def npt_langevin_bbaro(
+    args: NptLangevinBbaroArgs,
+) -> str:
+    return _dynamics_with_temperature_and_pressure(
+        args, "npt-langevin-bbaro.amber.in.jinja"
+    )
+
+
+def npt_langevin_mbaro(
+    args: NptLangevinMbaroArgs,
+) -> str:
+    return _dynamics_with_temperature_and_pressure(
+        args, "npt-langevin-mbaro.amber.in.jinja"
     )
