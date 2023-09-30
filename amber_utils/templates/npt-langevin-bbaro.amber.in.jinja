@@ -1,0 +1,15 @@
+{% extends "md.amber.in.jinja" %}
+{% block md_body %}
+ntt = 3  ! Langevin thermostat
+{% if inhomogeneous %}
+ntp = 2  ! Anisotropic barostat
+{% else %}
+ntp = 1  ! Isotropic barostat
+{% endif %}
+barostat = 1  ! Berendsen barostat
+baroscalingdir = 0  ! Random scaling across X Y Z
+comp = {{ compressibility_inv_megabar }}  ! Compressibility in 1 / Mbar
+gamma_ln = {{ friction_inv_ps }}  ! Langevin friction, in inverse ps
+taup = {{ pressure_tau_ps }}  ! Barostat pressure relaxation time, in ps
+temp0 = {{ temperature_start_kelvin }}  ! Target T for thermostat
+{% endblock md_body %}
