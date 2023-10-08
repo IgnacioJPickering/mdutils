@@ -18,6 +18,22 @@ class AmberInpcrdMetadata:
     atoms_num: int
     box_params: tp.Optional[BoxParams] = None
 
+    @property
+    def box_lengths(self) -> NDArray[np.float_]:
+        if self.box_params is None:
+            raise ValueError("There should be box parameters to get box lengths")
+        return self.box_params.lengths
+
+    @property
+    def box_angles(self) -> NDArray[np.float_]:
+        if self.box_params is None:
+            raise ValueError("There should be box parameters to get box angles")
+        return self.box_params.angles
+
+    @property
+    def has_box(self) -> bool:
+        return self.box_params is not None
+
 
 # Note that to correctly load the metadata from the inpcrd file, it *must* be
 # known if the structure has a box or not, otherwise the whole file will have
