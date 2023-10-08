@@ -28,6 +28,22 @@ class AmberInpcrd:
     def forces(self) -> None:
         return None
 
+    @property
+    def box_lengths(self) -> NDArray[np.float_]:
+        if self.box_params is None:
+            raise ValueError("There should be box parameters to get box lengths")
+        return self.box_params.lengths
+
+    @property
+    def box_angles(self) -> NDArray[np.float_]:
+        if self.box_params is None:
+            raise ValueError("There should be box parameters to get box angles")
+        return self.box_params.angles
+
+    @property
+    def has_box(self) -> bool:
+        return self.box_params is not None
+
 
 def _read_name_and_num_atoms(inpcrd: Path) -> tp.Tuple[str, int]:
     with open(inpcrd, mode="r", encoding="utf-8") as f:
