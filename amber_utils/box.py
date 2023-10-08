@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 @dataclass
 class BoxParams:
     lengths: NDArray[np.float_]
-    angles: NDArray[np.float_]
+    angles: NDArray[np.float_] = np.array([90.0, 90.0, 90.0], dtype=np.float64)
 
 
 class BoxKind(Enum):
