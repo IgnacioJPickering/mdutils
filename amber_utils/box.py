@@ -1,3 +1,4 @@
+import typing as tp
 from dataclasses import dataclass
 from enum import Enum
 
@@ -8,7 +9,11 @@ from numpy.typing import NDArray
 @dataclass
 class BoxParams:
     lengths: NDArray[np.float_]
-    angles: NDArray[np.float_] = np.array([90.0, 90.0, 90.0], dtype=np.float64)
+    _angles: tp.Tuple[float, float, float] = (90.0, 90.0, 90.0)
+
+    @property
+    def angles(self) -> NDArray[np.float_]:
+        return np.array(self._angles)
 
 
 class BoxKind(Enum):

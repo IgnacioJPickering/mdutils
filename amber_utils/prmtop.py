@@ -170,48 +170,6 @@ class AmberPrmtop:
         return Flag.CMAP_COUNT in self.blocks
 
 
-def _read_block(prmtop: Path, flag: Flag) -> NDArray[tp.Any]:
-    with open(prmtop, mode="r", encoding="utf-8") as f:
-        in_block = False
-        format_: tp.Optional[Format] = None
-        block = []
-        for line in f:
-            if not in_block:
-                if line.startswith(f"%FLAG {flag.value}"):
-                    in_block = True
-                elif line.startswith("%COMMENT"):
-                    continue
-            else:
-                if line.startswith("%FORMAT"):
-                    if flag is Flag.TITLE:
-                        # Override this format since it is incorrectly written in
-                        # the prmtops
-                        format_ = Format.STRING
-                    else:
-                        format_string = line.split("(")[-1].replace(")", "").strip()
-                        format_ = Format(format_string.upper())
-                elif line.startswith("%FLAG"):
-                    break
-                elif line.startswith("%COMMENT"):
-                    continue
-                else:
-                    assert format_ is not None  # mypy
-                    block.extend(_read_line_with_format(line, format_))
-        block_array = np.asarray(block)
-        if flag in (Flag.BONDS_WITH_HYDROGEN, Flag.BONDS_WITHOUT_HYDROGEN):
-            block_array = block_array.reshape(-1, 3)  # i, j, idx
-        elif flag in (Flag.ANGLES_WITH_HYDROGEN, Flag.ANGLES_WITHOUT_HYDROGEN):
-            block_array = block_array.reshape(-1, 4)  # i, j, k, idx
-        elif flag in (Flag.DIHEDRALS_WITH_HYDROGEN, Flag.DIHEDRALS_WITHOUT_HYDROGEN):
-            block_array = block_array.reshape(-1, 5)  # i, j, k, l, idx
-        elif flag is Flag.NONBONDED_PARM_INDEX:
-            num_nonbonded = block_array.shape[0]
-            block_array = block_array.reshape(
-                int(np.sqrt(num_nonbonded)), int(np.sqrt(num_nonbonded))
-            )
-        return block_array
-
-
 def dump(
     data: AmberPrmtop,
     prmtop: Path,
@@ -288,6 +246,33 @@ def _remove_legacy_blocks(blocks: tp.Dict[Flag, NDArray[tp.Any]]) -> None:
     blocks.pop(Flag.HBOND_BCOEF, None)
     blocks.pop(Flag.HBOND_ACOEF, None)
     blocks.pop(Flag.HBCUT, None)
+
+
+def load_single_raw_block(prmtop: Path, flag: Flag) -> tp.List[tp.Any]:
+    r"""Read all info in a prmtop file"""
+    in_block = False
+    block = []
+    with open(prmtop, mode="r", encoding="utf-8") as f:
+        for line in f:
+            if (
+                not line
+                or line.startswith("%COMMENT")
+                or line.startswith("%VERSION")
+                or line.startswith("%FORMAT")
+            ):
+                continue
+            elif line.startswith("%FLAG"):
+                current_flag = Flag(line.split()[-1])
+                if current_flag is not flag:
+                    if in_block:
+                        break
+                    else:
+                        continue
+                else:
+                    in_block = True
+            elif in_block:
+                block.extend(_read_line_with_format(line, FLAG_FORMAT_MAP[flag]))
+        return block
 
 
 def load(prmtop: Path) -> AmberPrmtop:
@@ -496,7 +481,7 @@ def _write_version_and_datetime(
 
 
 def _load_header(path: Path) -> _AmberPrmtopHeader:
-    block = _read_block(path, Flag.POINTERS)
+    block = load_single_raw_block(path, Flag.POINTERS)
     # Block (array) sizes and some flags
     if bool(block[20]):
         raise RuntimeError(
@@ -510,7 +495,6 @@ def _load_header(path: Path) -> _AmberPrmtopHeader:
         raise RuntimeError(
             "Prmtops created by ADDLES not supported, flag should not be present"
         )
-        # addles creation?
         # (only sander.LES accepts prmtop created by addles)
     if block[12] != block[3] or block[13] != block[5] or block[14] != block[7]:
         raise RuntimeError("Constraints not supported, they should not be present")
