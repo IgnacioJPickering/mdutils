@@ -20,6 +20,14 @@ class AmberInpcrd:
     def atoms_num(self) -> int:
         return self.coordinates.shape[0]
 
+    @property
+    def velocities(self) -> None:
+        return None
+
+    @property
+    def forces(self) -> None:
+        return None
+
 
 def _read_name_and_num_atoms(inpcrd: Path) -> tp.Tuple[str, int]:
     with open(inpcrd, mode="r", encoding="utf-8") as f:
