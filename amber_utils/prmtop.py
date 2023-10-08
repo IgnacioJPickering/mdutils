@@ -495,7 +495,6 @@ def _load_header(path: Path) -> _AmberPrmtopHeader:
         raise RuntimeError(
             "Prmtops created by ADDLES not supported, flag should not be present"
         )
-        # addles creation?
         # (only sander.LES accepts prmtop created by addles)
     if block[12] != block[3] or block[13] != block[5] or block[14] != block[7]:
         raise RuntimeError("Constraints not supported, they should not be present")
