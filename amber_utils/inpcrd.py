@@ -24,10 +24,7 @@ class AmberInpcrdMetadata:
 # to be read, and whether the box is there or not is inferred from the number
 # of atoms
 def load_metadata(inpcrd: Path, has_box: bool) -> AmberInpcrdMetadata:
-    with open(
-        inpcrd,
-        mode="rb"
-    ) as f:
+    with open(inpcrd, mode="rb") as f:
         f.seek(0)
         name, atoms_num = list(itertools.islice(f, 0, 2))
         if has_box:
