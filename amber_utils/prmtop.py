@@ -23,8 +23,10 @@ from amber_utils._prmtop_blocks import (
 
 # This is the "POINTERS" block in the prmtop file
 @dataclass
-class _AmberPrmtopHeader:
+class AmberPrmtopMetadata:
     atoms_num: int
+    date_time: str
+    version: str
     # Valence interactions with H
     bonds_with_hydrogen_num: int
     angles_with_hydrogen_num: int
@@ -189,7 +191,7 @@ def dump(
         if flag is Flag.TITLE:
             _append_block(np.array([data.title]), prmtop, flag)
         elif flag is Flag.POINTERS:
-            _append_block(np.array(_create_header(data), dtype=np.int64), prmtop, flag)
+            _append_block(_create_raw_pointers_array(data), prmtop, flag)
         elif flag in HBOND_FLAGS:
             _append_block(np.array([]), prmtop, flag)
         elif flag in COVALENT_TERM_FLAGS or (flag is Flag.NONBONDED_PARM_INDEX):
@@ -334,17 +336,16 @@ def load(prmtop: Path) -> AmberPrmtop:
 
     _remove_legacy_blocks(blocks)
     title: str = blocks.pop(Flag.TITLE)[0]
-    header = _load_header(prmtop)
-    version, date_time = _read_version_and_datetime(prmtop)
+    metadata = load_metadata(prmtop)
     return AmberPrmtop(
         title=title,
-        version=version,
-        date_time=date_time,
         blocks=blocks,
-        box_kind=header.box_kind,
-        path_integral_md_slices_num=header.path_integral_md_slices_num,
         block_order=block_order,
         cmap_param_comments=cmap_param_comments,
+        version=metadata.version,
+        date_time=metadata.date_time,
+        box_kind=metadata.box_kind,
+        path_integral_md_slices_num=metadata.path_integral_md_slices_num,
     )
 
 
@@ -447,19 +448,6 @@ def _read_line_with_format(line: str, format_: Format) -> tp.List[tp.Any]:
     return parsed_line
 
 
-def _read_version_and_datetime(prmtop: Path) -> tp.Tuple[str, str]:
-    version = ""
-    date = ""
-    with open(prmtop, "r", encoding="utf-8") as f:
-        for line in f:
-            if line.startswith("%VERSION"):
-                parts = line.split()[1:]
-                version = parts[2]
-                date = f"{parts[5]}  {parts[6]}"
-                break
-    return version, date
-
-
 def _write_version_and_datetime(
     prmtop: Path,
     version: str,
@@ -480,8 +468,21 @@ def _write_version_and_datetime(
         )
 
 
-def _load_header(path: Path) -> _AmberPrmtopHeader:
-    block = load_single_raw_block(path, Flag.POINTERS)
+# The metadata is the POINTERS block, together with the title, the version and date
+# Note that, if the order of the blocks is very nonstandard, there may be no speed
+# advantage in loading the metadata only
+def load_metadata(prmtop: Path) -> AmberPrmtopMetadata:
+    version = "V0001.000"
+    date_time = ""
+    with open(prmtop, "r", encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("%VERSION"):
+                parts = line.split()[1:]
+                version = parts[2]
+                date_time = f"{parts[5]}  {parts[6]}"
+                break
+
+    block = load_single_raw_block(prmtop, Flag.POINTERS)
     # Block (array) sizes and some flags
     if bool(block[20]):
         raise RuntimeError(
@@ -504,7 +505,7 @@ def _load_header(path: Path) -> _AmberPrmtopHeader:
     # (SOLTY array must exist though)
     # I will preserve it for read prmtops, but for written prmtops I will just set it
     # to 1 if the source is not a previously read prmtop.
-    header = _AmberPrmtopHeader(
+    metadata = AmberPrmtopMetadata(
         atoms_num=block[0],
         bonds_with_hydrogen_num=block[2],
         bonds_without_hydrogen_num=block[3],
@@ -524,17 +525,19 @@ def _load_header(path: Path) -> _AmberPrmtopHeader:
         # Flags
         box_kind=BoxKind(block[27]),
         has_cap=bool(block[29]),
+        version=version,
+        date_time=date_time,
     )
     try:
-        header.path_integral_md_slices_num = block[31]
+        metadata.path_integral_md_slices_num = block[31]
     except IndexError:
         pass
-    return header
+    return metadata
 
 
-def _create_header(
+def _create_raw_pointers_array(
     data: AmberPrmtop,
-) -> tp.List[int]:
+) -> NDArray[np.int64]:
     pointers: tp.List[int] = [
         data.atoms_num,
         data.lennard_jones_atom_types_num,
@@ -570,4 +573,4 @@ def _create_header(
     ]
     if data.path_integral_md_slices_num is not None:
         pointers.append(data.path_integral_md_slices_num)
-    return pointers
+    return np.array(pointers, dtype=np.int64)

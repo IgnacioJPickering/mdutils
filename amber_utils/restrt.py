@@ -11,6 +11,16 @@ from amber_utils.units import AMBER_VELOCITIES_SCALE_FACTOR
 from amber_utils.box import BoxParams
 
 
+@dataclass
+class AmberRestrtMetadata:
+    name: str
+    time_ps: float
+    application: str = ""
+    program: str = ""
+    program_version: str = ""
+    box_params: tp.Optional[BoxParams] = None
+
+
 # Data in restart files can optionally have velocities or forces if it is the
 # result of an MD, if it is the result of a min it only has coordinates
 @dataclass
@@ -50,55 +60,30 @@ def dump(
     data: AmberRestrt,
     restrt: Path,
 ) -> None:
-    _write(
-        restrt=restrt,
-        time_ps=data.time_ps,
-        coordinates=data.coordinates,
-        forces=data.forces,
-        velocities=data.velocities,
-        box_params=data.box_params,
-        name=data.name,
-        program=data.program,
-        application=data.application,
-        program_version=data.program_version,
-    )
-
-
-def _write(
-    restrt: Path,
-    time_ps: float,
-    coordinates: NDArray[np.float_],
-    forces: tp.Optional[NDArray[np.float_]] = None,
-    velocities: tp.Optional[NDArray[np.float_]] = None,
-    box_params: tp.Optional[BoxParams] = None,
-    name: str = "restrt",
-    program: str = "mdrun",
-    application: str = "mdrun",
-    program_version: str = "0.1",
-) -> None:
     dataset = netcdf.Dataset(str(restrt), "w", format="NETCDF3_64BIT_OFFSET")
 
     # Global Attributes
     dataset.Conventions = "AMBERRESTART"
     dataset.ConventionVersion = "1.0"
-    dataset.program = program
-    dataset.programVersion = program_version
+    dataset.program = data.program
+    dataset.programVersion = data.program_version
 
     # Optional Global Attributes
-    dataset.application = application
-    dataset.title = name
-    dataset.createDimension("atom", len(coordinates))
+    dataset.application = data.application
+    dataset.title = data.name
+    dataset.createDimension("atom", data.atoms_num)
     dataset.createDimension("spatial", 3)
 
     spatial_label = dataset.createVariable("spatial", "c", ("spatial",))
     spatial_label[:] = "xyz"
     coordinates_var = dataset.createVariable("coordinates", "f8", ("atom", "spatial"))
     coordinates_var.units = "angstrom"
-    dataset["coordinates"][:] = coordinates
+    dataset["coordinates"][:] = data.coordinates
     time_var = dataset.createVariable("time", "f8")
     time_var.units = "picosecond"
-    dataset["time"][:] = np.array(time_ps, dtype=np.float64)
+    dataset["time"][:] = np.array(data.time_ps, dtype=np.float64)
 
+    velocities = data.velocities
     if velocities is not None:
         velocities_var = dataset.createVariable("velocities", "f8", ("atom", "spatial"))
         velocities_var.units = "angstrom/picosecond"
@@ -106,13 +91,13 @@ def _write(
         # must be multiplied by the scale factor
         velocities_var.scale_factor = AMBER_VELOCITIES_SCALE_FACTOR
         dataset["velocities"][:] = velocities
-
+    forces = data.forces
     if forces is not None:
         forces_var = dataset.createVariable("forces", "f8", ("atom", "spatial"))
         forces_var.units = "kilocalorie/mole/angstrom"
         dataset["forces"][:] = forces
 
-    if box_params is not None:
+    if data.has_box:
         dataset.createDimension("cell_spatial", 3)
         dataset.createDimension("cell_angular", 3)
         dataset.createDimension("label", 5)
@@ -127,7 +112,6 @@ def _write(
         cell_angular_label[0, :] = "alpha"
         cell_angular_label[1, :] = "beta "
         cell_angular_label[2, :] = "gamma"
-        # cell_angles *MUST* be present if cell_lengths is present
         cell_lengths_var = dataset.createVariable(
             "cell_lengths",
             "f8",
@@ -140,11 +124,11 @@ def _write(
         )
         cell_lengths_var.units = "angstrom"
         cell_angles_var.units = "degree"
-        dataset["cell_lengths"][:] = box_params.lengths
-        dataset["cell_angles"][:] = box_params.angles
+        dataset["cell_lengths"][:] = data.box_lengths
+        dataset["cell_angles"][:] = data.box_angles
 
 
-def _load_metadata(restrt: Path) -> tp.Tuple[str, str, str, str]:
+def load_metadata(restrt: Path) -> AmberRestrtMetadata:
     dataset = netcdf.Dataset(str(restrt), "r", format="NETCDF3_64BIT_OFFSET")
     try:
         name = dataset.title
@@ -162,14 +146,6 @@ def _load_metadata(restrt: Path) -> tp.Tuple[str, str, str, str]:
         application = dataset.application
     except AttributeError:
         application = ""
-    return name, program, program_version, application
-
-
-def load(restrt: Path) -> AmberRestrt:
-    name, program, program_version, application = _load_metadata(restrt)
-
-    dataset = netcdf.Dataset(str(restrt), "r", format="NETCDF3_64BIT_OFFSET")
-    coordinates = dataset["coordinates"][:].data
     box_params: tp.Optional[BoxParams]
     time_ps = dataset["time"][:].data.item()
     try:
@@ -179,6 +155,20 @@ def load(restrt: Path) -> AmberRestrt:
         )
     except IndexError:
         box_params = None
+    return AmberRestrtMetadata(
+        name=name,
+        time_ps=time_ps,
+        program=program,
+        application=application,
+        program_version=program_version,
+        box_params=box_params,
+    )
+
+
+def load(restrt: Path) -> AmberRestrt:
+    metadata = load_metadata(restrt)
+    dataset = netcdf.Dataset(str(restrt), "r", format="NETCDF3_64BIT_OFFSET")
+    coordinates = dataset["coordinates"][:].data
     try:
         velocities = dataset["velocities"][:].data * AMBER_VELOCITIES_SCALE_FACTOR
     except IndexError:
@@ -188,13 +178,13 @@ def load(restrt: Path) -> AmberRestrt:
     except IndexError:
         forces = None
     return AmberRestrt(
-        name=name,
-        program=program,
-        program_version=program_version,
-        application=application,
-        time_ps=time_ps,
         forces=forces,
         coordinates=coordinates,
         velocities=velocities,
-        box_params=box_params,
+        name=metadata.name,
+        program=metadata.program,
+        program_version=metadata.program_version,
+        application=metadata.application,
+        time_ps=metadata.time_ps,
+        box_params=metadata.box_params,
     )
