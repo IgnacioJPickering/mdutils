@@ -206,7 +206,9 @@ def _read_block(prmtop: Path, flag: Flag) -> NDArray[tp.Any]:
             block_array = block_array.reshape(-1, 5)  # i, j, k, l, idx
         elif flag is Flag.NONBONDED_PARM_INDEX:
             num_nonbonded = block_array.shape[0]
-            block_array = block_array.reshape(int(np.sqrt(num_nonbonded)), int(np.sqrt(num_nonbonded)))
+            block_array = block_array.reshape(
+                int(np.sqrt(num_nonbonded)), int(np.sqrt(num_nonbonded))
+            )
         return block_array
 
 
@@ -341,9 +343,9 @@ def load(prmtop: Path) -> AmberPrmtop:
             Flag.DIHEDRALS_WITHOUT_HYDROGEN
         ].reshape(-1, 5)
         num_nonbonded = blocks[Flag.NONBONDED_PARM_INDEX].shape[0]
-        blocks[Flag.NONBONDED_PARM_INDEX] = blocks[
-            Flag.NONBONDED_PARM_INDEX
-        ].reshape(int(np.sqrt(num_nonbonded)), int(np.sqrt(num_nonbonded)))
+        blocks[Flag.NONBONDED_PARM_INDEX] = blocks[Flag.NONBONDED_PARM_INDEX].reshape(
+            int(np.sqrt(num_nonbonded)), int(np.sqrt(num_nonbonded))
+        )
 
     _remove_legacy_blocks(blocks)
     title: str = blocks.pop(Flag.TITLE)[0]
@@ -474,14 +476,21 @@ def _read_version_and_datetime(prmtop: Path) -> tp.Tuple[str, str]:
 
 
 def _write_version_and_datetime(
-    prmtop: Path, version: str, date_time: tp.Optional[str] = None,
+    prmtop: Path,
+    version: str,
+    date_time: tp.Optional[str] = None,
 ) -> None:
     if date_time is None:
         date_time = datetime.datetime.today().strftime("%m/%d/%y  %H:%M:%S")
     with open(prmtop, "a", encoding="utf-8") as f:
         f.write(
             "".join(
-                (f"%VERSION  VERSION_STAMP = {version}  DATE = {date_time}".ljust(80), "\n")
+                (
+                    f"%VERSION  VERSION_STAMP = {version}  DATE = {date_time}".ljust(
+                        80
+                    ),
+                    "\n",
+                )
             )
         )
 
