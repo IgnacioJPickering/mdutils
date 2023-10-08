@@ -5,7 +5,10 @@ import subprocess
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from amber_utils.prmtop import read_block, Flag
+from amber_utils.prmtop import (
+    load as load_prmtop,
+    Flag,
+)
 from amber_utils.aminoacids import AMINOACIDS_WITH_CO, AMINOACIDS
 
 
@@ -49,6 +52,7 @@ class CpptrajExecutor:
             final_frame=str(final_frame) if final_frame != -1 else "last",
             sample_step=sample_step,
         )
+        self._prmtop_data = load_prmtop(prmtop_fpath)
 
     def _write_buffers(
         self,
@@ -138,7 +142,7 @@ class CpptrajExecutor:
         range_360: bool = False,
     ) -> str:
         template = env.get_template("peptidic-dihedrals.cpptraj.in.jinja")
-        residue_names = read_block(self._common_args.prmtop_fpath, Flag.RESIDUE_LABEL)
+        residue_names = self._prmtop_data.blocks[Flag.RESIDUE_LABEL]
         mask_tuples: tp.List[tp.Tuple[str, str, str, str]] = []
         number_tuples: tp.List[tp.Tuple[int, int]] = []
         name_tuples: tp.List[tp.Tuple[str, str]] = []
@@ -182,10 +186,7 @@ class CpptrajExecutor:
         has_box: bool = True,
     ) -> str:
         template = env.get_template("out-of-plane.cpptraj.in.jinja")
-        residue_names = read_block(
-            self._common_args.prmtop_fpath,
-            Flag.RESIDUE_LABEL,
-        )
+        residue_names = self._prmtop_data.blocks[Flag.RESIDUE_LABEL]
         center_atoms: tp.List[str] = []
         plane_atoms: tp.List[tp.Tuple[str, str, str]] = []
         number_tuples: tp.List[tp.Tuple[int, int]] = []
@@ -214,10 +215,7 @@ class CpptrajExecutor:
 
     def carbonyls_input(self) -> str:
         template = env.get_template("carbonyls.cpptraj.in.jinja")
-        residue_names = read_block(
-            self._common_args.prmtop_fpath,
-            Flag.RESIDUE_LABEL,
-        )
+        residue_names = self._prmtop_data.blocks[Flag.RESIDUE_LABEL]
         masks: tp.Dict[str, str] = {}
         selected_residue_numbers: tp.List[int] = []
         selected_residue_names: tp.List[str] = []

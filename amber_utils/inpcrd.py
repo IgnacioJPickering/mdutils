@@ -1,62 +1,29 @@
 r"""Utilities to deal with amber-style inpcrd files (formatted ascii)"""
-
+import typing as tp
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Tuple, NamedTuple, Optional
 
 import pandas
 import numpy as np
 from numpy.typing import NDArray
 
-from amber_utils.utils import read_last_line
+from amber_utils.box import BoxParams
 
 
-class AmberInpcrdData(NamedTuple):
+@dataclass
+class AmberInpcrd:
     name: str
-    atoms_num: int
     coordinates: NDArray[np.float_]
-    box_lengths: Optional[NDArray[np.float_]]
-    box_angles: Optional[NDArray[np.float_]]
+    box_params: tp.Optional[BoxParams] = None
+
+    @property
+    def atoms_num(self) -> int:
+        return self.coordinates.shape[0]
 
 
-def read_coordinates_and_box(
-    inpcrd: Path,
-    implicit_input: bool = False,
-    infer_implicit_input: bool = True,
-) -> Tuple[
-    NDArray[np.float_], Optional[NDArray[np.float_]], Optional[NDArray[np.float_]]
-]:
-    df = pandas.read_csv(inpcrd, skiprows=2, sep=r"\s+", header=None)
-    if implicit_input or (infer_implicit_input and ".implicit." in inpcrd.name):
-        coordinates = df.values.reshape(-1, 3)
-        if np.isnan(coordinates[-1, :]).all():
-            coordinates = coordinates[:-1]
-        return coordinates, None, None
-    box = df.iloc[-1, :].values
-    df.drop(index=(df.shape[0] - 1), axis="rows", inplace=True)
-    coordinates = df.values.reshape(-1, 3)
-    coordinates = coordinates[~np.isnan(coordinates).any(axis=1)]
-    box_lengths = box[:3]
-    box_angles = box[3:]
-    return coordinates, box_lengths, box_angles
-
-
-def read_box(
-    inpcrd: Path,
-    implicit_input: bool = False,
-    infer_implicit_input: bool = True,
-) -> Tuple[Optional[NDArray[np.float_]], Optional[NDArray[np.float_]]]:
-    if implicit_input or (infer_implicit_input and ".implicit." in inpcrd.name):
-        return None, None
-    last_line = read_last_line(inpcrd)
-    box = [float(fl) for fl in last_line.split()]
-    box_lengths = np.array(box[:3])
-    box_angles = np.array(box[3:])
-    return box_lengths, box_angles
-
-
-def read_name_and_num_atoms(inpcrd: Path) -> Tuple[str, int]:
-    with open(inpcrd, "r") as f:
-        for j, line in enumerate(f.readlines()):
+def _read_name_and_num_atoms(inpcrd: Path) -> tp.Tuple[str, int]:
+    with open(inpcrd, mode="r", encoding="utf-8") as f:
+        for j, line in enumerate(f):
             if j == 0:
                 name = line.strip()
             elif j == 1:
@@ -66,13 +33,22 @@ def read_name_and_num_atoms(inpcrd: Path) -> Tuple[str, int]:
     return name, atoms_num
 
 
-def read_data(
-    inpcrd: Path, implicit_input: bool = False, infer_implicit_input: bool = True
-) -> AmberInpcrdData:
-    name, atoms_num = read_name_and_num_atoms(inpcrd)
-    coordinates, box_lengths, box_angles = read_coordinates_and_box(
-        inpcrd,
-        implicit_input=implicit_input,
-        infer_implicit_input=infer_implicit_input,
+def load(
+    inpcrd: Path,
+) -> AmberInpcrd:
+    name, atoms_num = _read_name_and_num_atoms(inpcrd)
+    df = pandas.read_csv(inpcrd, skiprows=2, sep=r"\s+", header=None)
+    floats = df.values.reshape(-1, 3)
+    coordinates = floats[:atoms_num]
+    box = floats[atoms_num:]
+
+    box_params: tp.Optional[BoxParams]
+    if box.shape[0] == 0 or np.isnan(box).any():
+        box_params = None
+    else:
+        box_params = BoxParams(box[0, :], box[1, :])
+    return AmberInpcrd(
+        name=name,
+        coordinates=coordinates,
+        box_params=box_params,
     )
-    return AmberInpcrdData(name, atoms_num, coordinates, box_lengths, box_angles)
