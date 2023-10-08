@@ -9,7 +9,7 @@ from numpy.typing import NDArray
 @dataclass
 class BoxParams:
     lengths: NDArray[np.float_]
-    _angles: tp.Tuple[float, float, float] = (90., 90., 90.)
+    _angles: tp.Tuple[float, float, float] = (90.0, 90.0, 90.0)
 
     @property
     def angles(self) -> NDArray[np.float_]:
