@@ -1,13 +1,46 @@
 r"""Utilities to deal with amber-style inpcrd files (formatted ascii)"""
+import itertools
 import typing as tp
 from dataclasses import dataclass
 from pathlib import Path
+import os
 
 import pandas
 import numpy as np
 from numpy.typing import NDArray
 
 from amber_utils.box import BoxParams
+
+
+@dataclass
+class AmberInpcrdMetadata:
+    name: str
+    atoms_num: int
+    box_params: tp.Optional[BoxParams] = None
+
+
+# Note that to correctly load the metadata from the inpcrd file, it *must* be
+# known if the structure has a box or not, otherwise the whole file will have
+# to be read, and whether the box is there or not is inferred from the number
+# of atoms
+def load_metadata(inpcrd: Path, has_box: bool) -> AmberInpcrdMetadata:
+    with open(inpcrd, mode="rb") as f:
+        f.seek(0)
+        name, atoms_num = list(itertools.islice(f, 0, 2))
+        if has_box:
+            f.seek(-80, os.SEEK_END)
+            box = f.readlines()[-1].decode("ascii").split()
+            box_params = BoxParams(
+                np.array(box[:3], dtype=np.float64),
+                (float(box[3]), float(box[4]), float(box[5])),
+            )
+        else:
+            box_params = None
+    return AmberInpcrdMetadata(
+        name.decode("ascii"),
+        int(atoms_num.decode("ascii")),
+        box_params,
+    )
 
 
 @dataclass
