@@ -51,6 +51,10 @@ class AmberPrmtopMetadata:
     # PIMD slices (optional)
     path_integral_md_slices_num: tp.Optional[int] = None
 
+    @property
+    def has_box(self) -> bool:
+        return self.box_kind is not BoxKind.NO_BOX
+
 
 @dataclass
 class AmberPrmtop:
