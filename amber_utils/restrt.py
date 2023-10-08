@@ -30,15 +30,15 @@ class AmberRestrt:
         return self.coordinates.shape[0]
 
     @property
-    def box_lengths(self) -> tp.Optional[NDArray[np.float_]]:
+    def box_lengths(self) -> NDArray[np.float_]:
         if self.box_params is None:
-            return None
+            raise ValueError("There should be box parameters to get box lengths")
         return self.box_params.lengths
 
     @property
-    def box_angles(self) -> tp.Optional[NDArray[np.float_]]:
+    def box_angles(self) -> NDArray[np.float_]:
         if self.box_params is None:
-            return None
+            raise ValueError("There should be box parameters to get box angles")
         return self.box_params.angles
 
     @property
