@@ -110,6 +110,7 @@ def load(
 ) -> AmberInpcrd:
     # import here to improve startup time
     import pandas  # noqa
+
     name, atoms_num = _read_name_and_num_atoms(inpcrd)
     df = pandas.read_csv(inpcrd, skiprows=2, sep=r"\s+", header=None)
     floats = df.values.reshape(-1, 3)
