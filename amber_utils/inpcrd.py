@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from pathlib import Path
 import os
 
-import pandas
 import numpy as np
 from numpy.typing import NDArray
 
@@ -109,6 +108,9 @@ def _read_name_and_num_atoms(inpcrd: Path) -> tp.Tuple[str, int]:
 def load(
     inpcrd: Path,
 ) -> AmberInpcrd:
+    # import here to improve startup time
+    import pandas  # noqa
+
     name, atoms_num = _read_name_and_num_atoms(inpcrd)
     df = pandas.read_csv(inpcrd, skiprows=2, sep=r"\s+", header=None)
     floats = df.values.reshape(-1, 3)
