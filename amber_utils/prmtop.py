@@ -410,7 +410,9 @@ def _append_block(
         if len(line) % num_per_line:
             extra_data = (num_per_line - len(line) % num_per_line) * [" " * width]
             line.extend(extra_data)
-        array: NDArray[np.str_] = np.array(line, dtype=np.str_).reshape(-1, num_per_line)
+        array: NDArray[np.str_] = np.array(line, dtype=np.str_).reshape(
+            -1, num_per_line
+        )
         for j, row in enumerate(array):
             str_line = "".join(row)
             if j == array.shape[0] - 1:
