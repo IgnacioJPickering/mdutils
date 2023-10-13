@@ -56,7 +56,7 @@ class CpptrajExecutor:
 
     def _write_buffers(
         self,
-        out: subprocess.CompletedProcess[bytes],
+        out: subprocess.CompletedProcess,  # type: ignore
         path: Path,
         suffix: str,
     ) -> None:
