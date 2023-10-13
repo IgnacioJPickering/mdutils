@@ -6,8 +6,10 @@ from . import utils
 from . import ani
 from . import cpptraj
 from . import solvent
+from . import umbrella
 
 __all__ = [
+    "umbrella",
     "inputs",
     "inpcrd",
     "prmtop",

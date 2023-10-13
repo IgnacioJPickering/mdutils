@@ -1,0 +1,13 @@
+Harmonic dihedral restraints
+{% for r in restraints %}
+&rst
+iat={{ r.atom_indices1[0] }},{{ r.atom_indices1[1] }},{{ r.atom_indices1[2] }},{{ r.atom_indices1[3] }}  ! Dihedral restraint
+r1={{ r.angle_lower_bound }}  ! Angle lower bound
+r2={{ r.angle_lower_middle_bound }}  ! Target angle
+r3={{ r.angle_upper_middle_bound }}  ! Target angle, equal to above
+r4={{ r.angle_upper_bound }}  ! Angle upper bound
+rk2={{ r.lower_force_constant }}  ! Force constant
+rk3={{ r.lower_force_constant }}  ! Force constant, equal to above
+/
+
+{% endfor %}

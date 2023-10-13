@@ -8,12 +8,12 @@ dependencies:
     - jinja2
 
     # Numerical / Sci
-    - numpy=1.20  # multidimensional array support
+    - numpy=1.21  # multidimensional array support
     - pandas  # csv support
 
 # General
     # Python / pip
-    - python >=3.9
+    - python >=3.8
     - pip  # python packaging tool
 
 # Dev
