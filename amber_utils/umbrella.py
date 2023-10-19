@@ -199,7 +199,7 @@ def harmonic_restraints_block(
         elif isinstance(restraint, AngleRestraint):
             angle_restraints.append(restraint)
 
-    template_renderer = env.get_template("umbrella-harmonic.amber.restraints.jinja")
+    template_renderer = env.get_template("harmonic.restraints.in.jinja")
     return template_renderer.render(
         dihedral_restraints=dihedral_restraints,
         angle_restraints=angle_restraints,
