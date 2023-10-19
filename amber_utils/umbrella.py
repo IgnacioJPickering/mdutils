@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 import typing as tp
 
@@ -11,6 +12,12 @@ env = Environment(
     trim_blocks=True,
     lstrip_blocks=True,
 )
+
+
+@dataclass
+class UmbrellaArgs:
+    output_fpath: Path
+    restraints_fpath: Path
 
 
 class HarmonicRestraint:
