@@ -36,7 +36,7 @@ iextpot = 2  ! Use torchani as an external potential
 {% block heating %}
 {% endblock %}
 
-{% if umbrella_restraints_fpath %}
+{% if umbrella_input_fpath %}
 &wt
 TYPE = 'DUMPFREQ'  ! Set the umbrella restrained coord dump frequency
 istep1={{ thermo_output_interval_frames }}  ! Umbrella restrained coord dump frequency
@@ -60,12 +60,12 @@ torchani_model = "{{ ani_model }}" ! String with torchani model
 /
 {% endif %}
 
-{% if umbrella_restraints_fpath or heating %}
+{% if umbrella_input_fpath or heating %}
 &wt
 TYPE = 'END'  ! End weight-style namelists
 /
 {% endif %}
-{% if umbrella_restraints_fpath %}
-DISANG={{ umbrella_restraints_fpath }}  ! Path to umbrella restraints file
+{% if umbrella_input_fpath %}
+DISANG={{ umbrella_input_fpath }}  ! Path to umbrella restraints specification file
 DUMPAVE={{ umbrella_output_fpath }}  ! Path where the umbrella restraints are dumped to
 {% endif %}

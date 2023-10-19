@@ -17,7 +17,7 @@ env = Environment(
 @dataclass
 class UmbrellaArgs:
     output_fpath: Path
-    restraints_fpath: Path
+    input_fpath: Path
 
 
 class HarmonicRestraint:

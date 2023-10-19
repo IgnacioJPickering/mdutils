@@ -41,7 +41,7 @@ def parse_umbrella_args(
 ) -> tp.Dict[str, tp.Any]:
     if args is not None:
         return {
-            "umbrella_restraints_fpath": args["restraints_fpath"],
+            "umbrella_input_fpath": args["input_fpath"],
             "umbrella_output_fpath": args["output_fpath"],
         }
     else:
