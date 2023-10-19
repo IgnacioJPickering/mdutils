@@ -1,0 +1,58 @@
+Harmonic dihedral restraints
+{% for r in dihedral_restraints %}
+&rst
+{% if r.atom_indices1|length > 1 %}
+iresid=0  ! Use atom indices and atom names
+iat={{ r.atom_indices1[0] }},{{ r.atom_indices1[1] }},{{ r.atom_indices1[2] }},{{ r.atom_indices1[3] }}  ! Dihedral restraint atom indices
+{% else %}
+iresid=1  ! Use residue indices and atom names
+iat={{ r.residue_indices1[0] }},{{ r.residue_indices1[1] }},{{ r.residue_indices1[2] }},{{ r.residue_indices1[3] }}  ! Dihedral restraint residue indices
+atnam={{ r.atom_names[0] }},{{ r.atom_names[1] }},{{ r.atom_names[2] }},{{ r.atom_names[3] }}  ! Dihedral restraint atom names
+{% endif %}
+r1={{ r.angle_lower_bound }}  ! Angle lower bound (deg)
+r2={{ r.angle_lower_middle_bound }}  ! Target angle (deg)
+r3={{ r.angle_upper_middle_bound }}  ! Target angle, equal to above (deg)
+r4={{ r.angle_upper_bound }}  ! Angle upper bound (deg)
+rk2={{ r.lower_force_constant }}  ! Force constant (kcalpermol / rad^2)
+rk3={{ r.lower_force_constant }}  ! Force constant, equal to above (kcalpermol / rad^2)
+/
+
+{% endfor %}
+{% for r in angle_restraints %}
+&rst
+{% if r.atom_indices1|length > 1 %}
+iresid=0  ! Use atom indices and atom names
+iat={{ r.atom_indices1[0] }},{{ r.atom_indices1[1] }},{{ r.atom_indices1[2] }}  ! Valence-angle restraint atom indices
+{% else %}
+iresid=1  ! Use residue indices and atom names
+iat={{ r.residue_indices1[0] }},{{ r.residue_indices1[1] }},{{ r.residue_indices1[2] }}  ! Valence-angle restraint residue indices
+atnam={{ r.atom_names[0] }},{{ r.atom_names[1] }},{{ r.atom_names[2] }}  ! Valence-angle restraint atom names
+{% endif %}
+r1={{ r.angle_lower_bound }}  ! Angle lower bound (deg)
+r2={{ r.angle_lower_middle_bound }}  ! Target angle (deg)
+r3={{ r.angle_upper_middle_bound }}  ! Target angle, equal to above (deg)
+r4={{ r.angle_upper_bound }}  ! Angle upper bound (deg)
+rk2={{ r.lower_force_constant }}  ! Force constant (kcalpermol / rad^2)
+rk3={{ r.lower_force_constant }}  ! Force constant, equal to above (kcalpermol / rad^2)
+/
+
+{% endfor %}
+{% for r in distance_restraints %}
+&rst
+{% if r.atom_indices1|length > 1 %}
+iresid=0  ! Use atom indices and atom names
+iat={{ r.atom_indices1[0] }},{{ r.atom_indices1[1] }}  ! Distance restraint atom indices
+{% else %}
+iresid=1  ! Use residue indices and atom names
+iat={{ r.residue_indices1[0] }},{{ r.residue_indices1[1] }}  ! Distance restraint residue indices
+atnam={{ r.atom_names[0] }},{{ r.atom_names[1] }}  ! Distance restraint atom names
+{% endif %}
+r1={{ r.distance_lower_bound }}  ! Distance lower bound (ang)
+r2={{ r.distance_lower_middle_bound }}  ! Target distance (ang)
+r3={{ r.distance_upper_middle_bound }}  ! Target distance, equal to above (ang)
+r4={{ r.distance_upper_bound }}  ! Distance upper bound (ang)
+rk2={{ r.lower_force_constant }}  ! Force constant (kcalpermol / ang^2)
+rk3={{ r.lower_force_constant }}  ! Force constant, equal to above (kcalpermol / ang^2)
+/
+
+{% endfor %}
