@@ -81,6 +81,12 @@ class DistanceRestraint(HarmonicRestraint):
         distance_slack_ang: float = 0.5,
         force_constant_amber_units: float = 200.0,  # kcalpermol / ang**2
     ):
+        if distance_slack_ang == 0.0:
+            distance_slack_ang = 0.5
+
+        if force_constant_amber_units == 0.0:
+            force_constant_amber_units = 200.0
+
         self.atom_indices, self.residue_indices, self.atom_names = self._parse_indices(
             atom_indices,
             residue_indices,
@@ -111,6 +117,12 @@ class AngleRestraint(HarmonicRestraint):
         angle_slack_deg: float = 180.0,
         force_constant_amber_units_rad: float = 200.0,  # kcalpermol / rad**2
     ):
+        if angle_slack_deg == 0.0:
+            angle_slack_deg = 180.0
+
+        if force_constant_amber_units_rad == 0.0:
+            force_constant_amber_units_rad = 200.0
+
         self.atom_indices, self.residue_indices, self.atom_names = self._parse_indices(
             atom_indices,
             residue_indices,
@@ -136,6 +148,12 @@ class DihedralRestraint(HarmonicRestraint):
         angle_slack_deg: float = 180.0,
         force_constant_amber_units_rad: float = 200.0,  # kcalpermol / rad**2
     ):
+        if angle_slack_deg == 0.0:
+            angle_slack_deg = 180.0
+
+        if force_constant_amber_units_rad == 0.0:
+            force_constant_amber_units_rad = 200.0
+
         self.atom_indices, self.residue_indices, self.atom_names = self._parse_indices(
             atom_indices,
             residue_indices,
