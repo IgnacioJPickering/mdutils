@@ -11,6 +11,7 @@ from amber_utils.units import FEMTOSECOND_TO_PICOSECOND
 from amber_utils.options import Step
 from amber_utils.utils import get_dynamics_steps
 from amber_utils.solvent import SolventModel, mdin_integer
+from amber_utils.umbrella import UmbrellaArgs
 
 _TEMPLATES_PATH = Path(__file__).parent.joinpath("templates")
 
@@ -22,12 +23,6 @@ env = Environment(
 )
 
 _MAX_32_BIT_INT = 2147483647
-
-
-@dataclass
-class UmbrellaArgs:
-    output_fpath: Path
-    restraints_fpath: Path
 
 
 @dataclass
