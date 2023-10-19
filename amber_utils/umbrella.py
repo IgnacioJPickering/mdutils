@@ -88,7 +88,7 @@ class DistanceRestraint(HarmonicRestraint):
             target_len=2,
         )
 
-        if distance_ang - distance_slack_ang < 0.:
+        if distance_ang - distance_slack_ang < 0.0:
             raise ValueError(
                 "Distance restraint to small, increase distance or decrease slack"
             )
