@@ -4,4 +4,9 @@ imin = 1  ! Perform a minimization
 ntmin = 1  ! Steepest descent, then conjugate gradient
 ncyc = {{ steepest_descent_steps }}  ! Steepest descent steps before starting CG
 maxcyc = {{ total_minimization_steps }}  ! Total minimization steps
+{% if umbrella_input_fpath %}
+nmropt = 1  ! Applying harmonic restraints
+{% else %}
+nmropt = 0  ! Not applying harmonic restraints
+{% endif %}
 {% endblock %}

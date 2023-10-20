@@ -22,10 +22,14 @@ tempi = {{ temperature_init_kelvin }}
 irest = 0  ! Not a restart
 ntx = 1  ! Not a restart
 {% endif %}
-{% if heating %}
+{% if heating and umbrella_input_fpath %}
+nmropt = 1  ! Changing scalars and applying harmonic restraints
+{% elif heating %}
 nmropt = 1  ! Changing scalars
+{% elif umbrella_input_fpath %}
+nmropt = 1  ! Applying harmonic restraints
 {% else %}
-nmropt = 0  ! Not changing scalars
+nmropt = 0  ! Not changing scalars, not applying harmonic restraints
 {% endif %}
 {% endblock body %}
 
