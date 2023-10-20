@@ -13,6 +13,10 @@ env = Environment(
     lstrip_blocks=True,
 )
 
+_DEFAULT_RESTRAINT_ANGLE_CONST: float = 200.
+_DEFAULT_RESTRAINT_DIHEDRAL_CONST: float = 200.
+_DEFAULT_RESTRAINT_DISTANCE_CONST: float = 200.
+
 
 @dataclass
 class UmbrellaArgs:
@@ -85,15 +89,8 @@ class DistanceRestraint(HarmonicRestraint):
         atom_indices: tp.Sequence[int] = (),
         residue_indices: tp.Sequence[int] = (),
         atom_names: tp.Sequence[str] = (),
-        distance_slack_ang: float = 0.5,
-        force_constant_amber_units: float = 200.0,  # kcalpermol / ang**2
+        force_constant_amber_units: float = _DEFAULT_RESTRAINT_DISTANCE_CONST,  # kcalpermol / ang**2
     ):
-        if distance_slack_ang == 0.0:
-            distance_slack_ang = 0.5
-
-        if force_constant_amber_units == 0.0:
-            force_constant_amber_units = 200.0
-
         self.atom_indices, self.residue_indices, self.atom_names = self._parse_indices(
             atom_indices,
             residue_indices,
@@ -101,15 +98,10 @@ class DistanceRestraint(HarmonicRestraint):
             target_len=2,
         )
 
-        if distance_ang - distance_slack_ang < 0.0:
-            raise ValueError(
-                "Distance restraint to small, increase distance or decrease slack"
-            )
-
-        self.distance_lower_bound = distance_ang - distance_slack_ang
+        self.distance_lower_bound = 0.0
         self.distance_lower_middle_bound = distance_ang
         self.distance_upper_middle_bound = distance_ang
-        self.distance_upper_bound = distance_ang + distance_slack_ang
+        self.distance_upper_bound = 8.0
         self.lower_force_constant = force_constant_amber_units
         self.upper_force_constant = force_constant_amber_units
 
@@ -121,15 +113,8 @@ class AngleRestraint(HarmonicRestraint):
         atom_indices: tp.Sequence[int] = (),
         residue_indices: tp.Sequence[int] = (),
         atom_names: tp.Sequence[str] = (),
-        angle_slack_deg: float = 180.0,
-        force_constant_amber_units_rad: float = 200.0,  # kcalpermol / rad**2
+        force_constant_amber_units_rad: float = _DEFAULT_RESTRAINT_ANGLE_CONST,  # kcalpermol / rad**2
     ):
-        if angle_slack_deg == 0.0:
-            angle_slack_deg = 180.0
-
-        if force_constant_amber_units_rad == 0.0:
-            force_constant_amber_units_rad = 200.0
-
         self.atom_indices, self.residue_indices, self.atom_names = self._parse_indices(
             atom_indices,
             residue_indices,
@@ -137,10 +122,10 @@ class AngleRestraint(HarmonicRestraint):
             target_len=3,
         )
 
-        self.angle_lower_bound = angle_deg - angle_slack_deg
+        self.angle_lower_bound = angle_deg - 180.0
         self.angle_lower_middle_bound = angle_deg
         self.angle_upper_middle_bound = angle_deg
-        self.angle_upper_bound = angle_deg + angle_slack_deg
+        self.angle_upper_bound = angle_deg + 180.0
         self.lower_force_constant = force_constant_amber_units_rad
         self.upper_force_constant = force_constant_amber_units_rad
 
@@ -152,14 +137,8 @@ class DihedralRestraint(HarmonicRestraint):
         atom_indices: tp.Sequence[int] = (),
         residue_indices: tp.Sequence[int] = (),
         atom_names: tp.Sequence[str] = (),
-        angle_slack_deg: float = 180.0,
-        force_constant_amber_units_rad: float = 200.0,  # kcalpermol / rad**2
+        force_constant_amber_units_rad: float = _DEFAULT_RESTRAINT_DIHEDRAL_CONST,  # kcalpermol / rad**2
     ):
-        if angle_slack_deg == 0.0:
-            angle_slack_deg = 180.0
-
-        if force_constant_amber_units_rad == 0.0:
-            force_constant_amber_units_rad = 200.0
 
         self.atom_indices, self.residue_indices, self.atom_names = self._parse_indices(
             atom_indices,
@@ -168,10 +147,10 @@ class DihedralRestraint(HarmonicRestraint):
             target_len=4,
         )
 
-        self.angle_lower_bound = angle_deg - angle_slack_deg
+        self.angle_lower_bound = angle_deg - 180.0
         self.angle_lower_middle_bound = angle_deg
         self.angle_upper_middle_bound = angle_deg
-        self.angle_upper_bound = angle_deg + angle_slack_deg
+        self.angle_upper_bound = angle_deg + 180.0
         self.lower_force_constant = force_constant_amber_units_rad
         self.upper_force_constant = force_constant_amber_units_rad
 
@@ -219,12 +198,16 @@ def convert_distance_restraints(
 ) -> tp.List[DistanceRestraint]:
     distance_restraints: tp.List[DistanceRestraint] = []
     for s in distance_restraints_str:
-        target, slack, const, idx0, idx1 = s.split(",")
+        parts = s.split(",")
+        if len(parts) == 4:
+            target, const, idx0, idx1 = parts
+        else:
+            target, idx0, idx1 = parts
+            const = str(_DEFAULT_RESTRAINT_DISTANCE_CONST)
         distance_restraints.append(
             DistanceRestraint(
                 float(target),
                 (int(idx0), int(idx1)),
-                distance_slack_ang=float(slack),
                 force_constant_amber_units=float(const),
             )
         )
@@ -234,12 +217,16 @@ def convert_distance_restraints(
 def convert_angle_restraints(angle_restraints_str: str) -> tp.List[AngleRestraint]:
     angle_restraints: tp.List[AngleRestraint] = []
     for s in angle_restraints_str:
-        target, slack, const, idx0, idx1, idx2 = s.split(",")
+        parts = s.split(",")
+        if len(parts) == 5:
+            target, const, idx0, idx1, idx2 = parts
+        else:
+            target, idx0, idx1, idx2 = parts
+            const = str(_DEFAULT_RESTRAINT_ANGLE_CONST)
         angle_restraints.append(
             AngleRestraint(
                 float(target),
                 (int(idx0), int(idx1), int(idx2)),
-                angle_slack_deg=float(slack),
                 force_constant_amber_units_rad=float(const),
             )
         )
@@ -251,12 +238,16 @@ def convert_dihedral_restraints(
 ) -> tp.List[DihedralRestraint]:
     dihedral_restraints: tp.List[DihedralRestraint] = []
     for s in dihedral_restraints_str:
-        target, slack, const, idx0, idx1, idx2, idx3 = s.split(",")
+        parts = s.split(",")
+        if len(parts) == 6:
+            target, const, idx0, idx1, idx2, idx3 = parts
+        else:
+            target, idx0, idx1, idx2, idx3 = parts
+            const = str(_DEFAULT_RESTRAINT_DIHEDRAL_CONST)
         dihedral_restraints.append(
             DihedralRestraint(
                 float(target),
                 (int(idx0), int(idx1), int(idx2), int(idx3)),
-                angle_slack_deg=float(slack),
                 force_constant_amber_units_rad=float(const),
             )
         )
