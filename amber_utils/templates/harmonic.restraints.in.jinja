@@ -1,3 +1,4 @@
+{% if dihedral_restraints | length > 0 %}
 Harmonic dihedral restraints
 {% for r in dihedral_restraints %}
 &rst
@@ -13,11 +14,14 @@ r1={{ r.angle_lower_bound }}  ! Angle lower bound (deg)
 r2={{ r.angle_lower_middle_bound }}  ! Target angle (deg)
 r3={{ r.angle_upper_middle_bound }}  ! Target angle, equal to above (deg)
 r4={{ r.angle_upper_bound }}  ! Angle upper bound (deg)
-rk2={{ r.lower_force_constant }}  ! Force constant (kcalpermol / rad^2)
-rk3={{ r.lower_force_constant }}  ! Force constant, equal to above (kcalpermol / rad^2)
+rk2={{ r.lower_force_constant }}  ! Force constant (kcal/mol/rad^2)
+rk3={{ r.lower_force_constant }}  ! Force constant, equal to above (kcal/mol/rad^2)
 /
 
 {% endfor %}
+{% endif %}
+{% if angle_restraints | length > 0 %}
+Harmonic Valence-angle restraints
 {% for r in angle_restraints %}
 &rst
 {% if r.atom_indices1|length > 1 %}
@@ -32,11 +36,14 @@ r1={{ r.angle_lower_bound }}  ! Angle lower bound (deg)
 r2={{ r.angle_lower_middle_bound }}  ! Target angle (deg)
 r3={{ r.angle_upper_middle_bound }}  ! Target angle, equal to above (deg)
 r4={{ r.angle_upper_bound }}  ! Angle upper bound (deg)
-rk2={{ r.lower_force_constant }}  ! Force constant (kcalpermol / rad^2)
-rk3={{ r.lower_force_constant }}  ! Force constant, equal to above (kcalpermol / rad^2)
+rk2={{ r.lower_force_constant }}  ! Force constant (kcal/mol/rad^2)
+rk3={{ r.lower_force_constant }}  ! Force constant, equal to above (kcal/mol/rad^2)
 /
 
 {% endfor %}
+{% endif %}
+{% if distance_restraints | length > 0 %}
+Harmonic distance restraints
 {% for r in distance_restraints %}
 &rst
 {% if r.atom_indices1|length > 1 %}
@@ -51,8 +58,9 @@ r1={{ r.distance_lower_bound }}  ! Distance lower bound (ang)
 r2={{ r.distance_lower_middle_bound }}  ! Target distance (ang)
 r3={{ r.distance_upper_middle_bound }}  ! Target distance, equal to above (ang)
 r4={{ r.distance_upper_bound }}  ! Distance upper bound (ang)
-rk2={{ r.lower_force_constant }}  ! Force constant (kcalpermol / ang^2)
-rk3={{ r.lower_force_constant }}  ! Force constant, equal to above (kcalpermol / ang^2)
+rk2={{ r.lower_force_constant }}  ! Force constant (kcal/mol/ang^2)
+rk3={{ r.lower_force_constant }}  ! Force constant, equal to above (kcal/mol/ang^2)
 /
 
 {% endfor %}
+{% endif %}
