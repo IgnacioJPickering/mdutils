@@ -214,7 +214,9 @@ def harmonic_restraints_block(
     )
 
 
-def convert_distance_restraints(distance_restraints_str: str) -> tp.List[DistanceRestraint]:
+def convert_distance_restraints(
+    distance_restraints_str: str,
+) -> tp.List[DistanceRestraint]:
     distance_restraints: tp.List[DistanceRestraint] = []
     for s in distance_restraints_str:
         target, slack, const, idx0, idx1 = s.split(",")
@@ -244,7 +246,9 @@ def convert_angle_restraints(angle_restraints_str: str) -> tp.List[AngleRestrain
     return angle_restraints
 
 
-def convert_dihedral_restraints(dihedral_restraints_str: str) -> tp.List[DihedralRestraint]:
+def convert_dihedral_restraints(
+    dihedral_restraints_str: str,
+) -> tp.List[DihedralRestraint]:
     dihedral_restraints: tp.List[DihedralRestraint] = []
     for s in dihedral_restraints_str:
         target, slack, const, idx0, idx1, idx2, idx3 = s.split(",")
