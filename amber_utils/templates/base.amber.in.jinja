@@ -66,6 +66,8 @@ TYPE = 'END'  ! End weight-style namelists
 /
 {% endif %}
 {% if umbrella_input_fpath %}
-DISANG={{ umbrella_input_fpath }}  ! Path to umbrella restraints specification file
-DUMPAVE={{ umbrella_output_fpath }}  ! Path where the umbrella restraints are dumped to
+! Path to umbrella restraints specification file
+DISANG={{ umbrella_input_fpath }}
+! Path where the umbrella restraints are dumped to
+DUMPAVE={{ umbrella_output_fpath }}
 {% endif %}
