@@ -212,3 +212,48 @@ def harmonic_restraints_block(
         angle_restraints=angle_restraints,
         distance_restraints=distance_restraints,
     )
+
+
+def convert_distance_restraints(distance_restraints_str: str) -> tp.List[DistanceRestraint]:
+    distance_restraints: tp.List[DistanceRestraint] = []
+    for s in distance_restraints_str:
+        target, slack, const, idx0, idx1 = s.split(",")
+        distance_restraints.append(
+            DistanceRestraint(
+                float(target),
+                (int(idx0), int(idx1)),
+                distance_slack_ang=float(slack),
+                force_constant_amber_units=float(const),
+            )
+        )
+    return distance_restraints
+
+
+def convert_angle_restraints(angle_restraints_str: str) -> tp.List[AngleRestraint]:
+    angle_restraints: tp.List[AngleRestraint] = []
+    for s in angle_restraints_str:
+        target, slack, const, idx0, idx1, idx2 = s.split(",")
+        angle_restraints.append(
+            AngleRestraint(
+                float(target),
+                (int(idx0), int(idx1), int(idx2)),
+                angle_slack_deg=float(slack),
+                force_constant_amber_units_rad=float(const),
+            )
+        )
+    return angle_restraints
+
+
+def convert_dihedral_restraints(dihedral_restraints_str: str) -> tp.List[DihedralRestraint]:
+    dihedral_restraints: tp.List[DihedralRestraint] = []
+    for s in dihedral_restraints_str:
+        target, slack, const, idx0, idx1, idx2, idx3 = s.split(",")
+        dihedral_restraints.append(
+            DihedralRestraint(
+                float(target),
+                (int(idx0), int(idx1), int(idx2), int(idx3)),
+                angle_slack_deg=float(slack),
+                force_constant_amber_units_rad=float(const),
+            )
+        )
+    return dihedral_restraints
