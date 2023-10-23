@@ -1,5 +1,5 @@
 parm {{ prmtop_fpath }}
-trajin {{ traj_fpath }} {{ inital_frame }} {{ final_frame }} {{ sample_step }}
+trajin {{ traj_fpath }} {{ initial_frame }} {{ final_frame }} {{ sample_step }}
 {% for mask0, mask1 in masks.items() %}
 distance out {{ name }}.{{ selected_residue_numbers[loop.index0] }}-{{ selected_residue_names[loop.index0] }}.carbonyl-distance.dat {{ mask0 }} {{ mask1 }}
 {% endfor %}
