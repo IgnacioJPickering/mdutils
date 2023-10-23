@@ -1,5 +1,5 @@
 parm {{ prmtop_fpath }}
-trajin {{ traj_fpath }} {{ inital_frame }} {{ final_frame }} {{ sample_step }}
+trajin {{ traj_fpath }} {{ initial_frame }} {{ final_frame }} {{ sample_step }}
 diffusion out {{ name }}.msd.dat time {{ output_interval_ps }} noimage {{ mask }} diffout {{ name }}.diffusion.dat
 run
 exit

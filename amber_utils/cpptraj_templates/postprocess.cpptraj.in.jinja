@@ -1,5 +1,5 @@
 parm {{ prmtop_fpath }}
-trajin {{ traj_fpath }} 1 last {{ sample_step }}
+trajin {{ traj_fpath }} {{ initial_frame }} {{ final_frame }} {{ sample_step }}
 {% if autoimage %}
 autoimage
 {% endif %}

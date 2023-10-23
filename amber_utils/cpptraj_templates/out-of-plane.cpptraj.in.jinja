@@ -1,5 +1,5 @@
 parm {{ prmtop_fpath }}
-trajin {{ traj_fpath }} {{ inital_frame }} {{ final_frame }} {{ sample_step }}
+trajin {{ traj_fpath }} {{ initial_frame }} {{ final_frame }} {{ sample_step }}
 {% for center_atom in center_atoms %}
 vector {{ box_command }} [center-{{ number_tuples[loop.index0][0] }}-{{ number_tuples[loop.index0][1] }}] {{ center_atom }} {{ plane_atoms[loop.index0][0] }}
 vector {{ box_command }} [first-{{ number_tuples[loop.index0][0] }}-{{ number_tuples[loop.index0][1] }}] {{ plane_atoms[loop.index0][0] }} {{ plane_atoms[loop.index0][1] }}
