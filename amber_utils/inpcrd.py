@@ -118,10 +118,10 @@ def load(
     box = floats[atoms_num:]
 
     box_params: tp.Optional[BoxParams]
-    if box.shape[0] == 0 or np.isnan(box).any():
+    if box.shape[0] == 0 or np.isnan(box).all():
         box_params = None
     else:
-        box_params = BoxParams(box[0, :], box[1, :])
+        box_params = BoxParams(box[-2, :], box[-1, :])
     return AmberInpcrd(
         name=name,
         coordinates=coordinates,
