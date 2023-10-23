@@ -92,7 +92,7 @@ class CpptrajExecutor:
         autoimage: bool,
         strip_wat: bool,
         rms_fit: bool,
-        last_solute_atom_iidx: int,
+        last_solute_atom_idx1: int,
         out_traj_fpath: Path,
         out_prmtop_fpath: tp.Optional[Path],
         ref_fpath: tp.Optional[Path],
@@ -106,7 +106,7 @@ class CpptrajExecutor:
             rms_fit=rms_fit,
             ref_fpath=ref_fpath or "",
             out_prmtop_fpath=out_prmtop_fpath or "",
-            last_solute_atom_iidx=last_solute_atom_iidx,
+            last_solute_atom_idx1=last_solute_atom_idx1,
         )
         return render
 

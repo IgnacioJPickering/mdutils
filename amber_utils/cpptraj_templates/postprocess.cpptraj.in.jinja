@@ -8,7 +8,7 @@ strip :WAT
 {% endif %}
 {% if rms_fit %}
 reference {{ ref_fpath }} [InitialStructure]
-rmsd @1-{{ last_solute_atom_iidx }} ref [InitialStructure]
+rmsd @1-{{ last_solute_atom_idx1 }} ref [InitialStructure]
 {% endif %}
 trajout {{ out_traj_fpath }}
 run
