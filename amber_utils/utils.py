@@ -4,12 +4,16 @@ import re
 import math
 from pathlib import Path
 
-from amber_utils.units import PICOSECOND_TO_FEMTOSECOND
+from amber_utils.units import PICOSECOND_TO_FEMTOSECOND, FEMTOSECOND_TO_PICOSECOND
 
 
 def get_dynamics_steps(time_ps: float, timestep_fs: float) -> int:
     steps = math.ceil(time_ps * PICOSECOND_TO_FEMTOSECOND / timestep_fs)
     return steps
+
+
+def get_dynamics_time_ps(steps: int, timestep_fs: float) -> float:
+    return float(steps * timestep_fs * FEMTOSECOND_TO_PICOSECOND)
 
 
 def read_last_line(file_: Path) -> str:
