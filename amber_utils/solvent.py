@@ -3,12 +3,12 @@ from enum import Enum
 
 class SolventModel(Enum):
     EXPLICIT = "explicit"
-    GB = "GB"
-    MODIFIED_GB_I = "modified-GB-I"
-    MODIFIED_GB_II = "modified-GB-II"
-    GBN = "GBn"
-    MODIFIED_GBN = "modified-GBn"
-    POISSON_BOLTZMANN = "PB"
+    GB = "gb"
+    MODIFIED_GB_I = "gb-mod1"
+    MODIFIED_GB_II = "gb-mod2"
+    GBN = "gbn"
+    MODIFIED_GBN = "gbn-mod"
+    POISSON_BOLTZMANN = "pb"
     VACUUM = "vacuum"
 
 
