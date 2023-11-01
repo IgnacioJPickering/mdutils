@@ -1,10 +1,12 @@
 from enum import Enum
 
 AMBER_ANI_INTERFACE_MAP = {
-    "ANI1x": "ani1x",
-    "ANI2x": "ani2x",
-    "ANI1ccx": "ani1ccx",
-    "ANI2xCharges": "animbis",
+    "1x": "ani1x",
+    "2x": "ani2x",
+    "1ccx": "ani1ccx",
+    "mbis2x": "animbis",
+    "dr": "anidr",
+    "ala": "aniala",
 }
 
 
