@@ -1,4 +1,6 @@
+import itertools
 import typing as tp
+import sys
 import random
 from dataclasses import dataclass, asdict
 from pathlib import Path
@@ -8,10 +10,24 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from amber_utils.ani import AniNeighborlistKind
 from amber_utils.units import FEMTOSECOND_TO_PICOSECOND
-from amber_utils.options import Step
 from amber_utils.utils import get_dynamics_steps
 from amber_utils.solvent import SolventModel, mdin_integer
 from amber_utils.umbrella import UmbrellaArgs
+from amber_utils.thermostats import (
+    Thermo,
+    BerendsenThermo,
+    AndersenThermo,
+    LangevinThermo,
+    OINHThermo,
+    SINHThermo,
+    StochasticBerendsenThermo,
+)
+from amber_utils.barostats import (
+    Baro,
+    BerendsenBaro,
+    McBaro,
+)
+from amber_utils.surface_tensionstats import SurfaceTensionstat
 
 _TEMPLATES_PATH = Path(__file__).parent.joinpath("templates")
 
@@ -75,12 +91,11 @@ def parse_torchani_args(
 
 
 @dataclass
-class CommonArgs:
-    thermo_output_interval_frames: int = 1
-    trajectory_output_interval_frames: int = 1
+class RunArgs:
+    scalars_output_interval_frames: int = 1
+    arrays_output_interval_frames: int = 1
     restraint_selection: str = ""
     restraint_constant: str = ""
-    write_velocities: bool = False
     write_forces: bool = False
     cutoff: float = 8.0
     solvent_model: SolventModel = SolventModel.EXPLICIT
@@ -90,81 +105,46 @@ class CommonArgs:
 
 
 @dataclass
-class MdArgs(CommonArgs):
+class MinArgs(RunArgs):
+    pass
+
+
+# Procedure 1: Mixed SteepestDescent + ConjugateGradient
+@dataclass
+class MixedSdcgArgs(MinArgs):
+    """I believe minimization halts either when the total number of steps
+    is exceeded, or when the force rms is smaller than the threshold"""
+
+    total_minimization_steps: int = 2000
+    steepest_descent_fraction: float = 0.1
+    initial_step_angstrom: float = 0.01
+    force_rms_threshold_kcal_per_angmol: float = 1e-4
+
+
+# Procedure 2: Md
+@dataclass
+class MdArgs(RunArgs):
+    write_velocities: bool = False
     timestep_fs: float = 1.0
     time_ps: float = 0.0
     restart: bool = False
     shake: bool = True
     temperature_init_kelvin: tp.Optional[float] = None
-
-
-@dataclass
-class NvtArgs(MdArgs):
-    temperature_kelvin: tp.Tuple[float, float] = (300.0, 300.0)
-
-
-@dataclass
-class NptArgs(NvtArgs):
-    pressure_bar: tp.Tuple[float, float] = (1.0, 1.0)
-    compressibility_inv_megabar: float = 44.6
-    inhomogeneous: bool = False
-
-
-@dataclass
-class NveArgs(MdArgs):
-    pass
-
-
-# Mixed SteepestDescent + ConjugateGradient
-@dataclass
-class MixedSdcgArgs(CommonArgs):
-    total_minimization_steps: int = 2000
-    steepest_descent_fraction: float = 0.1
-
-
-@dataclass
-class NvtLangevinArgs(NvtArgs):
-    friction_inv_ps: float = 2.0
-
-
-@dataclass
-class NvtBerendsenArgs(NvtArgs):
-    temperature_tau_ps: float = 1.0
-
-
-@dataclass
-class NptBerendsenBbaroArgs(NptArgs):
-    temperature_tau_ps: float = 1.0
-    pressure_tau_ps: float = 1.0
-
-
-@dataclass
-class NptBerendsenMbaroArgs(NptArgs):
-    temperature_tau_ps: float = 1.0
-    pressure_tau_ps: float = 1.0
-    monte_carlo_attempt_interval_frames: int = 100
-
-
-@dataclass
-class NptLangevinBbaroArgs(NptArgs):
-    friction_inv_ps: float = 2.0
-    pressure_tau_ps: float = 1.0
-
-
-@dataclass
-class NptLangevinMbaroArgs(NptArgs):
-    friction_inv_ps: float = 2.0
-    pressure_tau_ps: float = 1.0
-    monte_carlo_attempt_interval_frames: int = 100
+    thermo: tp.Optional[Thermo] = None
+    baro: tp.Optional[Baro] = None
+    surface_tensionstat: tp.Optional[SurfaceTensionstat] = None
 
 
 def _run(
-    args: CommonArgs,
+    args: RunArgs,
     template: str,
-    step_kind: Step,
 ) -> str:
     template_renderer = env.get_template(template)
     args_dict = asdict(args)
+    args_dict.pop("thermo", None)
+    args_dict.pop("baro", None)
+    args_dict.pop("surface_tensionstat", None)
+
     solvent = args_dict.pop("solvent_model")
     restraint_selection = args_dict.pop("restraint_selection")
     restraint_constant = args_dict.pop("restraint_constant")
@@ -187,128 +167,117 @@ def _run(
     if solvent is not SolventModel.EXPLICIT:
         args_dict["implicit_solvent_model"] = mdin_integer(solvent)
 
-    temperature_kelvin = args_dict.pop("temperature_kelvin", None)
-    if temperature_kelvin is not None:
-        if temperature_kelvin[0] != temperature_kelvin[1]:
-            args_dict["temperature_start_kelvin"] = temperature_kelvin[0]
-            args_dict["temperature_end_kelvin"] = temperature_kelvin[1]
-            args_dict["heating"] = True
-        else:
-            args_dict["temperature_start_kelvin"] = temperature_kelvin[0]
-            args_dict["heating"] = False
-
-    pressure_bar = args_dict.pop("pressure_bar", None)
-    if pressure_bar is not None:
-        if solvent is not SolventModel.EXPLICIT:
-            raise ValueError(
-                "Can't perform pressure control in an implicit solvent calculation"
+    if isinstance(args, MdArgs):
+        if args.thermo is not None:
+            args_dict["heating"] = (
+                args.thermo.temperature_kelvin[0] != args.thermo.temperature_kelvin[1]
             )
-        if pressure_bar[0] != pressure_bar[1]:
-            args_dict["pressure_start_bar"] = pressure_bar[0]
-            args_dict["pressure_end_bar"] = pressure_bar[1]
-            args_dict["changing_pressure"] = True
-        else:
-            args_dict["pressure_end_kelvin"] = pressure_bar[0]
-            args_dict["changing_pressure"] = False
 
-    steepest_descent_fraction = args_dict.pop("steepest_descent_fraction", None)
-    if steepest_descent_fraction is not None:
-        args_dict["steepest_descent_steps"] = math.ceil(
-            steepest_descent_fraction * args_dict["total_minimization_steps"]
-        )
+        if args.baro is not None:
+            if solvent is not SolventModel.EXPLICIT:
+                raise ValueError(
+                    "Can't perform pressure control in an implicit solvent calculation"
+                )
+            args_dict["changing_pressure"] = (
+                args.baro.pressure_bar[0] != args.baro.pressure_bar[1]
+            )
 
-    if step_kind is Step.MD:
         timestep_fs = args_dict.pop("timestep_fs")
         args_dict["timestep_ps"] = timestep_fs * FEMTOSECOND_TO_PICOSECOND
         args_dict["total_md_steps"] = get_dynamics_steps(
             args_dict.pop("time_ps"), timestep_fs
         )
-    elif step_kind is Step.MIN:
-        if args.write_velocities:
-            raise ValueError("Velocities should not be written during minimization")
-
-    return template_renderer.render(**args_dict)
-
-
-def _dynamics(args: MdArgs, template: str) -> str:
-    return _run(args, template=template, step_kind=Step.MD)
-
-
-def _dynamics_with_temperature(
-    args: NvtArgs,
-    template: str,
-) -> str:
-    return _dynamics(args, template)
-
-
-def _dynamics_with_temperature_and_pressure(
-    args: NptArgs,
-    template: str,
-) -> str:
-    return _dynamics_with_temperature(args, template)
+        return template_renderer.render(
+            thermo=args.thermo,
+            baro=args.baro,
+            surface_tensionstat=args.surface_tensionstat,
+            **args_dict,
+        )
+    elif isinstance(args, MinArgs):
+        steepest_descent_fraction = args_dict.pop("steepest_descent_fraction", None)
+        if steepest_descent_fraction is not None:
+            args_dict["steepest_descent_steps"] = math.ceil(
+                steepest_descent_fraction * args_dict["total_minimization_steps"]
+            )
+        return template_renderer.render(**args_dict)
+    else:
+        raise ValueError("Unknown procedure type")
 
 
 # User-facing functions
 def mixed_sdcg(args: MixedSdcgArgs) -> str:
-    return _run(args, "min-mixed-sdcg.amber.in.jinja", step_kind=Step.MIN)
+    return _run(args, "min-mixed-sdcg.amber.in.jinja")
+
+
+# TODO: Validation should be performed by jinja somehow?
+def nve(args: MdArgs) -> str:
+    if args.baro is not None or args.thermo is not None:
+        raise ValueError("No barostat or thermostat arguments expected")
+    if args.surface_tensionstat is not None:
+        raise ValueError("No surface tension arguments expected")
+    return _run(args, "md.amber.in.jinja")
 
 
 def single_point(args: MdArgs) -> str:
     if (
         args.timestep_fs != 1.0
         or args.time_ps != 0.0
-        or args.thermo_output_interval_frames != 1
-        or args.trajectory_output_interval_frames != 1
+        or args.scalars_output_interval_frames != 1
+        or args.arrays_output_interval_frames != 1
     ):
         raise ValueError(
-            "Timestep, time or output frequency should not be specified for single-point"
+            "Timestep, time, output-freq shouldn't be specified for single-point"
         )
-    return _dynamics(args, "md.amber.in.jinja")
+    if args.baro is not None or args.thermo is not None:
+        raise ValueError("No barostat or thermostat arguments expected")
+    if args.surface_tensionstat is not None:
+        raise ValueError("No surface tension arguments expected")
+    return _run(args, "md.amber.in.jinja")
 
 
-def nve(args: NveArgs) -> str:
-    return _dynamics(args, "md.amber.in.jinja")
+def _register_input_maker(thermo: Thermo, baro: tp.Optional[Baro]) -> None:
+    if baro is not None:
+        name = f"npt_{thermo.name}_{baro.name}"
+
+        def input_maker(
+            args: MdArgs,
+        ) -> str:
+            if not isinstance(args.thermo, type(thermo)) or not isinstance(
+                args.baro, type(baro)
+            ):
+                raise ValueError(
+                    f"Expected {thermo} thermo and {baro} baro arguments only"
+                )
+            if args.surface_tensionstat is not None:
+                raise ValueError("No surface tension arguments expected")
+            return _run(args, "md.amber.in.jinja")
+
+    else:
+        name = f"nvt_{thermo.name}"
+
+        def input_maker(
+            args: MdArgs,
+        ) -> str:
+            if not isinstance(args.thermo, type(thermo)) or args.baro is not None:
+                raise ValueError("Expected langevin thermostat arguments only")
+                raise ValueError(f"Expected {thermo} thermo arguments only")
+            if args.surface_tensionstat is not None:
+                raise ValueError("No surface tension arguments expected")
+            return _run(args, "md.amber.in.jinja")
+
+    input_maker.__name__ = name
+    setattr(sys.modules[__name__], name, input_maker)
 
 
-def nvt_langevin(
-    args: NvtLangevinArgs,
-) -> str:
-    return _dynamics_with_temperature(args, "nvt-langevin.amber.in.jinja")
-
-
-def nvt_berendsen(
-    args: NvtBerendsenArgs,
-) -> str:
-    return _dynamics_with_temperature(args, "nvt-berendsen.amber.in.jinja")
-
-
-def npt_berendsen_bbaro(
-    args: NptBerendsenBbaroArgs,
-) -> str:
-    return _dynamics_with_temperature_and_pressure(
-        args, "npt-berendsen-bbaro.amber.in.jinja"
-    )
-
-
-def npt_berendsen_mbaro(
-    args: NptBerendsenMbaroArgs,
-) -> str:
-    return _dynamics_with_temperature_and_pressure(
-        args, "npt-berendsen-mbaro.amber.in.jinja"
-    )
-
-
-def npt_langevin_bbaro(
-    args: NptLangevinBbaroArgs,
-) -> str:
-    return _dynamics_with_temperature_and_pressure(
-        args, "npt-langevin-bbaro.amber.in.jinja"
-    )
-
-
-def npt_langevin_mbaro(
-    args: NptLangevinMbaroArgs,
-) -> str:
-    return _dynamics_with_temperature_and_pressure(
-        args, "npt-langevin-mbaro.amber.in.jinja"
-    )
+for thermo, baro in itertools.product(
+    (
+        BerendsenThermo,
+        AndersenThermo,
+        LangevinThermo,
+        OINHThermo,
+        SINHThermo,
+        StochasticBerendsenThermo,
+    ),
+    (McBaro, BerendsenBaro, None),
+):
+    _register_input_maker(thermo(), baro() if baro is not None else None)

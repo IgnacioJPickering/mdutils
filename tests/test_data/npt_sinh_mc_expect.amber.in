@@ -1,0 +1,45 @@
+Control Namelist
+&cntrl
+imin = 0  ! Perform MD
+dt = 0.001  ! Timestep [ps]
+nstlim = 0  ! Total MD step num
+temp0 = 300.0  ! Target temperature for thermo [K]
+ntt = 10  ! Stochastic Isokinetic Nose-Hoover thermostat (AKA SINH)
+nikja = 1  ! SINH number of additional DoF
+sinrtau = 1.0  ! SINH mass of additional DoF
+pres0 = 1.0  ! Target pressure for baro [bar]
+ntp = 1  ! Isotropic baro scaling
+barostat = 2  ! Monte Carlo barostat
+mcbarint = 100  ! MC baro attempts step interval
+ntc = 2  ! Apply SHAKE to bonds involving H
+ntf = 2  ! Apply SHAKE to bonds involving H
+irest = 0  ! Not a restart
+ntx = 1  ! Not a restart
+nmropt = 0  ! Not changing scalars, and not applying harmonic restraints
+ntwx =   ! Trajectory output step interval
+ntpr =   ! Scalars output step interval
+ntr = 0  ! No restraints
+cut = 8.0  ! Cutoff radius
+ioutfm = 1  ! Write trajectory array files in netcdf format
+ntxo = 2  ! Write restart array files in netcdf format
+iwrap = 0  ! Do not wrap coordinates in output
+ig = 1  ! Random seed
+iextpot = 2  ! Use torchani as an external potential
+/
+
+
+&extpot
+extprog = "torchani"  ! Use ANI as an external potential
+/
+
+&torchani
+use_cuaev = .false.  ! Whether ANI uses the cuAEV extension
+use_cuda_device = .true.  ! Whether ANI uses GPU
+use_double_precision = .false.  ! Whether ANI uses float64
+use_torch_cell_list = .true.  ! Whether ANI uses torch cell-list
+use_external_neighborlist = .false.  ! Whether to use AMBER neighborlist
+device_index = -1  ! GPU index (-1 => CPU or first GPU)
+network_index = -1  ! Index of ANI network (-1 => full ensemble)
+torchani_model = "ani2x" ! String with torchani model
+/
+
