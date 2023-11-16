@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class Backend(Enum):
+class RunBackend(Enum):
     ASE = "ase"
     SANDER = "sander"
     PMEMD = "pmemd"
