@@ -3,20 +3,20 @@ from pathlib import Path
 import itertools
 import unittest
 
-import amber_utils.inputs as amber_inputs
-from amber_utils.barostats import (
+import mdutils.inputs as amber_inputs
+from mdutils.barostats import (
     BerendsenBaro,
     McBaro,
 )
-from amber_utils.thermostats import (
+from mdutils.thermostats import (
     LangevinThermo,
     BerendsenThermo,
-    SBerendsenThermo,
+    BussiThermo,
     AndersenThermo,
     OINHThermo,
     SINHThermo,
 )
-from amber_utils.inputs import (
+from mdutils.inputs import (
     MdArgs,
     AniArgs,
     MixedSdcgArgs,
@@ -53,7 +53,7 @@ class TestInputs(unittest.TestCase):
             LangevinThermo,
             OINHThermo,
             SINHThermo,
-            SBerendsenThermo,
+            BussiThermo,
         ):
             fn_name = f"nvt_{thermo().name}"
             string = getattr(amber_inputs, fn_name)(
@@ -70,7 +70,7 @@ class TestInputs(unittest.TestCase):
                 LangevinThermo,
                 OINHThermo,
                 SINHThermo,
-                SBerendsenThermo,
+                BussiThermo,
             ),
             (McBaro, BerendsenBaro),
         ):
