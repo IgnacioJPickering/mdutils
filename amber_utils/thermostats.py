@@ -40,6 +40,7 @@ class OptimizedIsokineticNoseHooverChainEnsembleThermo(Thermo):
 
     Writes 2 additional files for restarts
     """
+
     friction_inv_ps: float = 2.0
     substep_num: int = 1
     # TODO: default for idistr unknown
