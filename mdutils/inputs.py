@@ -8,12 +8,12 @@ import math
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from amber_utils.ani import AniNeighborlistKind
-from amber_utils.units import FEMTOSECOND_TO_PICOSECOND
-from amber_utils.utils import get_dynamics_steps
-from amber_utils.solvent import SolventModel, mdin_integer
-from amber_utils.umbrella import UmbrellaArgs
-from amber_utils.thermostats import (
+from mdutils.ani import AniNeighborlistKind
+from mdutils.units import FEMTOSECOND_TO_PICOSECOND
+from mdutils.utils import get_dynamics_steps
+from mdutils.solvent import SolventModel, mdin_integer
+from mdutils.umbrella import UmbrellaArgs
+from mdutils.thermostats import (
     Thermo,
     BerendsenThermo,
     AndersenThermo,
@@ -22,12 +22,12 @@ from amber_utils.thermostats import (
     SINHThermo,
     StochasticBerendsenThermo,
 )
-from amber_utils.barostats import (
+from mdutils.barostats import (
     Baro,
     BerendsenBaro,
     McBaro,
 )
-from amber_utils.surface_tensionstats import SurfaceTensionstat
+from mdutils.surface_tensionstats import SurfaceTensionstat
 
 _TEMPLATES_PATH = Path(__file__).parent.joinpath("templates")
 

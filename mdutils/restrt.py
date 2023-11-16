@@ -7,8 +7,8 @@ import numpy as np
 import netCDF4 as netcdf
 from numpy.typing import NDArray
 
-from amber_utils.units import AMBER_VELOCITIES_SCALE_FACTOR
-from amber_utils.box import BoxParams
+from mdutils.units import AMBER_VELOCITIES_SCALE_FACTOR
+from mdutils.box import BoxParams
 
 
 @dataclass

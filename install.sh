@@ -10,7 +10,7 @@ fi
 if [ -n "$1" ]; then
     _env_name="$1"  # for forwarding
 else
-    _env_name='amber-utils'
+    _env_name='mdutils'
 fi
 
 # Installation for editable conda packanges

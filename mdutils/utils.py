@@ -4,7 +4,7 @@ import re
 import math
 from pathlib import Path
 
-from amber_utils.units import PICOSECOND_TO_FEMTOSECOND, FEMTOSECOND_TO_PICOSECOND
+from mdutils.units import PICOSECOND_TO_FEMTOSECOND, FEMTOSECOND_TO_PICOSECOND
 
 
 def get_dynamics_steps(time_ps: float, timestep_fs: float) -> int:
