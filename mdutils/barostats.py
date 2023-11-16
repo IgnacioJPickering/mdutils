@@ -3,6 +3,17 @@ from enum import Enum
 import typing as tp
 
 
+class Baro(Enum):
+    MC = "mc"
+    BERENDSEN = "berendsen"
+    # BUSSI ? C-rescale (stochastic berendsen barostat) gromacs
+    # MTTK for gromacs
+    # TODO: add these?
+    # PARRINELLO_RAHMAN = "parrinellorahman" for ase and gromacs
+    # NOSE_HOOVER = "nosehoover" for lammps and ase
+    # LAMMPS does not have MC barostat
+
+
 class Scaling(Enum):
     ISOTROPIC = "isotropic"
     ANISOTROPIC_RANDOM = "anisotropic-random"
@@ -12,7 +23,7 @@ class Scaling(Enum):
 
 
 @dataclass
-class Baro:
+class BaseBaro:
     pressure_bar: tp.Tuple[float, float] = (1.0, 1.0)
     scaling: Scaling = Scaling.ISOTROPIC
 
@@ -22,11 +33,11 @@ class Baro:
 
 
 @dataclass
-class BerendsenBaro(Baro):
+class BerendsenBaro(BaseBaro):
     pressure_relax_time_ps: float = 1.0
     compressibility_inv_megabar: float = 44.6
 
 
 @dataclass
-class McBaro(Baro):
+class McBaro(BaseBaro):
     attempts_step_interval: int = 100

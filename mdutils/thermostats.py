@@ -1,9 +1,26 @@
+from enum import Enum
 import typing as tp
 from dataclasses import dataclass
 
 
+class Thermo(Enum):
+    BERENDSEN = "berendsen"
+    ANDERSEN = "andersen"
+    LANGEVIN = "langevin"
+    OINH = "oinh"
+    SINH = "sinh"
+    BUSSI = "bussi"
+    # TODO: add these?
+    # ANDERSEN_MASSIVE for gromacs
+    # NOSE_HOOVER = "nosehoover" (nvt in lammps)
+    # DIRECT_RESCALE = (temp/rescale) in lammps, how is it different from berendsen?
+    # DPD = "dpd" dissipative particle dynamics in lammps
+    # CSVR|CSLD = "csvr" csvr lammps? I think this is Bussi, and can be used with
+    # langevin dynamics? what does that mean?
+
+
 @dataclass
-class Thermo:
+class BaseThermo:
     temperature_kelvin: tp.Tuple[float, float] = (300.0, 300.0)
 
     @property
@@ -12,7 +29,7 @@ class Thermo:
 
 
 @dataclass
-class BerendsenThermo(Thermo):
+class BerendsenThermo(BaseThermo):
     r"""
     AKA "Weak coupling scheme"
     """
@@ -20,17 +37,17 @@ class BerendsenThermo(Thermo):
 
 
 @dataclass
-class AndersenThermo(Thermo):
+class AndersenThermo(BaseThermo):
     vel_randomization_step_interval: int = 1000
 
 
 @dataclass
-class LangevinThermo(Thermo):
+class LangevinThermo(BaseThermo):
     friction_inv_ps: float = 2.0
 
 
 @dataclass
-class OptimizedIsokineticNoseHooverChainEnsembleThermo(Thermo):
+class OptimizedIsokineticNoseHooverChainEnsembleThermo(BaseThermo):
     """
     AKA OINH thermostat
 
@@ -55,7 +72,7 @@ OINHThermo = OptimizedIsokineticNoseHooverChainEnsembleThermo
 
 
 @dataclass
-class StochasticIsokineticNoseHooverRespaThermo(Thermo):
+class StochasticIsokineticNoseHooverRespaThermo(BaseThermo):
     r"""
     AKA SINH thermostat
     Note that the particles are canonical in this thermostat, but the velocities
@@ -74,16 +91,15 @@ SINHThermo = StochasticIsokineticNoseHooverRespaThermo
 
 
 @dataclass
-class StochasticBerendsenThermo(Thermo):
+class BussiThermo(BaseThermo):
     r"""
-    AKA Bussi thermostat or SBerendsen thermostat
+    AKA Stochastic Berendsen thermostat
     """
     temperature_relax_time_ps: float = 1.0
 
     @property
     def name(self) -> str:
-        return "sberendsen"
+        return "bussi"
 
 
-BussiThermo = StochasticBerendsenThermo
-SBerendsenThermo = StochasticBerendsenThermo
+StochasticBerendsenThermo = BussiThermo

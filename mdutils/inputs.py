@@ -14,16 +14,16 @@ from mdutils.utils import get_dynamics_steps
 from mdutils.solvent import SolventModel, mdin_integer
 from mdutils.umbrella import UmbrellaArgs
 from mdutils.thermostats import (
-    Thermo,
+    BaseThermo,
     BerendsenThermo,
     AndersenThermo,
     LangevinThermo,
     OINHThermo,
     SINHThermo,
-    StochasticBerendsenThermo,
+    BussiThermo,
 )
 from mdutils.barostats import (
-    Baro,
+    BaseBaro,
     BerendsenBaro,
     McBaro,
 )
@@ -130,8 +130,8 @@ class MdArgs(RunArgs):
     restart: bool = False
     shake: bool = True
     temperature_init_kelvin: tp.Optional[float] = None
-    thermo: tp.Optional[Thermo] = None
-    baro: tp.Optional[Baro] = None
+    thermo: tp.Optional[BaseThermo] = None
+    baro: tp.Optional[BaseBaro] = None
     surface_tensionstat: tp.Optional[SurfaceTensionstat] = None
 
 
@@ -235,7 +235,7 @@ def single_point(args: MdArgs) -> str:
     return _run(args, "md.amber.in.jinja")
 
 
-def _register_input_maker(thermo: Thermo, baro: tp.Optional[Baro]) -> None:
+def _register_input_maker(thermo: BaseThermo, baro: tp.Optional[BaseBaro]) -> None:
     if baro is not None:
         name = f"npt_{thermo.name}_{baro.name}"
 
@@ -276,7 +276,7 @@ for thermo, baro in itertools.product(
         LangevinThermo,
         OINHThermo,
         SINHThermo,
-        StochasticBerendsenThermo,
+        BussiThermo,
     ),
     (McBaro, BerendsenBaro, None),
 ):

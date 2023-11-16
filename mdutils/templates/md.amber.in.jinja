@@ -25,9 +25,9 @@ idistr = {{ thermo.vel_distribution_accumulation_step_interval }}  ! OINH v dist
 ntt = 10  ! Stochastic Isokinetic Nose-Hoover thermostat (AKA SINH)
 nikja = {{ thermo.additional_dof_num }}  ! SINH number of additional DoF
 sinrtau = {{ thermo.dof_mass }}  ! SINH mass of additional DoF
-    {% elif thermo.name == "sberendsen" %}
-ntt = 11 ! Stochastic Berendsen (AKA Bussi) thermostat
-tautp = {{ thermo.temperature_relax_time_ps }}  ! Stochastic Berendsen thermo T relax time [ps]
+    {% elif thermo.name == "bussi" %}
+ntt = 11 ! Bussi (AKA Stochastic Berendsen) thermostat
+tautp = {{ thermo.temperature_relax_time_ps }}  ! Bussi thermo T relax time [ps]
     {% endif %}
 {% endif %}
 {% if baro %}
