@@ -5,7 +5,7 @@
     description = "Python package mdutils"
     requires-python = ">=3.8"
     dynamic = ["version", "readme"]
-m
+
 [tool.setuptools.dynamic]
     readme = {file = ["README.md"]}
 
