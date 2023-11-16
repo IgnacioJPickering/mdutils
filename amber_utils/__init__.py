@@ -1,6 +1,7 @@
 from . import inputs
 from . import inpcrd
 from . import prmtop
+from . import backends
 from . import restrt
 from . import utils
 from . import ani
@@ -10,6 +11,7 @@ from . import umbrella
 
 __all__ = [
     "umbrella",
+    "backends",
     "inputs",
     "inpcrd",
     "prmtop",
