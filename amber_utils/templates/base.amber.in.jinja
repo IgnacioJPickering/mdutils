@@ -2,19 +2,19 @@ Control Namelist
 &cntrl
 {% block body %}
 {% endblock %}
-ntwx = {{ trajectory_output_interval_frames }}  ! Trajectory output interval frames
-ntpr = {{ thermo_output_interval_frames }}  ! Log output interval frames
+ntwx = {{ arrays_output_step_interval }}  ! Trajectory output step interval
+ntpr = {{ scalars_output_step_interval }}  ! Scalars output step interval
 {% if write_velocites %}
-ntwv = {{ trajectory_output_interval_frames }}  ! Output velocities
+ntwv = {{ arrays_output_step_interval }}  ! Velocities output step interval
 {% endif %}
 {% if write_forces %}
-ntwf = {{ trajectory_output_interval_frames }}  ! Output forces
+ntwf = {{ arrays_output_step_interval }}  ! Forces output step interval
 {% endif %}
 {% if restraint_selection is defined %}
 ntr = 1  ! Use restraints
 restraintmask = '{{ restraint_selection }}'  ! Restraint selection
 {% if restraint_constant is defined %}
-restraint_wt = {{ restraint_constant }}  ! Restraint constant in kcal / mol / Ang^2
+restraint_wt = {{ restraint_constant }}  ! Restraint constant in kcal/mol/Ang^2
 {% endif %}
 {% else %}
 ntr = 0  ! No restraints
@@ -25,10 +25,10 @@ igb = {{ implicit_solvent_model }}  ! Implicit solvent model
 {% else %}
 cut = {{ cutoff }}  ! Cutoff radius
 {% endif %}
-ioutfm = 1  ! Write netcdf trajectory files
-ntxo = 2  ! Write netcdf restart files
-iwrap = 0  ! Do not wrap output
-ig = {{ random_seed }}
+ioutfm = 1  ! Write trajectory array files in netcdf format
+ntxo = 2  ! Write restart array files in netcdf format
+iwrap = 0  ! Do not wrap coordinates in output
+ig = {{ random_seed }}  ! Random seed
 {% if torchani %}
 iextpot = 2  ! Use torchani as an external potential
 {% endif %}
@@ -39,23 +39,23 @@ iextpot = 2  ! Use torchani as an external potential
 {% if umbrella_input_fpath %}
 &wt
 TYPE = 'DUMPFREQ'  ! Set the umbrella restrained coord dump frequency
-istep1={{ thermo_output_interval_frames }}  ! Umbrella restrained coord dump frequency
+istep1={{ scalars_output_step_interval }}  ! Umbrella restrained coord output step interval
 /
 {% endif %}
 
 {% if torchani %}
 &extpot
-extprog = "torchani"  ! Use ani as an external potential
+extprog = "torchani"  ! Use ANI as an external potential
 /
 
 &torchani
-use_cuaev = {{ ani_use_cuaev }}  ! Whether ani uses the cuAEV extension
-use_cuda_device = {{ ani_use_cuda }}  ! Whether ani uses GPU
-use_double_precision = {{ ani_double_precision }}  ! Whether ani uses float64
-use_torch_cell_list = {{ ani_torch_cell_list }}  ! Whether ani uses torch cell-list
-use_external_neighborlist = {{ ani_external_neighborlist }}  ! Use of amber neighborlist
-device_index = {{ ani_device_idx }}  ! GPU index (-1 -> CPU or first GPU)
-network_index = {{ ani_network_idx }}  ! Index of the ANI network (-1 -> full ensemble)
+use_cuaev = {{ ani_use_cuaev }}  ! Whether ANI uses the cuAEV extension
+use_cuda_device = {{ ani_use_cuda }}  ! Whether ANI uses GPU
+use_double_precision = {{ ani_double_precision }}  ! Whether ANI uses float64
+use_torch_cell_list = {{ ani_torch_cell_list }}  ! Whether ANI uses torch cell-list
+use_external_neighborlist = {{ ani_external_neighborlist }}  ! Whether to use AMBER neighborlist
+device_index = {{ ani_device_idx }}  ! GPU index (-1 => CPU or first GPU)
+network_index = {{ ani_network_idx }}  ! Index of ANI network (-1 => full ensemble)
 torchani_model = "{{ ani_model }}" ! String with torchani model
 /
 {% endif %}
