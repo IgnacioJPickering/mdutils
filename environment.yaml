@@ -1,4 +1,4 @@
-name: amber-utils
+name: mdutils
 channels:
   - https://conda.anaconda.org/conda-forge
 dependencies:

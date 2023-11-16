@@ -3,7 +3,7 @@
 # Create conda env and update it with the dependencies of the submodules.
 # (maybe it is best to manually synchronize the dependencies?)
 
-_env_name='amber-utils'
+_env_name='mdutils'
 
 if command -v mamba > /dev/null; then
     _cmd="mamba"

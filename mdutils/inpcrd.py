@@ -8,7 +8,7 @@ import os
 import numpy as np
 from numpy.typing import NDArray
 
-from amber_utils.box import BoxParams
+from mdutils.box import BoxParams
 
 
 @dataclass

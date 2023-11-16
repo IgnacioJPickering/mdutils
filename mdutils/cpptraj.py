@@ -5,11 +5,11 @@ import subprocess
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from amber_utils.prmtop import (
+from mdutils.prmtop import (
     load as load_prmtop,
     Flag,
 )
-from amber_utils.aminoacids import AMINOACIDS_WITH_CO, AMINOACIDS
+from mdutils.aminoacids import AMINOACIDS_WITH_CO, AMINOACIDS
 
 
 templates_path = Path(__file__).parent.joinpath("cpptraj_templates")

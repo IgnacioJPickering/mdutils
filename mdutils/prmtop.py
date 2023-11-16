@@ -7,9 +7,9 @@ from pathlib import Path
 import numpy as np
 from numpy.typing import NDArray
 
-from amber_utils.box import BoxKind
-from amber_utils.polarizable import PolarizableKind
-from amber_utils._prmtop_blocks import (
+from mdutils.box import BoxKind
+from mdutils.polarizable import PolarizableKind
+from mdutils._prmtop_blocks import (
     Format,
     Flag,
     FLAG_FORMAT_MAP,
