@@ -2,6 +2,7 @@ r"""Useful unit conversion factors"""
 AMBER_VELOCITIES_SCALE_FACTOR = 20.455
 
 AVOGADROS_NUMBER = 6.022140857e23  # Equal to ase.units._Nav
+GRAMS_PER_MILLILITER_TO_GRAMS_PER_MOLE_PER_ANGSTROM_CUBED = AVOGADROS_NUMBER / 1e24  # 0.602214076
 
 EV_TO_JOULE = 1.6021766208e-19  # Equal to ase.units._e (electron charge)
 JOULE_TO_EV = 1 / EV_TO_JOULE
