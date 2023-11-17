@@ -6,6 +6,18 @@ from pathlib import Path
 
 from mdutils.units import PICOSECOND_TO_FEMTOSECOND, FEMTOSECOND_TO_PICOSECOND
 
+_PERIODIC_TABLE = """
+    H                                                                                                                           He
+    Li  Be                                                                                                  B   C   N   O   F   Ne
+    Na  Mg                                                                                                  Al  Si  P   S   Cl  Ar
+    K   Ca  Sc                                                          Ti  V   Cr  Mn  Fe  Co  Ni  Cu  Zn  Ga  Ge  As  Se  Br  Kr
+    Rb  Sr  Y                                                           Zr  Nb  Mo  Tc  Ru  Rh  Pd  Ag  Cd  In  Sn  Sb  Te  I   Xe
+    Cs  Ba  La  Ce  Pr  Nd  Pm  Sm  Eu  Gd  Tb  Dy  Ho  Er  Tm  Yb  Lu  Hf  Ta  W   Re  Os  Ir  Pt  Au  Hg  Tl  Pb  Bi  Po  At  Rn
+    Fr  Ra  Ac  Th  Pa  U   Np  Pu  Am  Cm  Bk  Cf  Es  Fm  Md  No  Lr  Rf  Db  Sg  Bh  Hs  Mt  Ds  Rg  Cn  Nh  Fl  Mc  Lv  Ts  Og
+    """.strip().split()
+ATOMIC_SYMBOLS = {z: s for z, s in enumerate(_PERIODIC_TABLE, start=1)}
+ATOMIC_NUMBERS = {s: z for z, s in enumerate(_PERIODIC_TABLE, start=1)}
+
 
 def get_dynamics_steps(time_ps: float, timestep_fs: float) -> int:
     steps = math.ceil(time_ps * PICOSECOND_TO_FEMTOSECOND / timestep_fs)
@@ -30,7 +42,7 @@ def read_last_line(file_: Path) -> str:
 
 # Each simulation step a new runner is constructed, and a completely new
 # attacher is passed to the runner
-def output_freq_to_frame_interval(
+def output_freq_to_step_interval(
     freq: str, timestep_fs: tp.Optional[float] = None, verbose: bool = False
 ) -> int:
     if re.match(r"[1-9][0-9]* */ *(us|ns|ps|fs)", freq):
@@ -40,19 +52,19 @@ def output_freq_to_frame_interval(
         factor = {"fs": 1000**2, "ps": 1000, "ns": 1, "us": 1 / 1000}
         outputs_per_ns = int(num) * factor[time_units]
         timesteps_per_ns = (1 / timestep_fs) * 1000 * 1000
-        frame_interval = int(timesteps_per_ns // outputs_per_ns)
-        if frame_interval == 0:
-            frame_interval = 1
+        step_interval = int(timesteps_per_ns // outputs_per_ns)
+        if step_interval == 0:
+            step_interval = 1
             if verbose:
                 print(
                     "Requested write freq too high, will write every timestep instead"
                 )
     elif re.match(r"1 */ *[1-9][0-9]*", freq):
-        frame_interval = int(freq.split("/")[1])
+        step_interval = int(freq.split("/")[1])
     elif freq == "every-step":
-        frame_interval = 1
+        step_interval = 1
     else:
         raise ValueError(
-            "Incorrect freq format, should be'every-step', '1 / frames' or 'outputs / (ns|ps|fs)'"
+            "Incorrect freq format, should be'every-step', '1 / steps' or 'outputs / (ns|ps|fs)'"
         )
-    return frame_interval
+    return step_interval
