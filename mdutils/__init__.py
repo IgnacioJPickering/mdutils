@@ -12,10 +12,12 @@ from . import thermostats
 from . import surface_tensionstats
 from . import barostats
 from . import optimizers
+from . import init
 from .options import Step
 
 __all__ = [
     "Step",
+    "init",
     "thermostats",
     "barostats",
     "optimizers",
