@@ -8,10 +8,18 @@ from . import ani
 from . import cpptraj
 from . import solvent
 from . import umbrella
-from mdutils.options import Step
+from . import thermostats
+from . import surface_tensionstats
+from . import barostats
+from . import optimizers
+from .options import Step
 
 __all__ = [
     "Step",
+    "thermostats",
+    "barostats",
+    "optimizers",
+    "surface_tensionstats",
     "umbrella",
     "backends",
     "inputs",
