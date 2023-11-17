@@ -15,11 +15,15 @@ from .options import Step
 from .utils import (
     ATOMIC_SYMBOLS,
     ATOMIC_NUMBERS,
+    ATOMIC_SYMBOLS_TO_MASS,
+    ATOMIC_NUMBERS_TO_MASS,
 )
 
 __all__ = [
     "ATOMIC_SYMBOLS",
     "ATOMIC_NUMBERS",
+    "ATOMIC_NUMBERS_TO_MASS",
+    "ATOMIC_SYMBOLS_TO_MASS",
     "Step",
     "init",
     "hmr",
