@@ -1,8 +1,5 @@
-from . import inputs
-from . import inpcrd
-from . import prmtop
+from .amber import inputs, inpcrd, prmtop, restrt
 from . import backends
-from . import restrt
 from . import utils
 from . import ani
 from . import cpptraj
@@ -14,8 +11,14 @@ from . import barostats
 from . import optimizers
 from . import init
 from .options import Step
+from .utils import (
+    ATOMIC_SYMBOLS,
+    ATOMIC_NUMBERS,
+)
 
 __all__ = [
+    "ATOMIC_SYMBOLS",
+    "ATOMIC_NUMBERS",
     "Step",
     "init",
     "thermostats",
