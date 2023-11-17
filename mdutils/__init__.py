@@ -8,8 +8,10 @@ from . import ani
 from . import cpptraj
 from . import solvent
 from . import umbrella
+from mdutils.options import Step
 
 __all__ = [
+    "Step",
     "umbrella",
     "backends",
     "inputs",
