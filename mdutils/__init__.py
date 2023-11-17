@@ -10,6 +10,7 @@ from . import surface_tensionstats
 from . import barostats
 from . import optimizers
 from . import init
+from . import hmr
 from .options import Step
 from .utils import (
     ATOMIC_SYMBOLS,
@@ -21,6 +22,7 @@ __all__ = [
     "ATOMIC_NUMBERS",
     "Step",
     "init",
+    "hmr",
     "thermostats",
     "barostats",
     "optimizers",
