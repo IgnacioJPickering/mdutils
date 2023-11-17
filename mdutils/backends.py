@@ -8,4 +8,3 @@ class RunBackend(Enum):
     OPENMM = "openmm"
     LAMMPS = "lammps"
     GROMACS = "gromacs"
-    DEFAULT = "default"  # only for cli usage
