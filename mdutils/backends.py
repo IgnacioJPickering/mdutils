@@ -2,7 +2,7 @@ from mdutils.yaml import yamlize, YamlEnum
 
 
 @yamlize
-class RunBackend(YamlEnum):
+class DynamicsBackend(YamlEnum):
     ASE = "ase"
     SANDER = "sander"
     PMEMD = "pmemd"
