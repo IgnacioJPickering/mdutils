@@ -19,7 +19,7 @@ class BoxParams:
 
 @yamlize
 class BoxKind(YamlEnum):
-    TRUNCATED_OCTAHEDRAL = 0
-    RECTANGULAR_CUBOID = 1  # all angles are 90 deg ?
-    NO_BOX = 2
-    RECTANGULAR = 3
+    NO_BOX = 0
+    RECTANGULAR = 1  # Should be PARALLELEPIPED
+    TRUNCATED_OCTAHEDRAL = 2
+    RECTANGULAR_CUBOID = 3  # all angles are 90 deg
