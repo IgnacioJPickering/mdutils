@@ -1,4 +1,4 @@
-from .amber import inputs, inpcrd, prmtop, restrt
+from . import amber
 from . import backends
 from . import utils
 from . import ani
@@ -36,10 +36,7 @@ __all__ = [
     "surface_tensionstats",
     "umbrella",
     "backends",
-    "inputs",
-    "inpcrd",
-    "prmtop",
-    "restrt",
+    "amber",
     "utils",
     "units",
     "ani",
