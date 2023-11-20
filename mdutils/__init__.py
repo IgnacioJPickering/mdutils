@@ -11,7 +11,8 @@ from . import barostats
 from . import optimizers
 from . import init
 from . import hmr
-from .options import Step
+from . import yaml
+from .options import Step, Ensemble
 from .utils import (
     ATOMIC_SYMBOLS,
     ATOMIC_NUMBERS,
@@ -25,8 +26,10 @@ __all__ = [
     "ATOMIC_NUMBERS_TO_MASS",
     "ATOMIC_SYMBOLS_TO_MASS",
     "Step",
+    "Ensemble",
     "init",
     "hmr",
+    "yaml",
     "thermostats",
     "barostats",
     "optimizers",

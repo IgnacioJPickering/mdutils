@@ -1,7 +1,8 @@
-from enum import Enum
+from mdutils.yaml import yamlize, YamlEnum
 
 
-class SolventModel(Enum):
+@yamlize
+class SolventModel(YamlEnum):
     EXPLICIT = "explicit"
     GB = "gb"
     MODIFIED_GB_I = "gb-mod1"

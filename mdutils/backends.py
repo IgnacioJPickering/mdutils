@@ -1,7 +1,8 @@
-from enum import Enum
+from mdutils.yaml import yamlize, YamlEnum
 
 
-class RunBackend(Enum):
+@yamlize
+class RunBackend(YamlEnum):
     ASE = "ase"
     SANDER = "sander"
     PMEMD = "pmemd"

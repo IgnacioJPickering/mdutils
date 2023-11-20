@@ -6,6 +6,7 @@ dependencies:
     # Utils
     - netCDF4
     - jinja2
+    - ruamel.yaml
 
     # Numerical / Sci
     - numpy=1.21  # multidimensional array support

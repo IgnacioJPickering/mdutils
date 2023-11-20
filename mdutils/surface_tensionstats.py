@@ -1,8 +1,9 @@
-from enum import Enum
+from mdutils.yaml import yamlize, YamlEnum
 from dataclasses import dataclass
 
 
-class Plane(Enum):
+@yamlize
+class Plane(YamlEnum):
     YZ = 1
     XZ = 2
     XY = 3

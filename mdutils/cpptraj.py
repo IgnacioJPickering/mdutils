@@ -5,7 +5,7 @@ import subprocess
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from mdutils.prmtop import (
+from mdutils.amber.prmtop import (
     load as load_prmtop,
     Flag,
 )
