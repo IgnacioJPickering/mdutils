@@ -529,7 +529,11 @@ def load_metadata(prmtop: Path) -> AmberPrmtopMetadata:
         residue_max_len=block[28],
         extra_points_num=block[30],
         # Flags
-        box_kind={0: BoxKind.NO_BOX, 1: BoxKind.RECTANGULAR, 2: BoxKind.TRUNCATED_OCTAHEDRAL}[block[27]],
+        box_kind={
+            0: BoxKind.NO_BOX,
+            1: BoxKind.RECTANGULAR,
+            2: BoxKind.TRUNCATED_OCTAHEDRAL,
+        }[block[27]],
         has_cap=bool(block[29]),
         version=version,
         date_time=date_time,
