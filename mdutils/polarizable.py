@@ -1,7 +1,8 @@
-from enum import Enum
+from mdutils.yaml import yamlize, YamlEnum
 
 
-class PolarizableKind(Enum):
+@yamlize
+class PolarizableKind(YamlEnum):
     NONE = 0
     POLARIZABILITY = 1
     POLARIZABILITY_AND_DIPOLE_DAMP_FACTOR = 2

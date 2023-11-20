@@ -1,9 +1,11 @@
 from dataclasses import dataclass
-from enum import Enum
 import typing as tp
 
+from mdutils.yaml import yamlize, YamlEnum
 
-class Baro(Enum):
+
+@yamlize
+class Baro(YamlEnum):
     MC = "mc"
     BERENDSEN = "berendsen"
     # BUSSI ? C-rescale (stochastic berendsen barostat) gromacs
@@ -14,7 +16,8 @@ class Baro(Enum):
     # LAMMPS does not have MC barostat
 
 
-class Scaling(Enum):
+@yamlize
+class Scaling(YamlEnum):
     ISOTROPIC = "isotropic"
     ANISOTROPIC_RANDOM = "anisotropic-random"
     ANISOTROPIC_X = "anisotropic-x"
