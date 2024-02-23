@@ -5,8 +5,8 @@ from mdutils.yaml import yamlize, YamlEnum
 
 
 @yamlize
-class Baro(YamlEnum):
-    MC = "mc"
+class Barostat(YamlEnum):
+    MC = "monte-carlo"
     BERENDSEN = "berendsen"
     # BUSSI ? C-rescale (stochastic berendsen barostat) gromacs
     # MTTK for gromacs
