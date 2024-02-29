@@ -27,7 +27,7 @@ class ModelKind(YamlEnum):
         elif node.value.startswith("ANI"):
             str_ = node.value[3:]
         elif node.value.startswith("Amber"):
-            str_ = node.value[5:]
+            str_ = node.value[5:].lower()
         else:
             str_ = node.value
         return cls(str_)
