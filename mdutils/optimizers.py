@@ -1,9 +1,8 @@
-from mdutils.yaml import yamlize, YamlEnum
+from enum import Enum
 
 
-@yamlize
-class Optimizer(YamlEnum):
-    DEFAULT = "default"
+class Optimizer(Enum):
+    DEFAULT = "default-opt"
     LBFGS = "lbfgs"
     BFGS = "bfgs"
     FIRE = "fire"

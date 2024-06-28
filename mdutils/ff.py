@@ -1,12 +1,10 @@
-from mdutils.yaml import yamlize, YamlEnum
+from enum import Enum
 
 
-@yamlize
-class FF(YamlEnum):
+class FF(Enum):
     pass
 
 
-@yamlize
 class WaterFF(FF):
     TIP3P = "tip3p"
     TIP3P_FB = "tip3p-fb"
@@ -26,13 +24,11 @@ class WaterFF(FF):
     TIP5P = "tip5p"
 
 
-@yamlize
 class GeneralFF(FF):
     GAFF = "gaff"
     GAFF2 = "gaff2"
 
 
-@yamlize
 class ProteinFF(FF):
     FF19SB = "ff19SB"  # use with OPC (or OPC3?)
     FF14SB = "ff14SB"  # use with TIP3P

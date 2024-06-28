@@ -1,8 +1,7 @@
-from mdutils.yaml import yamlize, YamlEnum
+from enum import Enum
 
 
-@yamlize
-class DynamicsBackend(YamlEnum):
+class DynamicsBackend(Enum):
     ASE = "ase"
     SANDER = "sander"
     PMEMD = "pmemd"

@@ -213,7 +213,7 @@ def dump(
             _append_block(np.zeros(data.atoms_num, dtype=np.int64), prmtop, Flag.IROTAT)
         elif flag is Flag.IPOL:
             _append_block(
-                np.array([data.polariable_params_kind.value]), prmtop, Flag.IPOL
+                np.array([data.polariable_params_kind.prmtop_idx]), prmtop, Flag.IPOL
             )
         else:
             if flag in CMAP_PARAMETER_FLAGS and data.cmap_param_comments is not None:
@@ -529,7 +529,7 @@ def load_metadata(prmtop: Path) -> AmberPrmtopMetadata:
         residue_max_len=block[28],
         extra_points_num=block[30],
         # Flags
-        box_kind=BoxKind(block[27]),
+        box_kind=BoxKind.from_prmtop_idx(block[27]),
         has_cap=bool(block[29]),
         version=version,
         date_time=date_time,
@@ -572,7 +572,7 @@ def _create_raw_pointers_array(
         0,
         0,
         0,
-        data.box_kind.value,
+        data.box_kind.prmtop_idx,
         data.residue_max_len,
         int(data.has_cap),
         data.extra_points_num,

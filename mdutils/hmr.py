@@ -1,8 +1,7 @@
-from mdutils.yaml import yamlize, YamlEnum
+from enum import Enum
 
 
-@yamlize
-class HMR(YamlEnum):
-    NONE = "none"
-    NOWAT = "nowat"
-    FULL = "full"
+class HMR(Enum):
+    NONE = "no-hmr"
+    NOWAT = "no-water-hmr"
+    FULL = "full-hmr"

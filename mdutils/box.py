@@ -1,10 +1,10 @@
+from enum import Enum
 import typing as tp
 from dataclasses import dataclass
 
 import numpy as np
 from numpy.typing import NDArray
-
-from mdutils.yaml import yamlize, YamlEnum
+import typing_extensions as tpx
 
 
 @dataclass
@@ -17,9 +17,25 @@ class BoxParams:
         return np.array(self._angles)
 
 
-@yamlize
-class BoxKind(YamlEnum):
-    NO_BOX = 0
-    PARALLELEPIPED = 1  # Angles can be whatever
-    TRUNCATED_OCTAHEDRON = 2
-    RECTANGULAR_CUBOID = 3  # All angles are 90 deg
+_PRMTOP_IDX_MAP = {
+    "no-box": 0,
+    "parallelepiped": 1,
+    "trunc-octahedron": 2,
+    "rect-cuboid": 3,
+}
+
+
+class BoxKind(Enum):
+    NO_BOX = "no-box"
+    RECTANGULAR_CUBOID = "rect-cuboid"  # All angles are 90 deg
+    PARALLELEPIPED = "parallelepiped"  # Angles can be whatever
+    TRUNCATED_OCTAHEDRON = "truc-octahedron"
+
+    @property
+    def prmtop_idx(self) -> int:
+        return _PRMTOP_IDX_MAP[self.value]
+
+    @classmethod
+    def from_prmtop_idx(cls, idx: int) -> tpx.Self:
+        value = {v: k for k, v in _PRMTOP_IDX_MAP.items()}[idx]
+        return cls(value)
