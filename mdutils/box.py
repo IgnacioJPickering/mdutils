@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import numpy as np
 from numpy.typing import NDArray
+import typing_extensions as tpx
 
 
 @dataclass
@@ -16,8 +17,25 @@ class BoxParams:
         return np.array(self._angles)
 
 
+_PRMTOP_IDX_MAP = {
+    "no-box": 0,
+    "parallelepiped": 1,
+    "trunc-octahedron": 2,
+    "rect-cuboid": 3,
+}
+
+
 class BoxKind(Enum):
-    NO_BOX = "no-box"  # 0
-    PARALLELEPIPED = "parallelepiped"  # 1  # Angles can be whatever
-    TRUNCATED_OCTAHEDRON = "truc-octahedron"  # 2
-    RECTANGULAR_CUBOID = "rectangular-cuboid"  # 3  # All angles are 90 deg
+    NO_BOX = "no-box"
+    RECTANGULAR_CUBOID = "rect-cuboid"  # All angles are 90 deg
+    PARALLELEPIPED = "parallelepiped"  # Angles can be whatever
+    TRUNCATED_OCTAHEDRON = "truc-octahedron"
+
+    @property
+    def prmtop_idx(self) -> int:
+        return _PRMTOP_IDX_MAP[self.value]
+
+    @classmethod
+    def from_prmtop_idx(cls, idx: int) -> tpx.Self:
+        value = {v: k for k, v in _PRMTOP_IDX_MAP.items()}[idx]
+        return cls(value)
