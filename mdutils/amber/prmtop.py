@@ -213,7 +213,7 @@ def dump(
             _append_block(np.zeros(data.atoms_num, dtype=np.int64), prmtop, Flag.IROTAT)
         elif flag is Flag.IPOL:
             _append_block(
-                np.array([data.polariable_params_kind.value]), prmtop, Flag.IPOL
+                np.array([data.polariable_params_kind.prmtop_idx]), prmtop, Flag.IPOL
             )
         else:
             if flag in CMAP_PARAMETER_FLAGS and data.cmap_param_comments is not None:
