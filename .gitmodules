@@ -1,4 +1,0 @@
-[submodule "submodules/messtamer"]
-	path = submodules/messtamer
-	url = git@github.com:IgnacioJPickering/messtamer.git
-	branch = main
