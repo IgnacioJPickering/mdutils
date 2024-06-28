@@ -12,9 +12,6 @@ dependencies:
     # Utils
     - netCDF4
     - jinja2
-    - rich  # colorful styles and terminal outputs
-    - tinydb
-    - typer>=0.9
     - pyyaml
 
     # Numerical / Sci
