@@ -9,7 +9,7 @@ from numpy.typing import NDArray
 
 from mdutils.box import BoxKind
 from mdutils.polarizable import PolarizableKind
-from mdutils.amber._prmtop_blocks import (
+from mdutils.amber.prmtop_blocks import (
     Format,
     Flag,
     FLAG_FORMAT_MAP,
