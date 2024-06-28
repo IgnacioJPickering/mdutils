@@ -1,19 +1,19 @@
-from . import amber
-from . import backends
-from . import utils
-from . import ani
-from . import cpptraj
-from . import solvent
-from . import umbrella
-from . import thermostats
-from . import surface_tensionstats
-from . import barostats
-from . import optimizers
-from . import init
-from . import hmr
-from . import yaml
-from .options import Step, Ensemble
-from .utils import (
+from mdutils import amber
+from mdutils import backends
+from mdutils import utils
+from mdutils import ani
+from mdutils import cpptraj
+from mdutils import solvent
+from mdutils import umbrella
+from mdutils import thermostats
+from mdutils import surface_tensionstats
+from mdutils import barostats
+from mdutils import optimizers
+from mdutils import init
+from mdutils import hmr
+from mdutils import yaml
+from mdutils.options import Step, Ensemble
+from mdutils.utils import (
     ATOMIC_SYMBOLS,
     ATOMIC_NUMBERS,
     ATOMIC_SYMBOLS_TO_MASS,

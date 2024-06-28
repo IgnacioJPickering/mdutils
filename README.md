@@ -4,11 +4,11 @@
 
 ## Installation
 
-For developers:
+From source:
+
+First install submodules, afterwards run:
 
 ```bash
-bash ./make_env.sh
-# or conda|mamba env create --file ./environment.yaml, and manually check dependencies
-# of the submodules
+# conda|mamba env create --file ./environment.yaml
 pip install -e .
 ```
