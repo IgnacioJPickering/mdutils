@@ -18,10 +18,7 @@ from mdutils.utils import (
     ATOMIC_SYMBOLS_TO_MASS,
     ATOMIC_NUMBERS_TO_MASS,
 )
-
-
-# Import _yaml only for side effect of enum registration
-from mdutils import _yaml  # noqa:F401
+from mdutils._yaml import yaml_dump, yaml_load
 
 __all__ = [
     "ATOMIC_SYMBOLS",
@@ -44,4 +41,6 @@ __all__ = [
     "ani",
     "cpptraj",
     "solvent",
+    "yaml_dump",
+    "yaml_load",
 ]
