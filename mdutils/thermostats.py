@@ -33,6 +33,7 @@ class BerendsenThermo(BaseThermo):
     r"""
     AKA "Weak coupling scheme"
     """
+
     temperature_relax_time_ps: float = 1.0
 
 
@@ -79,6 +80,7 @@ class StochasticIsokineticNoseHooverRespaThermo(BaseThermo):
     are not canonical, and the temperature appears to be less than the actual
     temperature of the system
     """
+
     additional_dof_num: int = 1
     dof_mass: float = 1.0
 
@@ -95,6 +97,7 @@ class BussiThermo(BaseThermo):
     r"""
     AKA Stochastic Berendsen thermostat
     """
+
     temperature_relax_time_ps: float = 1.0
 
     @property
