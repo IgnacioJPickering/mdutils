@@ -1,21 +1,21 @@
 name: mdutils
 channels:
+  - nodefaults
   - https://conda.anaconda.org/conda-forge
 dependencies:
+# General
+    # Python / pip
+    - python=3.10
+    - pip>=24.0  # python packaging tool
+
 # Specific
     # Utils
     - netCDF4
     - jinja2
-    - ruamel.yaml
 
     # Numerical / Sci
-    - numpy=1.21  # multidimensional array support
+    - numpy=1.26  # multidimensional array support
     - pandas  # csv support
-
-# General
-    # Python / pip
-    - python >=3.8
-    - pip  # python packaging tool
 
 # Dev
     # Automatic linters / checkers / tests / CI
@@ -26,10 +26,5 @@ dependencies:
 
     # Non-automatic linters / checkers / tests / CI
     - mypy  # type checker
-    - coverage  # code coverage
     - pytest  # python testing framework
     - cruft # keep up with cookiecutter updates
-
-    # Docs
-    - sphinx  # documentation framework, uses restructured text (.rst)
-    - sphinx_rtd_theme  # nice theme for sphinx
