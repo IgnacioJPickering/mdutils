@@ -1,5 +1,5 @@
 from messtamer import register_yaml_enum
-from mdutils.amber._prmtop_blocks import Format, Flag
+from mdutils.amber.prmtop_blocks import Format, Flag
 from mdutils.ani import ModelKind, AniNeighborlistKind
 from mdutils.backends import DynamicsBackend
 from mdutils.barostats import Barostat, Scaling
