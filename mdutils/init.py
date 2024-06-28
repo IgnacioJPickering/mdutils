@@ -1,8 +1,7 @@
-from mdutils.yaml import yamlize, YamlEnum
+from enum import Enum
 
 
-@yamlize
-class InitialVelocities(YamlEnum):
+class InitialVelocities(Enum):
     MAXWELL_BOLTZMANN = "maxwell-boltzmann"
-    FROM_STRUCTURE = "from-structure"
-    ZERO = "zero"
+    FROM_STRUCTURE = "vel-from-structure"
+    ZERO = "zero-vel"

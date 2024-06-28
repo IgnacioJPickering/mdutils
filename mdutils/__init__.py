@@ -11,7 +11,6 @@ from mdutils import barostats
 from mdutils import optimizers
 from mdutils import init
 from mdutils import hmr
-from mdutils import yaml
 from mdutils.options import Step, Ensemble
 from mdutils.utils import (
     ATOMIC_SYMBOLS,
@@ -19,6 +18,10 @@ from mdutils.utils import (
     ATOMIC_SYMBOLS_TO_MASS,
     ATOMIC_NUMBERS_TO_MASS,
 )
+
+
+# Import _yaml only for side effect of enum registration
+from mdutils import _yaml  # noqa:F401
 
 __all__ = [
     "ATOMIC_SYMBOLS",
@@ -29,7 +32,6 @@ __all__ = [
     "Ensemble",
     "init",
     "hmr",
-    "yaml",
     "thermostats",
     "barostats",
     "optimizers",

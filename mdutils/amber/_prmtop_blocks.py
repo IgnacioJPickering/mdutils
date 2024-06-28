@@ -1,8 +1,7 @@
-from mdutils.yaml import yamlize, YamlEnum
+from enum import Enum
 
 
-@yamlize
-class Format(YamlEnum):
+class Format(Enum):
     INT_ARRAY = "10I8"  # integer
     ONE_INTEGER = "1I8"  # integer
     TWO_INTEGERS = "2I8"  # integer
@@ -16,8 +15,7 @@ class Format(YamlEnum):
     CMAP_FLOAT_ARRAY = "8F9.5"  # float
 
 
-@yamlize
-class Flag(YamlEnum):
+class Flag(Enum):
     # General
     TITLE = "TITLE"
     POINTERS = "POINTERS"

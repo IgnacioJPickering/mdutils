@@ -1,14 +1,12 @@
-from mdutils.yaml import yamlize, YamlEnum
+from enum import Enum
 
 
-@yamlize
-class Step(YamlEnum):
+class Step(Enum):
     MD = "md"
     MIN = "min"
 
 
-@yamlize
-class Ensemble(YamlEnum):
+class Ensemble(Enum):
     # These include minimization, heating, and prelax, what changes is the production
     NVT = "nvt"
     NPT = "npt"

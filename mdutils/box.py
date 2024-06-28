@@ -1,10 +1,9 @@
+from enum import Enum
 import typing as tp
 from dataclasses import dataclass
 
 import numpy as np
 from numpy.typing import NDArray
-
-from mdutils.yaml import yamlize, YamlEnum
 
 
 @dataclass
@@ -17,9 +16,8 @@ class BoxParams:
         return np.array(self._angles)
 
 
-@yamlize
-class BoxKind(YamlEnum):
-    NO_BOX = 0
-    PARALLELEPIPED = 1  # Angles can be whatever
-    TRUNCATED_OCTAHEDRON = 2
-    RECTANGULAR_CUBOID = 3  # All angles are 90 deg
+class BoxKind(Enum):
+    NO_BOX = "no-box"  # 0
+    PARALLELEPIPED = "parallelepiped"  # 1  # Angles can be whatever
+    TRUNCATED_OCTAHEDRON = "truc-octahedron"  # 2
+    RECTANGULAR_CUBOID = "rectangular-cuboid"  # 3  # All angles are 90 deg

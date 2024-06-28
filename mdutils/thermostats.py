@@ -1,11 +1,9 @@
 import typing as tp
 from dataclasses import dataclass
+from enum import Enum
 
-from mdutils.yaml import yamlize, YamlEnum
 
-
-@yamlize
-class Thermostat(YamlEnum):
+class Thermostat(Enum):
     BERENDSEN = "berendsen"
     ANDERSEN = "andersen"
     LANGEVIN = "langevin"

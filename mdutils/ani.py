@@ -1,4 +1,4 @@
-from mdutils.yaml import yamlize, YamlEnum
+from enum import Enum
 
 AMBER_ANI_INTERFACE_MAP = {
     "1x": "ani1x",
@@ -10,8 +10,7 @@ AMBER_ANI_INTERFACE_MAP = {
 }
 
 
-@yamlize
-class ModelKind(YamlEnum):
+class ModelKind(Enum):
     ANI1X = "1x"
     ANI1CCX = "1ccx"
     ANI2X = "2x"
@@ -20,21 +19,8 @@ class ModelKind(YamlEnum):
     ANIDR = "dr"
     FF = "ff"  # Use whatever ff parameters are defined in the prmtop file
 
-    @classmethod
-    def from_yaml(cls, constructor, node):  # type: ignore
-        if node.value == "ANI2xCharges":
-            str_ = "mbis2x"
-        elif node.value.startswith("ANI"):
-            str_ = node.value[3:]
-        elif node.value.startswith("Amber"):
-            str_ = node.value[5:].lower()
-        else:
-            str_ = node.value
-        return cls(str_)
 
-
-@yamlize
-class AniNeighborlistKind(YamlEnum):
+class AniNeighborlistKind(Enum):
     AUTO = "auto"
     EXTERNAL = "external"
     INTERNAL_CELL_LIST = "internal-cell-list"
