@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class FF(Enum):
+class FF(str, Enum):
     pass
 
 
