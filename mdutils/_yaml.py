@@ -64,9 +64,9 @@ def register_yaml_enum(cls: _T) -> _T:
 
 
 # Expose yaml functions
-yaml_load = functools.partial(yaml.load, loader=_CustomLoader)
+yaml_load = functools.partial(yaml.load, Loader=_CustomLoader)
 yaml_dump = functools.partial(
-    yaml.dump, dumper=_CustomDumper, indent=4, allow_unicode=True, sort_keys=False
+    yaml.dump, Dumper=_CustomDumper, indent=4, allow_unicode=True, sort_keys=False
 )
 
 register_yaml_enum(Format)
