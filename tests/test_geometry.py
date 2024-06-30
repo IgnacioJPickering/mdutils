@@ -13,7 +13,7 @@ def test_enums() -> None:
 @pytest.mark.fast
 def test_box_params() -> None:
     expect_lengths = np.array([1.0, 1.0, 1.0], dtype=np.float64)
-    expect_angles = np.array([90., 90., 90.], dtype=np.float64)
+    expect_angles = np.array([90.0, 90.0, 90.0], dtype=np.float64)
     params = BoxParams()
     assert (expect_lengths == params.lengths).all()
     assert (expect_angles == params.angles).all()
