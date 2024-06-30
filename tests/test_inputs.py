@@ -3,7 +3,7 @@ from pathlib import Path
 import itertools
 import unittest
 
-import mdutils.inputs as amber_inputs
+from mdutils.amber import inputs as amber_inputs
 from mdutils.barostats import (
     BerendsenBaro,
     McBaro,
@@ -16,7 +16,7 @@ from mdutils.thermostats import (
     OINHThermo,
     SINHThermo,
 )
-from mdutils.inputs import (
+from mdutils.amber.inputs import (
     MdArgs,
     AniArgs,
     MixedSdcgArgs,
