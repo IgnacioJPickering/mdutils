@@ -54,7 +54,7 @@ class BoxParams:
     )
 
 
-_PRMTOP_IDX_MAP = {
+_BOX_PRMTOP_IDX_MAP = {
     "no-box": 0,
     "parallelepiped": 1,
     "trunc-octahedron": 2,
@@ -70,9 +70,9 @@ class BoxKind(Enum):
 
     @property
     def prmtop_idx(self) -> int:
-        return _PRMTOP_IDX_MAP[self.value]
+        return _BOX_PRMTOP_IDX_MAP[self.value]
 
     @classmethod
     def from_prmtop_idx(cls, idx: int) -> tpx.Self:
-        value = {v: k for k, v in _PRMTOP_IDX_MAP.items()}[idx]
+        value = {v: k for k, v in _BOX_PRMTOP_IDX_MAP.items()}[idx]
         return cls(value)
