@@ -14,11 +14,11 @@
       "author_email": "ign.pickering@gmail.com",
       "description": "Python package mdutils",
       "python_version_major": "3",
-      "python_version_minor": "9",
-      "year": "2022",
+      "python_version_minor": "10",
+      "year": "2024",
       "github_dir": "IgnacioJPickering",
-      "python_version": "3.9",
-      "python_version_joint": "39",
+      "python_version": "3.10",
+      "python_version_joint": "310",
       "_template": "git@github.com:IgnacioJPickering/cookiecutter-pycargo"
     }
   },
