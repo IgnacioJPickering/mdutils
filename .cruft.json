@@ -1,6 +1,6 @@
 {
   "template": "git@github.com:IgnacioJPickering/cookiecutter-pycargo",
-  "commit": "f6f57c10642d8b140bd55c8ef3eb853465da2618",
+  "commit": "3eb3c4c90953ad9c5908a00fc327c83916848e60",
   "checkout": null,
   "context": {
     "cookiecutter": {
