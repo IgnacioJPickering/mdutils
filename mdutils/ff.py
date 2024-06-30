@@ -58,7 +58,6 @@ _IMPLICIT_MDIN_IDX_MAP = {
 
 
 class ImplicitFF(Enum):
-    EXPLICIT = "explicit"
     GB = "gb"
     MODIFIED_GB_I = "gb-mod1"
     MODIFIED_GB_II = "gb-mod2"
