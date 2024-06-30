@@ -1,7 +1,7 @@
 from pathlib import Path
 import unittest
 
-from amber_utils import prmtop
+from mdutils import prmtop
 
 
 class TestPrmtop(unittest.TestCase):
