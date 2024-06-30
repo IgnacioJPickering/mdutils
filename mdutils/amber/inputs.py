@@ -11,7 +11,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from mdutils.ani import AniNeighborlistKind
 from mdutils.units import FEMTOSECOND_TO_PICOSECOND
 from mdutils.utils import get_dynamics_steps
-from mdutils.solvent import SolventModel, mdin_integer
+from mdutils.solvent import ImplicitModelKind
 from mdutils.umbrella import UmbrellaArgs
 from mdutils.thermostats import (
     BaseThermo,
@@ -98,7 +98,7 @@ class RunArgs:
     restraint_constant: str = ""
     write_forces: bool = False
     cutoff: float = 8.0
-    solvent_model: SolventModel = SolventModel.EXPLICIT
+    solvent_model: tp.Optional[ImplicitModelKind] = None
     umbrella_args: tp.Optional[UmbrellaArgs] = None
     torchani_args: tp.Optional[AniArgs] = None
     random_seed: tp.Optional[int] = None
@@ -164,8 +164,8 @@ def _run(
             args_dict["restraint_constant"] = restraint_constant
 
     # Implicit solvation
-    if solvent is not SolventModel.EXPLICIT:
-        args_dict["implicit_solvent_model"] = mdin_integer(solvent)
+    if solvent is not None:
+        args_dict["implicit_solvent_model"] = solvent.mdin_idx
 
     if isinstance(args, MdArgs):
         if args.thermo is not None:
@@ -174,7 +174,7 @@ def _run(
             )
 
         if args.baro is not None:
-            if solvent is not SolventModel.EXPLICIT:
+            if solvent is not None:
                 raise ValueError(
                     "Can't perform pressure control in an implicit solvent calculation"
                 )

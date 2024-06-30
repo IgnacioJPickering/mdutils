@@ -1,9 +1,12 @@
+r"""
+Thermostating schemes, parameters and defaults
+"""
 import typing as tp
 from dataclasses import dataclass
 from enum import Enum
 
 
-class Thermostat(Enum):
+class ThermoKind(Enum):
     BERENDSEN = "berendsen"
     ANDERSEN = "andersen"
     LANGEVIN = "langevin"
@@ -25,7 +28,7 @@ class BaseThermo:
 
     @property
     def name(self) -> str:
-        return self.__class__.__name__.replace("Thermo", "").lower()
+        raise NotImplementedError()
 
 
 @dataclass
@@ -36,15 +39,27 @@ class BerendsenThermo(BaseThermo):
 
     temperature_relax_time_ps: float = 1.0
 
+    @property
+    def name(self) -> str:
+        return "berendsen"
+
 
 @dataclass
 class AndersenThermo(BaseThermo):
     vel_randomization_step_interval: int = 1000
 
+    @property
+    def name(self) -> str:
+        return "andersen"
+
 
 @dataclass
 class LangevinThermo(BaseThermo):
     friction_inv_ps: float = 2.0
+
+    @property
+    def name(self) -> str:
+        return "langevin"
 
 
 @dataclass

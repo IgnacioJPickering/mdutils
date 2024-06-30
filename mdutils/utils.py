@@ -1,10 +1,8 @@
 import os
 import typing as tp
 import re
-import math
 from pathlib import Path
 
-from mdutils.units import PICOSECOND_TO_FEMTOSECOND, FEMTOSECOND_TO_PICOSECOND
 
 _PERIODIC_TABLE = """
   E H                                                                                                                           He
@@ -15,18 +13,10 @@ _PERIODIC_TABLE = """
     Cs  Ba  La  Ce  Pr  Nd  Pm  Sm  Eu  Gd  Tb  Dy  Ho  Er  Tm  Yb  Lu  Hf  Ta  W   Re  Os  Ir  Pt  Au  Hg  Tl  Pb  Bi  Po  At  Rn
     Fr  Ra  Ac  Th  Pa  U   Np  Pu  Am  Cm  Bk  Cf  Es  Fm  Md  No  Lr  Rf  Db  Sg  Bh  Hs  Mt  Ds  Rg  Cn  Nh  Fl  Mc  Lv  Ts  Og
     """.strip().split()
+
 # Extra pairs have atomic number of 0 and mass of 0.0
 ATOMIC_SYMBOLS = {z: s for z, s in enumerate(_PERIODIC_TABLE)}
 ATOMIC_NUMBERS = {s: z for z, s in enumerate(_PERIODIC_TABLE)}
-
-
-def get_dynamics_steps(time_ps: float, timestep_fs: float) -> int:
-    steps = math.ceil(time_ps * PICOSECOND_TO_FEMTOSECOND / timestep_fs)
-    return steps
-
-
-def get_dynamics_time_ps(steps: int, timestep_fs: float) -> float:
-    return float(steps * timestep_fs * FEMTOSECOND_TO_PICOSECOND)
 
 
 def read_last_line(file_: Path) -> str:
@@ -41,8 +31,6 @@ def read_last_line(file_: Path) -> str:
     return line_
 
 
-# Each simulation step a new runner is constructed, and a completely new
-# attacher is passed to the runner
 def output_freq_to_step_interval(
     freq: str, timestep_fs: tp.Optional[float] = None, verbose: bool = False
 ) -> int:
@@ -66,7 +54,7 @@ def output_freq_to_step_interval(
         step_interval = 1
     else:
         raise ValueError(
-            "Incorrect freq format, should be'every-step', '1 / steps' or 'outputs / (ns|ps|fs)'"
+            "Bad format, should be: 'every-step', '1/steps' or 'outputs/(ns|ps|fs)'"
         )
     return step_interval
 

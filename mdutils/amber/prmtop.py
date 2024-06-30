@@ -8,7 +8,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from mdutils.box import BoxKind
-from mdutils.polarizable import PolarizableKind
+from mdutils.ff import PolarizableKind
 from mdutils.amber.prmtop_blocks import (
     Format,
     Flag,

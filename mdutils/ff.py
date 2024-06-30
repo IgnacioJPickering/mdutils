@@ -1,5 +1,7 @@
 from enum import Enum
 
+import typing_extensions as tpx
+
 
 class FF(str, Enum):
     pass
@@ -33,3 +35,25 @@ class ProteinFF(FF):
     FF19SB = "ff19SB"  # use with OPC (or OPC3?)
     FF14SB = "ff14SB"  # use with TIP3P
     FF14SB_ONLYSC = "ff14SBonlysc"  # only side chains version, for igb = 8 (implicit)
+
+
+_PRMTOP_IDX_MAP = {
+    "no-polarizable": 0,
+    "polarizable": 1,
+    "polarizable-with-dipole-damp": 2,
+}
+
+
+class PolarizableKind(Enum):
+    NONE = "no-polarizable"
+    POLARIZABILITY = "polarizable"
+    POLARIZABILITY_AND_DIPOLE_DAMP_FACTOR = "polarizable-with-dipole-damp"
+
+    @property
+    def prmtop_idx(self) -> int:
+        return _PRMTOP_IDX_MAP[self.value]
+
+    @classmethod
+    def from_prmtop_idx(cls, idx: int) -> tpx.Self:
+        value = {v: k for k, v in _PRMTOP_IDX_MAP.items()}[idx]
+        return cls(value)

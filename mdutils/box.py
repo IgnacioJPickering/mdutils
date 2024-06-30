@@ -9,12 +9,16 @@ import typing_extensions as tpx
 
 @dataclass
 class BoxParams:
-    lengths: NDArray[np.float_]
+    _lengths: tp.Tuple[float, float, float] = (1.0, 1.0, 1.0)
     _angles: tp.Tuple[float, float, float] = (90.0, 90.0, 90.0)
 
     @property
     def angles(self) -> NDArray[np.float_]:
         return np.array(self._angles)
+
+    @property
+    def lengths(self) -> NDArray[np.float_]:
+        return np.array(self._lengths)
 
 
 _PRMTOP_IDX_MAP = {
