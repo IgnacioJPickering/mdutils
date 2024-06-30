@@ -9,7 +9,7 @@ from mdutils.amber.prmtop import (
     load as load_prmtop,
     Flag,
 )
-from mdutils.aminoacids import AMINOACIDS_WITH_CO, AMINOACIDS
+from mdutils.constants import AMINOACIDS_WITH_CO, AMINOACIDS
 
 
 templates_path = Path(__file__).parent.joinpath("cpptraj_templates")
@@ -175,9 +175,9 @@ class CpptrajExecutor:
             mask_tuples=mask_tuples,
             number_tuples=number_tuples,
             name_tuples=name_tuples,
-            analysis_name="peptidic-dihedrals"
-            if not improper_torsion
-            else "peptidic-impropers",
+            analysis_name=(
+                "peptidic-dihedrals" if not improper_torsion else "peptidic-impropers"
+            ),
         )
         return render
 

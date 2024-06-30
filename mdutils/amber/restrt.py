@@ -1,4 +1,5 @@
 r"""Utilities to deal with amber-style netcdf restrt files"""
+
 from dataclasses import dataclass
 import typing as tp
 from pathlib import Path
@@ -8,7 +9,9 @@ import netCDF4 as netcdf
 from numpy.typing import NDArray
 
 from mdutils.units import AMBER_VELOCITIES_SCALE_FACTOR
-from mdutils.box import BoxParams
+from mdutils.geometry import BoxParams
+
+__all__ = ["AmberRestrt", "AmberRestrtMetadata", "load", "dump", "load_metadata"]
 
 
 @dataclass

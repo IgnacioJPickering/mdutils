@@ -89,7 +89,8 @@ class DistanceRestraint(HarmonicRestraint):
         atom_indices: tp.Sequence[int] = (),
         residue_indices: tp.Sequence[int] = (),
         atom_names: tp.Sequence[str] = (),
-        force_constant_amber_units: float = _DEFAULT_RESTRAINT_DISTANCE_CONST,  # kcalpermol / ang**2
+        # kcalpermol / ang**2
+        force_constant_amber_units: float = _DEFAULT_RESTRAINT_DISTANCE_CONST,
     ):
         self.atom_indices, self.residue_indices, self.atom_names = self._parse_indices(
             atom_indices,
@@ -113,7 +114,8 @@ class AngleRestraint(HarmonicRestraint):
         atom_indices: tp.Sequence[int] = (),
         residue_indices: tp.Sequence[int] = (),
         atom_names: tp.Sequence[str] = (),
-        force_constant_amber_units_rad: float = _DEFAULT_RESTRAINT_ANGLE_CONST,  # kcalpermol / rad**2
+        # kcalpermol / rad**2
+        force_constant_amber_units_rad: float = _DEFAULT_RESTRAINT_ANGLE_CONST,
     ):
         self.atom_indices, self.residue_indices, self.atom_names = self._parse_indices(
             atom_indices,
@@ -137,9 +139,9 @@ class DihedralRestraint(HarmonicRestraint):
         atom_indices: tp.Sequence[int] = (),
         residue_indices: tp.Sequence[int] = (),
         atom_names: tp.Sequence[str] = (),
-        force_constant_amber_units_rad: float = _DEFAULT_RESTRAINT_DIHEDRAL_CONST,  # kcalpermol / rad**2
+        # kcalpermol / rad**2
+        force_constant_amber_units_rad: float = _DEFAULT_RESTRAINT_DIHEDRAL_CONST,
     ):
-
         self.atom_indices, self.residue_indices, self.atom_names = self._parse_indices(
             atom_indices,
             residue_indices,

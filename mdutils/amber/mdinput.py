@@ -10,10 +10,15 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from mdutils.ani import AniNeighborlistKind
 from mdutils.units import FEMTOSECOND_TO_PICOSECOND
-from mdutils.utils import get_dynamics_steps
-from mdutils.solvent import SolventModel, mdin_integer
+from mdutils.dynamics import calc_step_num
+from mdutils.solvent import ImplicitModelKind
 from mdutils.umbrella import UmbrellaArgs
-from mdutils.thermostats import (
+from mdutils.algorithm import (
+    # Baro
+    BaseBaro,
+    BerendsenBaro,
+    McBaro,
+    # Thermo
     BaseThermo,
     BerendsenThermo,
     AndersenThermo,
@@ -22,12 +27,9 @@ from mdutils.thermostats import (
     SINHThermo,
     BussiThermo,
 )
-from mdutils.barostats import (
-    BaseBaro,
-    BerendsenBaro,
-    McBaro,
-)
 from mdutils.surface_tensionstats import SurfaceTensionstat
+
+__all__ = ["AniArgs", "MdArgs", "RunArgs", "MixedSdcgArgs", "MinArgs"]
 
 _TEMPLATES_PATH = Path(__file__).parent.joinpath("templates")
 
@@ -98,7 +100,7 @@ class RunArgs:
     restraint_constant: str = ""
     write_forces: bool = False
     cutoff: float = 8.0
-    solvent_model: SolventModel = SolventModel.EXPLICIT
+    solvent_model: tp.Optional[ImplicitModelKind] = None
     umbrella_args: tp.Optional[UmbrellaArgs] = None
     torchani_args: tp.Optional[AniArgs] = None
     random_seed: tp.Optional[int] = None
@@ -164,8 +166,8 @@ def _run(
             args_dict["restraint_constant"] = restraint_constant
 
     # Implicit solvation
-    if solvent is not SolventModel.EXPLICIT:
-        args_dict["implicit_solvent_model"] = mdin_integer(solvent)
+    if solvent is not None:
+        args_dict["implicit_solvent_model"] = solvent.mdin_idx
 
     if isinstance(args, MdArgs):
         if args.thermo is not None:
@@ -174,7 +176,7 @@ def _run(
             )
 
         if args.baro is not None:
-            if solvent is not SolventModel.EXPLICIT:
+            if solvent is not None:
                 raise ValueError(
                     "Can't perform pressure control in an implicit solvent calculation"
                 )
@@ -184,7 +186,7 @@ def _run(
 
         timestep_fs = args_dict.pop("timestep_fs")
         args_dict["timestep_ps"] = timestep_fs * FEMTOSECOND_TO_PICOSECOND
-        args_dict["total_md_steps"] = get_dynamics_steps(
+        args_dict["total_md_steps"] = calc_step_num(
             args_dict.pop("time_ps"), timestep_fs
         )
         return template_renderer.render(

@@ -1,5 +1,7 @@
 from enum import Enum
 
+import typing_extensions as tpx
+
 
 class FF(str, Enum):
     pass
@@ -33,3 +35,65 @@ class ProteinFF(FF):
     FF19SB = "ff19SB"  # use with OPC (or OPC3?)
     FF14SB = "ff14SB"  # use with TIP3P
     FF14SB_ONLYSC = "ff14SBonlysc"  # only side chains version, for igb = 8 (implicit)
+
+
+class AniFF(FF):
+    ANI1X = "ani1x"
+    ANI1CCX = "ani1ccx"
+    ANI2X = "ani2x"
+    ANIMBIS = "animbis"
+    ANIALA = "aniala"
+    ANIDR = "anidr"
+
+
+_IMPLICIT_MDIN_IDX_MAP = {
+    "gb": 1,
+    "gb-mod1": 2,
+    "gb-mod2": 5,
+    "gbn": 7,
+    "gbn-mod": 8,
+    "pb": 10,
+    "vacuum": 6,
+}
+
+
+class ImplicitFF(Enum):
+    EXPLICIT = "explicit"
+    GB = "gb"
+    MODIFIED_GB_I = "gb-mod1"
+    MODIFIED_GB_II = "gb-mod2"
+    GBN = "gbn"
+    MODIFIED_GBN = "gbn-mod"
+    POISSON_BOLTZMANN = "pb"
+    VACUUM = "vacuum"
+
+    @property
+    def mdin_idx(self) -> int:
+        return _IMPLICIT_MDIN_IDX_MAP[self.value]
+
+    @classmethod
+    def from_mdin_idx(cls, idx: int) -> tpx.Self:
+        value = {v: k for k, v in _IMPLICIT_MDIN_IDX_MAP.items()}[idx]
+        return cls(value)
+
+
+_POLARIZABLE_PRMTOP_IDX_MAP = {
+    "no-polarizable": 0,
+    "polarizable": 1,
+    "polarizable-with-dipole-damp": 2,
+}
+
+
+class PolarizableKind(Enum):
+    NONE = "no-polarizable"
+    POLARIZABILITY = "polarizable"
+    POLARIZABILITY_AND_DIPOLE_DAMP_FACTOR = "polarizable-with-dipole-damp"
+
+    @property
+    def prmtop_idx(self) -> int:
+        return _POLARIZABLE_PRMTOP_IDX_MAP[self.value]
+
+    @classmethod
+    def from_prmtop_idx(cls, idx: int) -> tpx.Self:
+        value = {v: k for k, v in _POLARIZABLE_PRMTOP_IDX_MAP.items()}[idx]
+        return cls(value)
