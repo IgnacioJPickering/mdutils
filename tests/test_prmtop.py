@@ -11,3 +11,4 @@ def testReconstructPrmtop() -> None:
     result_prmtop = Path(__file__).parent / "reconstructed.prmtop"
     prmtop.dump(data, result_prmtop, write_new_date=False)
     assert expect_prmtop.read_text() == result_prmtop.read_text()
+    result_prmtop.unlink()
