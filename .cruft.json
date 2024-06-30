@@ -1,6 +1,6 @@
 {
   "template": "git@github.com:IgnacioJPickering/cookiecutter-pycargo",
-  "commit": "3eb3c4c90953ad9c5908a00fc327c83916848e60",
+  "commit": "1dbe3a185e62fb9dc6852cb7fcf12269dc640d98",
   "checkout": null,
   "context": {
     "cookiecutter": {
@@ -8,19 +8,16 @@
       "repo_name": "mdutils",
       "package_name": "mdutils",
       "command": "mdutils",
-      "conda_env_name": "mdutils",
       "author_name": "Ignacio Pickering",
       "author_git_profile": "IgnacioJPickering",
       "author_email": "ign.pickering@gmail.com",
-      "description": "Python package mdutils",
-      "python_version_major": "3",
       "python_version_minor": "10",
-      "year": "2024",
-      "github_dir": "IgnacioJPickering",
-      "python_version": "3.10",
-      "python_version_joint": "310",
       "_template": "git@github.com:IgnacioJPickering/cookiecutter-pycargo"
     }
   },
+  "skip": [
+    "environment.yaml",
+    "mdutils/__init__.py"
+  ],
   "directory": null
 }
