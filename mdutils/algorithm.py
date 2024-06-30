@@ -149,6 +149,7 @@ class BaseTension:
     r"""
     Base Surface Tensionstat
     """
+
     tension_dyne_per_cm: float = 1.0
     plane: Plane = Plane.XY
     interface_num: int = 2

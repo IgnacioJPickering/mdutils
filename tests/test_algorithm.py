@@ -50,9 +50,7 @@ def test_baros() -> None:
 
 @pytest.mark.fast
 def test_tension() -> None:
-    for tension in (
-        McTension(),
-    ):
+    for tension in (McTension(),):
         assert tension.tension_dyne_per_cm == 1.0
         assert tension.plane == Plane.XY
         assert tension.interface_num == 2
