@@ -1,4 +1,5 @@
 r"""Utilities to deal with amber-style netcdf restrt files"""
+
 from dataclasses import dataclass
 import typing as tp
 from pathlib import Path

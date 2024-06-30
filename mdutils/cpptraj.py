@@ -175,9 +175,9 @@ class CpptrajExecutor:
             mask_tuples=mask_tuples,
             number_tuples=number_tuples,
             name_tuples=name_tuples,
-            analysis_name="peptidic-dihedrals"
-            if not improper_torsion
-            else "peptidic-impropers",
+            analysis_name=(
+                "peptidic-dihedrals" if not improper_torsion else "peptidic-impropers"
+            ),
         )
         return render
 

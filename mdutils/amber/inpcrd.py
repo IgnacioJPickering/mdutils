@@ -1,4 +1,5 @@
 r"""Utilities to deal with amber-style inpcrd files (formatted ascii)"""
+
 import itertools
 import typing as tp
 from dataclasses import dataclass

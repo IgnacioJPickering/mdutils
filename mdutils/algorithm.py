@@ -140,7 +140,7 @@ class McBaro(BaseBaro):
 
 
 # Surface tension
-class TensionKind:
+class TensionKind(Enum):
     MC = "mc-tension"
 
 
@@ -149,6 +149,7 @@ class BaseTension:
     r"""
     Base Surface Tensionstat
     """
+
     tension_dyne_per_cm: float
     plane: Plane
     interface_num: int = 2
