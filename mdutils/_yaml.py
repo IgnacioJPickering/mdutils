@@ -6,15 +6,10 @@ import functools
 import yaml
 
 from mdutils.amber.prmtop_blocks import Format, Flag
-from mdutils.ani import AniModelKind, AniNeighborlistKind
-from mdutils.barostats import BaroKind, Scaling
-from mdutils.box import BoxKind
-from mdutils.optimizers import Optimizer
-from mdutils.dynamics import Step, Ensemble, Backend, InitialVelocities
-from mdutils.implicitsv import ImplicitModelKind
-from mdutils.surface_tensionstats import Plane
-from mdutils.thermostats import ThermoKind
-from mdutils.ff import WaterFF, GeneralFF, ProteinFF
+from mdutils.dynamics import Step, Ensemble, Backend, InitVel
+from mdutils.geometry import Scaling, Plane, BoxKind, NeighborlistKind
+from mdutils.algorithm import ThermoKind, TensionKind, BaroKind, OptimizerKind
+from mdutils.ff import WaterFF, GeneralFF, ProteinFF, ImplicitFF, AniFF
 
 __all__ = ["register_yaml_enum", "yaml_load", "yaml_dump"]
 
@@ -66,28 +61,27 @@ yaml_dump = functools.partial(
     yaml.dump, Dumper=_CustomDumper, indent=4, allow_unicode=True, sort_keys=False
 )
 
-# Prmtop
+# Prmtop blocks
 register_yaml_enum(Format)
 register_yaml_enum(Flag)
 # Dynamics
 register_yaml_enum(Ensemble)
 register_yaml_enum(Step)
 register_yaml_enum(Backend)
-register_yaml_enum(InitialVelocities)
-# Box
+register_yaml_enum(InitVel)
+# Geometry
+register_yaml_enum(NeighborlistKind)
 register_yaml_enum(BoxKind)
-# Min
-register_yaml_enum(Optimizer)
-# Thermo, Baro, Surf
 register_yaml_enum(Plane)
+register_yaml_enum(Scaling)
+# Algorithms: Thermo, Baro, Tension, Optimizer
+register_yaml_enum(OptimizerKind)
 register_yaml_enum(ThermoKind)
 register_yaml_enum(BaroKind)
-register_yaml_enum(Scaling)
-# FF and models
+register_yaml_enum(TensionKind)
+# FF
 register_yaml_enum(WaterFF)
 register_yaml_enum(GeneralFF)
 register_yaml_enum(ProteinFF)
-register_yaml_enum(ImplicitModelKind)
-register_yaml_enum(AniModelKind)
-# ani specific options
-register_yaml_enum(AniNeighborlistKind)
+register_yaml_enum(ImplicitFF)
+register_yaml_enum(AniFF)

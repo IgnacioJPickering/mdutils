@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 from numpy.typing import NDArray
 
-from mdutils.box import BoxKind
+from mdutils.geometry import BoxKind
 from mdutils.ff import PolarizableKind
 from mdutils.amber.prmtop_blocks import (
     Format,
@@ -19,6 +19,15 @@ from mdutils.amber.prmtop_blocks import (
     HBOND_FLAGS,
     CMAP_PARAMETER_FLAGS,
 )
+
+__all__ = [
+    "AmberPrmtopMetadata",
+    "AmberPrmtop",
+    "load",
+    "dump",
+    "load_metadata",
+    "load_single_raw_block",
+]
 
 
 # This is the "POINTERS" block in the prmtop file

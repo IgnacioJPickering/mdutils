@@ -8,7 +8,9 @@ import os
 import numpy as np
 from numpy.typing import NDArray
 
-from mdutils.box import BoxParams
+from mdutils.geometry import BoxParams
+
+__all__ = ["AmberInpcrd", "AmberInpcrdMetadata", "load", "load_metadata"]
 
 
 @dataclass
@@ -18,13 +20,13 @@ class AmberInpcrdMetadata:
     box_params: tp.Optional[BoxParams] = None
 
     @property
-    def box_lengths(self) -> NDArray[np.float_]:
+    def box_lengths(self) -> NDArray[np.float64]:
         if self.box_params is None:
             raise ValueError("There should be box parameters to get box lengths")
         return self.box_params.lengths
 
     @property
-    def box_angles(self) -> NDArray[np.float_]:
+    def box_angles(self) -> NDArray[np.float64]:
         if self.box_params is None:
             raise ValueError("There should be box parameters to get box angles")
         return self.box_params.angles
@@ -47,7 +49,7 @@ def load_metadata(inpcrd: Path, has_box: bool) -> AmberInpcrdMetadata:
             box = f.readlines()[-1].decode("ascii").split()
             box_params = BoxParams(
                 np.array(box[:3], dtype=np.float64),
-                (float(box[3]), float(box[4]), float(box[5])),
+                np.array(box[3:], dtype=np.float64),
             )
         else:
             box_params = None
@@ -77,13 +79,13 @@ class AmberInpcrd:
         return None
 
     @property
-    def box_lengths(self) -> NDArray[np.float_]:
+    def box_lengths(self) -> NDArray[np.float64]:
         if self.box_params is None:
             raise ValueError("There should be box parameters to get box lengths")
         return self.box_params.lengths
 
     @property
-    def box_angles(self) -> NDArray[np.float_]:
+    def box_angles(self) -> NDArray[np.float64]:
         if self.box_params is None:
             raise ValueError("There should be box parameters to get box angles")
         return self.box_params.angles
