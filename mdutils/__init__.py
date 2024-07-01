@@ -1,7 +1,7 @@
 from mdutils import amber
 from mdutils import dynamics
 from mdutils import ff
-from mdutils import aminoacids
+from mdutils import aminoacid
 from mdutils import cpptraj
 from mdutils import umbrella
 from mdutils import constants
@@ -19,6 +19,6 @@ __all__ = [
     # yaml
     "yaml_dump",
     "yaml_load",
-    "aminoacids",
+    "aminoacid",
     "constants",
 ]

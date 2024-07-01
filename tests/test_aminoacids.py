@@ -1,5 +1,5 @@
 import pytest
-from mdutils.aminoacids import (
+from mdutils.aminoacid import (
     AMINOACIDS,
     AMINOACIDS_WITH_CO,
     CODE3_TO_LETTER_MAP,
