@@ -35,7 +35,6 @@ https://pubs.acs.org/doi/10.1021/acs.jctc.8b01176
 from pathlib import Path
 import json
 import typing as tp
-import math
 
 __all__ = [
     "ATOMIC_CONSTANTS",
@@ -131,8 +130,8 @@ for symbol, values in ATOMIC_CONSTANTS.items():
 
 # When indexed with the corresponding atomic number, PERIODIC_TABLE gives the
 # element associated with it. Note that there is no element with atomic number
-# 0, so an empty string is returned in this case.
-PERIODIC_TABLE = ("",) + tuple(
+# 0, so "E" (extra pair) is returned in this case
+PERIODIC_TABLE = tuple(
     kv[0] for kv in sorted(ATOMIC_NUMBER.items(), key=lambda x: x[1])
 )
 
@@ -154,7 +153,7 @@ def mapping_to_znumber_indexed_seq(
         # znumber_indexed_seq will be (NaN, 3.0, 0.5, 1.0)
     """
     _symbols_map = dict(symbols_map)
-    seq = [math.nan] * (len(symbols_map) + 1)
+    seq = [0.0] * len(symbols_map)
     try:
         for k, v in _symbols_map.items():
             seq[ATOMIC_NUMBER[k]] = v
@@ -168,16 +167,16 @@ def znumber_indexed_seq_to_mapping(
 ) -> tp.Dict[str, float]:
     r"""
     Inverse of mapping_to_znumber_indexed_list. The first element of the input
-    must be NaN. Example:
+    must be 0.0. Example:
 
     .. code-block:: python
-        znumber_indexed_seq = (math.nan, 3.0, 0.5, 1.0)
+        znumber_indexed_seq = (0.0, 3.0, 0.5, 1.0)
         mapping = znumber_indexed_seq_to_mapping(znumber_indexed_seq)
-        # mapping will be {"H": 3.0, "Li": 1.0, "He": 0.5 }
+        # mapping will be {"E": 0.0, "H": 3.0, "Li": 1.0, "He": 0.5 }
     """
-    if not math.isnan(seq[0]):
-        raise ValueError("The first element of the input iterable must be NaN")
-    return {PERIODIC_TABLE[j]: v for j, v in enumerate(seq) if j != 0}
+    if not seq[0] == 0.0:
+        raise ValueError("The first element of the input iterable must be 0.0")
+    return {PERIODIC_TABLE[j]: v for j, v in enumerate(seq)}
 
 
 # Create convenience tuples

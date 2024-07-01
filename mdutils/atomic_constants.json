@@ -1,13 +1,13 @@
 {
-    "": {
-        "electronegativity": null,
-        "hardness": null,
-        "mass": null,
+    "E": {
+        "electronegativity": 0.0,
+        "hardness": 0.0,
+        "mass": 0.0,
         "znumber": 0,
-        "sqrt_empirical_charge": null,
-        "covalent_radius": null,
-        "xtb_repulsion_alpha": null,
-        "xtb_repulsion_yeff": null
+        "sqrt_empirical_charge": 0.0,
+        "covalent_radius": 0.0,
+        "xtb_repulsion_alpha": 0.0,
+       "xtb_repulsion_yeff": 0.0
     },
     "H": {
         "electronegativity": 7.18,
