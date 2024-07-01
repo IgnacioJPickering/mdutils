@@ -54,36 +54,8 @@ __all__ = [
     "HARDNESS",
     "ELECTRONEGATIVITY",
     "PERIODIC_TABLE",
-    "AMINOACIDS",
-    "AMINOACIDS_WITH_CO",
 ]
 
-
-AMINOACIDS = [
-    "ALA",
-    "ARG",
-    "ASN",
-    "ASP",
-    "CYS",
-    "GLU",
-    "GLN",
-    "GLY",
-    "HIS",
-    "ILE",
-    "LEU",
-    "LYS",
-    "MET",
-    "PHE",
-    "PRO",
-    "SER",
-    "THR",
-    "TRP",
-    "TYR",
-    "VAL",
-    "ACE",
-    "NME",
-]
-AMINOACIDS_WITH_CO = AMINOACIDS[:-1]
 
 with open(Path(__file__).parent.resolve() / "atomic_constants.json", mode="rt") as f:
     ATOMIC_CONSTANTS = json.load(f)

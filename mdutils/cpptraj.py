@@ -9,7 +9,7 @@ from mdutils.amber.prmtop import (
     load as load_prmtop,
     Flag,
 )
-from mdutils.constants import AMINOACIDS_WITH_CO, AMINOACIDS
+from mdutils.aminoacids import AMINOACIDS_WITH_CO, AMINOACIDS
 
 
 templates_path = Path(__file__).parent.joinpath("cpptraj_templates")

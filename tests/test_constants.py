@@ -9,7 +9,6 @@ from mdutils.constants import (
     ATOMIC_XTB_REPULSION_ALPHA,
     ATOMIC_XTB_REPULSION_YEFF,
     PERIODIC_TABLE,
-    AMINOACIDS,
     MASS,
     ELECTRONEGATIVITY,
     HARDNESS,
@@ -61,9 +60,3 @@ def test_numbers() -> None:
     assert PERIODIC_TABLE[118] == "Og"
     assert ATOMIC_NUMBER["H"] == 1
     assert ATOMIC_NUMBER["Og"] == 118
-
-
-@pytest.mark.fast
-def test_aminoacids() -> None:
-    assert AMINOACIDS[0] == "ALA"
-    assert AMINOACIDS[-1] == "NME"
