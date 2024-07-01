@@ -1,6 +1,7 @@
 r"""
 Aminoacid sequence 3-letter-codes and single-letter-codes
 """
+
 __all__ = [
     "AMINOACIDS",
     "AMINOACIDS_WITH_CO",
