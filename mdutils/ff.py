@@ -32,9 +32,9 @@ class GeneralFF(FF):
 
 
 class ProteinFF(FF):
-    FF19SB = "ff19SB"  # use with OPC (or OPC3?)
-    FF14SB = "ff14SB"  # use with TIP3P
-    FF14SB_ONLYSC = "ff14SBonlysc"  # only side chains version, for igb = 8 (implicit)
+    FF19SB = "ff19SB"  # Use with OPC (or OPC3?)
+    FF14SB = "ff14SB"  # Use with TIP3P
+    FF14SB_ONLY_SIDE_CHAINS = "ff14SBonlysc"  # For igb = 8 (implicit)
 
 
 class AniFF(FF):
@@ -57,6 +57,7 @@ _IMPLICIT_MDIN_IDX_MAP = {
 }
 
 
+# Implicit FF are used to model solvents in an "average" manner
 class ImplicitFF(Enum):
     GB = "gb"
     MODIFIED_GB_I = "gb-mod1"
