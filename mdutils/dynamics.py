@@ -71,9 +71,7 @@ _EVERY_STEP = re.compile(r"^every-step$")
 _FACTOR = {"fs": 1.0e6, "ps": 1.0e3, "ns": 1.0, "us": 1.0e-3}
 
 
-def dump_rate_to_step_interval(
-    rate: str, tstep_fs: tp.Optional[float] = None
-) -> int:
+def dump_rate_to_step_interval(rate: str, tstep_fs: tp.Optional[float] = None) -> int:
     r"""
     Given a "dump rate" in any of the following forms:
     - '1/steps'
