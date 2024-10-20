@@ -14,7 +14,7 @@ from mdutils.geometry import BoxParams
 @dataclass
 class _BaseInputSystem:
     name: str
-    coordinates: NDArray[np.float32]
+    coordinates: NDArray[np.float64]
     box_params: tp.Optional[BoxParams] = None
 
     @property

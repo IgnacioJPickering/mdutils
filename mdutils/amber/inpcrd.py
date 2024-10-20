@@ -113,7 +113,7 @@ class Inpcrd(_BaseInputSystem):
                 final_row = self.coordinates[-1]
                 reshaped = self.coordinates[:-1].reshape(-1, 6)
             else:
-                final_row = np.array([], dtype=np.float32)
+                final_row = np.array([], dtype=np.float64)
                 reshaped = self.coordinates.reshape(-1, 6)
             for row in reshaped:
                 f.write("".join((f"{el:12.7f}" for el in row)))
