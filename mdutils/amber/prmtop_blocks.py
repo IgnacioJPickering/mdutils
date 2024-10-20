@@ -10,86 +10,91 @@ class Format(Enum):
     SMALL_INT_ARRAY = "20I4"  # integer
     STRING = "1A80"  # character
     SMALL_STRING_ARRAY = "20A4"  # character
-    FLOAT_ARRAY = "5E16.8"  # float
-    ONE_FLOAT = "1E16.8"  # float
-    CMAP_FLOAT_ARRAY = "8F9.5"  # float
+    FLOAT_ARRAY = "5E16.8"  # <=float32 prec
+    ONE_FLOAT = "1E16.8"  # <=float32 prec
+    CMAP_FLOAT_ARRAY = "8F9.5"  # <=float32 prec
 
 
 class Flag(Enum):
-    # General
-    TITLE = "TITLE"
+    # Global, general blocks
+    NAME = "TITLE"
     POINTERS = "POINTERS"
-    # Node data
-    ATOM_NAME = "ATOM_NAME"
-    ATOMIC_NUMBER = "ATOMIC_NUMBER"
-    AMBER_ATOM_TYPE = "AMBER_ATOM_TYPE"
-    MASS = "MASS"
+    IPOL = "IPOL"  # Flag that marks the use of polarizable ff
+    RADIUS_SET = "RADIUS_SET"  # String, kind of implicit solvent radii, always present
+    CAP_INFO2 = "CAP_INFO2"  # Only if 'sv-cap' flag set: Geometry of cap, 4 nums
+    BOX_DIMENSIONS = "BOX_DIMENSIONS"  # Only if 'box' flat set. Not zeros, but unused
+
+    # Nodes: atom-sized data
+    ATOM_ZNUM = "ATOMIC_NUMBER"
+    ATOM_LABEL = "ATOM_NAME"
+    ATOM_FFTYPE = "AMBER_ATOM_TYPE"
+    ATOM_LJINDEX = "ATOM_TYPE_INDEX"  # "LJ" atom type index (fuses some fftype)
+    ATOM_MASS = "MASS"
+    ATOM_CHARGE = "CHARGE"  # Electrostatics
+    ATOM_IMPLSV_RADII = "RADII"  # Implicit solv radii, 'GB radii'
+    ATOM_IMPLSV_SCREEN = "SCREEN"  # Implicit solv scren factor: 'GB screen'
+    ATOM_POLARIZABILITY = "POLARIZABILITY"  # Only used for polarizable ff
+    DIPOLE_DAMP = "DIPOLE_DAMP_FACTOR"  # TODO Not mentioned in the docs
+    ATOM_LEGACY_GRAPH_LABEL = "TREE_CHAIN_CLASSIFICATION"  # TODO: Not sure if unused
+    ATOM_LEGACY_GRAPH_JOIN_IDX = "JOIN_ARRAY"  # Unused, Must be int = zeros
+    ATOM_LEGACY_ROTATION_IDX = "IROTAT"  # Unused, Must be int = zeros
+    # Nodes: fftype-sized data
+    ATOM_FFTYPE_LEGACY_SOLTY = "SOLTY"  # Unused, zeros
+
+    # Groups of atoms (ress), residues (molecs) and molecs (solution-groups)
     # Node groups (residues)
     RESIDUE_LABEL = "RESIDUE_LABEL"
-    # This is the starting atom on each re (1-idx)
-    # Can be used to obtain residue sizes
-    RESIDUE_POINTER = "RESIDUE_POINTER"
-
-    # Node groups (solvent - solute)
-    # Sets which residues are part of the same molecule, and which molecules
-    # are "solvent" (must go at the end)
+    # Starting atom 1-idx of each. Can be used to obtain residue sizes
+    RESIDUE_FIRST_ATOM_IDX1 = "RESIDUE_POINTER"
+    # Residue groups (not enforced in prmtop) ("molecules", no amber labels)
     ATOMS_PER_MOLECULE = "ATOMS_PER_MOLECULE"
-    SOLVENT_POINTERS = "SOLVENT_POINTERS"
-    # Valence interactions
+    # Molecule gruops ("SV/ST", no amber labels)
+    SOLVENT_POINTERS = "SOLVENT_POINTERS"  # Solvent must go at the end
+    # Solvent cap view
+    CAP_INFO = "CAP_INFO"  # Only if 'sv-cap' flag set. Last atom before start of cap
+
+    # Bonded interactions
     # Edges
-    BONDS_WITH_HYDROGEN = "BONDS_INC_HYDROGEN"
-    BONDS_WITHOUT_HYDROGEN = "BONDS_WITHOUT_HYDROGEN"
-    BOND_FORCE_CONSTANT = "BOND_FORCE_CONSTANT"
-    BOND_EQUIL_VALUE = "BOND_EQUIL_VALUE"
+    BOND_WITH_HYDROGEN = "BONDS_INC_HYDROGEN"
+    BOND_WITHOUT_HYDROGEN = "BONDS_WITHOUT_HYDROGEN"
+    BOND_FFTYPE_FORCE_CONSTANT = "BOND_FORCE_CONSTANT"
+    BOND_FFTYPE_EQUIL_DISTANCE = "BOND_EQUIL_VALUE"
     # Angles
-    ANGLES_WITH_HYDROGEN = "ANGLES_INC_HYDROGEN"
-    ANGLES_WITHOUT_HYDROGEN = "ANGLES_WITHOUT_HYDROGEN"
-    ANGLE_FORCE_CONSTANT = "ANGLE_FORCE_CONSTANT"
-    ANGLE_EQUIL_VALUE = "ANGLE_EQUIL_VALUE"
+    ANGLE_WITH_HYDROGEN = "ANGLES_INC_HYDROGEN"
+    ANGLE_WITHOUT_HYDROGEN = "ANGLES_WITHOUT_HYDROGEN"
+    ANGLE_FFTYPE_FORCE_CONSTANT = "ANGLE_FORCE_CONSTANT"
+    ANGLE_FFTYPE_EQUIL_ANGLE = "ANGLE_EQUIL_VALUE"
     # dihedrals
-    DIHEDRALS_WITH_HYDROGEN = "DIHEDRALS_INC_HYDROGEN"
-    DIHEDRALS_WITHOUT_HYDROGEN = "DIHEDRALS_WITHOUT_HYDROGEN"
-    DIHEDRAL_FORCE_CONSTANT = "DIHEDRAL_FORCE_CONSTANT"
-    DIHEDRAL_PERIODICITY = "DIHEDRAL_PERIODICITY"
-    DIHEDRAL_PHASE = "DIHEDRAL_PHASE"
+    DIHEDRAL_WITH_HYDROGEN = "DIHEDRALS_INC_HYDROGEN"
+    DIHEDRAL_WITHOUT_HYDROGEN = "DIHEDRALS_WITHOUT_HYDROGEN"
+    DIHEDRAL_FFTYPE_FORCE_CONSTANT = "DIHEDRAL_FORCE_CONSTANT"
+    DIHEDRAL_FFTYPE_PERIODICITY = "DIHEDRAL_PERIODICITY"
+    DIHEDRAL_FFTYPE_PHASE = "DIHEDRAL_PHASE"
+    DIHEDRAL_FFTYPE_ELECTRO_ENDS_INV_SCREEN = (
+        "SCEE_SCALE_FACTOR"  # Ends = 1-4 atoms
+    )
+    DIHEDRAL_FFTYPE_LJ_ENDS_INV_SCREEN = "SCNB_SCALE_FACTOR"  # Ends = 1-4 atoms
+
     # Nonbonding interactions
     # Exclusion for nonbonded calculations
     # These two can be summarized in one ani-style neighborlist
     NUMBER_EXCLUDED_ATOMS = "NUMBER_EXCLUDED_ATOMS"
     EXCLUDED_ATOMS_LIST = "EXCLUDED_ATOMS_LIST"
-    # Scale factors
-    SCEE_SCALE_FACTOR = "SCEE_SCALE_FACTOR"
-    SCNB_SCALE_FACTOR = "SCNB_SCALE_FACTOR"
-    # Node data for nonbonded
-    # Electrostatic
-    CHARGE = "CHARGE"
-    # lennard jones
-    ATOM_TYPE_INDEX = "ATOM_TYPE_INDEX"  # lennard jones atom type index
-    NONBONDED_PARM_INDEX = "NONBONDED_PARM_INDEX"
-    LENNARD_JONES_ACOEF = "LENNARD_JONES_ACOEF"
-    LENNARD_JONES_BCOEF = "LENNARD_JONES_BCOEF"
-    # C4 stuff (usually not needed)
-    LENNARD_JONES_CCOEF = "LENNARD_JONES_CCOEF"
-    LENNARD_JONES_DCOEF = "LENNARD_JONES_DCOEF"
-    LENNARD_JONES_DVALUE = "LENNARD_JONES_DVALUE"
-    # 10-12 hbond (should be unused)
-    HBOND_ACOEF = "HBOND_ACOEF"  # should be empty, but present
-    HBOND_BCOEF = "HBOND_BCOEF"  # should be empty, but present
-    HBCUT = "HBCUT"  # should be empty, but present
-    # Polarizable ffs
-    IPOL = "IPOL"  # boolean flag
-    POLARIZABILITY = "POLARIZABILITY"  # Docs say 18.8, but it is a typo
-    DIPOLE_DAMP_FACTOR = "DIPOLE_DAMP_FACTOR"  # Not mentioned in docs
 
-    # Implicit solvent parameters and radii
-    SCREEN = "SCREEN"  # screening Generalized Born parameters
-    RADIUS_SET = "RADIUS_SET"  # String, kind of radii
-    RADII = "RADII"  # GB radii values
+    # Lennard Jones parameters
+    # lj_param_idx[i, j]
+    #  = lj_param_idx[num_ljtypes * ((atom_ljtype_idx[i] - 1) + atom_ljtype_idx[j])]
+    LJ_PARAM_INDEX = "NONBONDED_PARM_INDEX"  # idx into the LJ_PARAM arrays
+    LJ_PARAM_A = "LENNARD_JONES_ACOEF"
+    LJ_PARAM_B = "LENNARD_JONES_BCOEF"
 
-    # Water cap information
-    CAP_INFO = "CAP_INFO"  # 1 int, last atom before start of cap
-    CAP_INFO2 = "CAP_INFO2"  # geometry of cap, 4 nums
+    # TODO implement LJ C4 manipulation
+    # Lennard Jones C4 (usually not needed)
+    LJ_PARAM_C = "LENNARD_JONES_CCOEF"
+    LJ_PARAM_D = "LENNARD_JONES_DCOEF"
+    LJ_VALUE_D = "LENNARD_JONES_DVALUE"
 
+    # TODO implement CMAP manipulation
     # CMAP related fields
     # Note that the cmaps can be found in the frcmod files
     # there seem to be "ff19sb" style cmaps, and "old" style cmaps
@@ -123,31 +128,27 @@ class Flag(Enum):
     CMAP_PARAMETER_19 = "CMAP_PARAMETER_19"
     CMAP_PARAMETER_20 = "CMAP_PARAMETER_20"
 
-    # Legacy (unused)
-    SOLTY = "SOLTY"  # Zeros
-    JOIN_ARRAY = "JOIN_ARRAY"  # Zeros
-    IROTAT = "IROTAT"  # Zeros
+    # Hbond 10-12 interactions (legacy, should not be unused)
+    HBOND_ACOEF = "HBOND_ACOEF"  # should be empty, but present
+    HBOND_BCOEF = "HBOND_BCOEF"  # should be empty, but present
+    HBCUT = "HBCUT"  # should be empty, but present
 
-    TREE_CHAIN_CLASSIFICATION = "TREE_CHAIN_CLASSIFICATION"  # Unused?
 
-    # Only if box flag is set
-    BOX_DIMENSIONS = "BOX_DIMENSIONS"  # Not zeros, but inpcrd values are used instead
-
-    # Perturbation information
-    # IAPERT = "IAPER"
-    # ALMPER = "ALMPER"
-    # PERT_POLARIZABILITY = "PERT_POLARIZABILITY"
-    # PERT_CHARGE = "PERT_CHARGE"
-    # PERT_ATOM_TYPE_INDEX = "PERT_ATOM_TYPE_INDEX"
-    # PERT_ATOM_SYMBOL = "PERT_ATOM_SYMBOL"
-    # PERT_ATOM_NAME = "PERT_ATOM_NAME"
-    # PERT_RESIDUE_NAME = "PERT_RESIDUE_NAME"
-    # PERT_DIHEDRAL_PARAMS = "PERT_DIHEDRAL_PARAMS"
-    # PERT_DIHEDRAL_ATOMS = "PERT_DIHEDRAL_ATOMS"
-    # PERT_ANGLE_PARAMS = "PERT_ANGLE_PARAMS"
-    # PERT_ANGLE_ATOMS = "PERT_ANGLE_ATOMS"
-    # PERT_BOND_PARAMS = "PERT_BOND_PARAMS"
-    # PERT_BOND_ATOMS = "PERT_BOND_ATOMS"
+# Perturbation information is not implemented:
+# IAPERT = "IAPER"
+# ALMPER = "ALMPER"
+# PERT_POLARIZABILITY = "PERT_POLARIZABILITY"
+# PERT_CHARGE = "PERT_CHARGE"
+# PERT_ATOM_TYPE_INDEX = "PERT_ATOM_TYPE_INDEX"
+# PERT_ATOM_SYMBOL = "PERT_ATOM_SYMBOL"
+# PERT_ATOM_NAME = "PERT_ATOM_NAME"
+# PERT_RESIDUE_NAME = "PERT_RESIDUE_NAME"
+# PERT_DIHEDRAL_PARAMS = "PERT_DIHEDRAL_PARAMS"
+# PERT_DIHEDRAL_ATOMS = "PERT_DIHEDRAL_ATOMS"
+# PERT_ANGLE_PARAMS = "PERT_ANGLE_PARAMS"
+# PERT_ANGLE_ATOMS = "PERT_ANGLE_ATOMS"
+# PERT_BOND_PARAMS = "PERT_BOND_PARAMS"
+# PERT_BOND_ATOMS = "PERT_BOND_ATOMS"
 
 
 CMAP_PARAMETER_FLAGS = {
@@ -194,58 +195,58 @@ FLAG_FORMAT_MAP = {
     Flag.CMAP_PARAMETER_18: Format.CMAP_FLOAT_ARRAY,
     Flag.CMAP_PARAMETER_19: Format.CMAP_FLOAT_ARRAY,
     Flag.CMAP_PARAMETER_20: Format.CMAP_FLOAT_ARRAY,
-    Flag.TREE_CHAIN_CLASSIFICATION: Format.SMALL_STRING_ARRAY,
     Flag.IPOL: Format.ONE_INTEGER,
-    Flag.POLARIZABILITY: Format.FLOAT_ARRAY,
-    Flag.DIPOLE_DAMP_FACTOR: Format.FLOAT_ARRAY,
-    Flag.SCREEN: Format.FLOAT_ARRAY,
+    Flag.DIPOLE_DAMP: Format.FLOAT_ARRAY,
     Flag.RADIUS_SET: Format.STRING,
-    Flag.RADII: Format.FLOAT_ARRAY,
     Flag.CAP_INFO: Format.INT_ARRAY,
     Flag.CAP_INFO2: Format.FLOAT_ARRAY,
     Flag.CMAP_COUNT: Format.TWO_INTEGERS,
     Flag.CMAP_INDEX: Format.SIX_INTEGERS,
     Flag.CMAP_RESOLUTION: Format.SMALL_INT_ARRAY,
-    Flag.BONDS_WITH_HYDROGEN: Format.INT_ARRAY,
-    Flag.BONDS_WITHOUT_HYDROGEN: Format.INT_ARRAY,
-    Flag.ANGLES_WITH_HYDROGEN: Format.INT_ARRAY,
-    Flag.ANGLES_WITHOUT_HYDROGEN: Format.INT_ARRAY,
-    Flag.DIHEDRALS_WITH_HYDROGEN: Format.INT_ARRAY,
-    Flag.DIHEDRALS_WITHOUT_HYDROGEN: Format.INT_ARRAY,
-    Flag.SOLTY: Format.FLOAT_ARRAY,
-    Flag.JOIN_ARRAY: Format.INT_ARRAY,
-    Flag.IROTAT: Format.INT_ARRAY,
+    Flag.BOND_WITH_HYDROGEN: Format.INT_ARRAY,
+    Flag.BOND_WITHOUT_HYDROGEN: Format.INT_ARRAY,
+    Flag.ANGLE_WITH_HYDROGEN: Format.INT_ARRAY,
+    Flag.ANGLE_WITHOUT_HYDROGEN: Format.INT_ARRAY,
+    Flag.DIHEDRAL_WITH_HYDROGEN: Format.INT_ARRAY,
+    Flag.DIHEDRAL_WITHOUT_HYDROGEN: Format.INT_ARRAY,
+    Flag.ATOM_FFTYPE_LEGACY_SOLTY: Format.FLOAT_ARRAY,
     Flag.BOX_DIMENSIONS: Format.FLOAT_ARRAY,
     Flag.HBOND_BCOEF: Format.FLOAT_ARRAY,
     Flag.HBOND_ACOEF: Format.FLOAT_ARRAY,
     Flag.HBCUT: Format.FLOAT_ARRAY,
-    Flag.SCEE_SCALE_FACTOR: Format.FLOAT_ARRAY,
-    Flag.SCNB_SCALE_FACTOR: Format.FLOAT_ARRAY,
-    Flag.BOND_FORCE_CONSTANT: Format.FLOAT_ARRAY,
-    Flag.BOND_EQUIL_VALUE: Format.FLOAT_ARRAY,
-    Flag.ANGLE_FORCE_CONSTANT: Format.FLOAT_ARRAY,
-    Flag.ANGLE_EQUIL_VALUE: Format.FLOAT_ARRAY,
+    Flag.DIHEDRAL_FFTYPE_ELECTRO_ENDS_INV_SCREEN: Format.FLOAT_ARRAY,
+    Flag.DIHEDRAL_FFTYPE_LJ_ENDS_INV_SCREEN: Format.FLOAT_ARRAY,
+    Flag.BOND_FFTYPE_FORCE_CONSTANT: Format.FLOAT_ARRAY,
+    Flag.BOND_FFTYPE_EQUIL_DISTANCE: Format.FLOAT_ARRAY,
+    Flag.ANGLE_FFTYPE_FORCE_CONSTANT: Format.FLOAT_ARRAY,
+    Flag.ANGLE_FFTYPE_EQUIL_ANGLE: Format.FLOAT_ARRAY,
     Flag.NUMBER_EXCLUDED_ATOMS: Format.INT_ARRAY,
     Flag.EXCLUDED_ATOMS_LIST: Format.INT_ARRAY,
-    Flag.DIHEDRAL_FORCE_CONSTANT: Format.FLOAT_ARRAY,
-    Flag.DIHEDRAL_PERIODICITY: Format.FLOAT_ARRAY,
-    Flag.DIHEDRAL_PHASE: Format.FLOAT_ARRAY,
-    Flag.TITLE: Format.SMALL_STRING_ARRAY,
+    Flag.DIHEDRAL_FFTYPE_FORCE_CONSTANT: Format.FLOAT_ARRAY,
+    Flag.DIHEDRAL_FFTYPE_PERIODICITY: Format.FLOAT_ARRAY,
+    Flag.DIHEDRAL_FFTYPE_PHASE: Format.FLOAT_ARRAY,
+    Flag.NAME: Format.SMALL_STRING_ARRAY,
     Flag.POINTERS: Format.INT_ARRAY,
-    Flag.ATOM_NAME: Format.SMALL_STRING_ARRAY,
-    Flag.CHARGE: Format.FLOAT_ARRAY,
-    Flag.ATOMIC_NUMBER: Format.INT_ARRAY,
-    Flag.AMBER_ATOM_TYPE: Format.SMALL_STRING_ARRAY,
-    Flag.MASS: Format.FLOAT_ARRAY,
-    Flag.ATOM_TYPE_INDEX: Format.INT_ARRAY,
-    Flag.NONBONDED_PARM_INDEX: Format.INT_ARRAY,
-    Flag.LENNARD_JONES_ACOEF: Format.FLOAT_ARRAY,
-    Flag.LENNARD_JONES_BCOEF: Format.FLOAT_ARRAY,
-    Flag.LENNARD_JONES_CCOEF: Format.FLOAT_ARRAY,
-    Flag.LENNARD_JONES_DCOEF: Format.THREE_INTEGERS,
-    Flag.LENNARD_JONES_DVALUE: Format.ONE_FLOAT,
+    Flag.ATOM_POLARIZABILITY: Format.FLOAT_ARRAY,  # Docs say 18.8, but it is a typo
+    Flag.ATOM_LABEL: Format.SMALL_STRING_ARRAY,
+    Flag.ATOM_CHARGE: Format.FLOAT_ARRAY,
+    Flag.ATOM_ZNUM: Format.INT_ARRAY,
+    Flag.ATOM_FFTYPE: Format.SMALL_STRING_ARRAY,
+    Flag.ATOM_MASS: Format.FLOAT_ARRAY,
+    Flag.ATOM_IMPLSV_SCREEN: Format.FLOAT_ARRAY,
+    Flag.ATOM_IMPLSV_RADII: Format.FLOAT_ARRAY,
+    Flag.ATOM_LEGACY_GRAPH_LABEL: Format.SMALL_STRING_ARRAY,
+    Flag.ATOM_LEGACY_GRAPH_JOIN_IDX: Format.INT_ARRAY,
+    Flag.ATOM_LEGACY_ROTATION_IDX: Format.INT_ARRAY,
+    Flag.ATOM_LJINDEX: Format.INT_ARRAY,
+    Flag.LJ_PARAM_INDEX: Format.INT_ARRAY,
+    Flag.LJ_PARAM_A: Format.FLOAT_ARRAY,
+    Flag.LJ_PARAM_B: Format.FLOAT_ARRAY,
+    Flag.LJ_PARAM_C: Format.FLOAT_ARRAY,
+    Flag.LJ_PARAM_D: Format.THREE_INTEGERS,
+    Flag.LJ_VALUE_D: Format.ONE_FLOAT,
     Flag.RESIDUE_LABEL: Format.SMALL_STRING_ARRAY,
-    Flag.RESIDUE_POINTER: Format.INT_ARRAY,
+    Flag.RESIDUE_FIRST_ATOM_IDX1: Format.INT_ARRAY,
     Flag.SOLVENT_POINTERS: Format.THREE_INTEGERS,
     Flag.ATOMS_PER_MOLECULE: Format.INT_ARRAY,
 }
@@ -255,16 +256,6 @@ HBOND_FLAGS = {
     Flag.HBOND_ACOEF,
     Flag.HBOND_BCOEF,
     Flag.HBCUT,
-}
-
-
-COVALENT_TERM_FLAGS = {
-    Flag.BONDS_WITH_HYDROGEN,
-    Flag.BONDS_WITHOUT_HYDROGEN,
-    Flag.ANGLES_WITH_HYDROGEN,
-    Flag.ANGLES_WITHOUT_HYDROGEN,
-    Flag.DIHEDRALS_WITH_HYDROGEN,
-    Flag.DIHEDRALS_WITHOUT_HYDROGEN,
 }
 
 

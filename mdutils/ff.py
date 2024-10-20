@@ -87,7 +87,7 @@ _POLARIZABLE_PRMTOP_IDX_MAP = {
 class PolarizableKind(Enum):
     NONE = "no-polarizable"
     POLARIZABILITY = "polarizable"
-    POLARIZABILITY_AND_DIPOLE_DAMP_FACTOR = "polarizable-with-dipole-damp"
+    POLARIZABILITY_AND_DIPOLE_DAMP = "polarizable-with-dipole-damp"
 
     @property
     def prmtop_idx(self) -> int:

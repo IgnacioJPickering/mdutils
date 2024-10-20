@@ -5,10 +5,7 @@ import subprocess
 
 import jinja2
 
-from mdutils.amber.prmtop import (
-    load as load_prmtop,
-    Flag,
-)
+from mdutils.amber.prmtop import Prmtop
 from mdutils.aminoacid import AMINOACIDS_WITH_CO, AMINOACIDS
 
 
@@ -59,7 +56,7 @@ class CpptrajExecutor:
             final_frame=final_frame,
             sample_step=sample_step,
         )
-        self._prmtop_data = load_prmtop(prmtop_fpath)
+        self._prmtop = Prmtop.load(prmtop_fpath)
 
     def _write_buffers(
         self,
@@ -145,11 +142,11 @@ class CpptrajExecutor:
         range_360: bool = False,
     ) -> str:
         template = env.get_template("peptidic-dihedrals.cpptraj.in.jinja")
-        residue_names = self._prmtop_data.blocks[Flag.RESIDUE_LABEL]
+        res_labels = self._prmtop.resids.label
         mask_tuples: tp.List[tp.Tuple[str, str, str, str]] = []
         number_tuples: tp.List[tp.Tuple[int, int]] = []
         name_tuples: tp.List[tp.Tuple[str, str]] = []
-        for j, (r, r_next) in enumerate(zip(residue_names[:-1], residue_names[1:])):
+        for j, (r, r_next) in enumerate(zip(res_labels[:-1], res_labels[1:])):
             if (r.strip() in AMINOACIDS) and (r_next.strip() in AMINOACIDS):
                 # the same definitions are used as the ones in AMBER's prep
                 # files
@@ -189,12 +186,12 @@ class CpptrajExecutor:
         has_box: bool = True,
     ) -> str:
         template = env.get_template("out-of-plane.cpptraj.in.jinja")
-        residue_names = self._prmtop_data.blocks[Flag.RESIDUE_LABEL]
+        res_labels = self._prmtop.resids.label
         center_atoms: tp.List[str] = []
         plane_atoms: tp.List[tp.Tuple[str, str, str]] = []
         number_tuples: tp.List[tp.Tuple[int, int]] = []
         name_tuples: tp.List[tp.Tuple[str, str]] = []
-        for j, (r, r_next) in enumerate(zip(residue_names[:-1], residue_names[1:])):
+        for j, (r, r_next) in enumerate(zip(res_labels[:-1], res_labels[1:])):
             if (r.strip() in AMINOACIDS) and (r_next.strip() in AMINOACIDS):
                 center_atoms.append(f":{j + 2}@N")
                 if r_next.strip() == "NME":
@@ -218,20 +215,20 @@ class CpptrajExecutor:
 
     def carbonyls_input(self) -> str:
         template = env.get_template("carbonyls.cpptraj.in.jinja")
-        residue_names = self._prmtop_data.blocks[Flag.RESIDUE_LABEL]
+        res_labels = self._prmtop.resids.label
         masks: tp.Dict[str, str] = {}
         selected_residue_numbers: tp.List[int] = []
-        selected_residue_names: tp.List[str] = []
-        for j, r in enumerate(residue_names):
+        selected_res_labels: tp.List[str] = []
+        for j, r in enumerate(res_labels):
             if r.strip() in AMINOACIDS_WITH_CO:
                 masks[f":{j + 1}@C"] = f":{j + 1}@O"
                 selected_residue_numbers.append(j + 1)
-                selected_residue_names.append(r.strip())
+                selected_res_labels.append(r.strip())
         render = template.render(
             **asdict(self._common_args),
             masks=masks,
             selected_residue_numbers=selected_residue_numbers,
-            selected_residue_names=selected_residue_names,
+            selected_residue_labels=selected_res_labels,
         )
         return render
 
