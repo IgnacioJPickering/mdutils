@@ -259,13 +259,17 @@ class DihedralsAccessor(_InteractionAccessor):
         return self._prmtop.blocks[Flag.DIHEDRAL_FFTYPE_PHASE]
 
     # The "ends" of a dihedral are atoms 1-4
+    # TODO its not clear if this is directly (half_barrier / damp)
+    # Weiner, et al., JACS 106:765 (1984) p. 769
+    # in the (half_barrier / damp) * (1 + cos(periodicity * phi - phase))
+    # equation used in the terms
     @property
-    def fftype_ends_electro_inv_screen(self) -> NDArray[np.float32]:
-        return self._prmtop.blocks[Flag.DIHEDRAL_FFTYPE_ELECTRO_ENDS_INV_SCREEN]
+    def fftype_ends_electro_screen(self) -> NDArray[np.float32]:
+        return self._prmtop.blocks[Flag.DIHEDRAL_FFTYPE_ELECTRO_ENDS_SCREEN]
 
     @property
-    def fftype_ends_lj_inv_screen(self) -> NDArray[np.float32]:
-        return self._prmtop.blocks[Flag.DIHEDRAL_FFTYPE_LJ_ENDS_INV_SCREEN]
+    def fftype_ends_lj_screen(self) -> NDArray[np.float32]:
+        return self._prmtop.blocks[Flag.DIHEDRAL_FFTYPE_LJ_ENDS_SCREEN]
 
 
 class SoltSolvAccessor(_Accessor):
