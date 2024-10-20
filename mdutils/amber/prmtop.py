@@ -86,8 +86,8 @@ class PrmtopMeta:
         if not (1 <= self.resids_max_atoms_num <= largest_possible_residue):
             raise PrmtopError("Impossible num atoms in largest residue")
         for prefix in ("bond", "angle", "dihedral"):
-            key_with = f"{prefix}_with_hydrogen"
-            key_without = f"{prefix}_without_hydrogen"
+            key_with = f"{prefix}_with_hydrogen_num"
+            key_without = f"{prefix}_without_hydrogen_num"
             key_ff = f"{prefix}_fftype_num"
             val_with = getattr(self, key_with)
             val_without = getattr(self, key_without)
@@ -162,7 +162,7 @@ class PrmtopMeta:
             # Misc
             box_kind=BoxKind.from_prmtop_idx(block[27]),
             resids_max_atoms_num=block[28],
-            solv_cap_kind=SolvCapKind(block[29]),
+            solv_cap_kind=SolvCapKind.from_prmtop_idx(block[29]),
             extra_points_num=block[30],
             # Path Integral MD (PIMD) slices, optional
             pimd_slices_num=block[31] if len(block) == 32 else None,
@@ -191,13 +191,13 @@ class _InteractionAccessor(_Accessor):
     def num(self, kind: tp.Literal["with-H", "without-H", "all"]) -> int:
         if kind == "with-H":
             return (
-                self._prmtop.blocks[Flag(f"{self.prefix}_WITH_HYDROGEN")]
+                self._prmtop.blocks[Flag[f"{self.prefix}_WITH_HYDROGEN"]]
                 .reshape(self.shape)
                 .shape[0]
             )
         if kind == "without-H":
             return (
-                self._prmtop.blocks[Flag(f"{self.prefix}_WITHOUT_HYDROGEN")]
+                self._prmtop.blocks[Flag[f"{self.prefix}_WITHOUT_HYDROGEN"]]
                 .reshape(self.shape)
                 .shape[0]
             )
@@ -211,11 +211,11 @@ class _InteractionAccessor(_Accessor):
 
     @property
     def fftype_force_const(self) -> NDArray[np.float32]:
-        return self._prmtop.blocks[Flag(f"{self.prefix}_FFTYPE_FORCE_CONSTANT")]
+        return self._prmtop.blocks[Flag[f"{self.prefix}_FFTYPE_FORCE_CONSTANT"]]
 
 
 class BondsAccessor(_InteractionAccessor):
-    prefix: tp.ClassVar[str] = "BONDS"
+    prefix: tp.ClassVar[str] = "BOND"
     shape: tp.ClassVar[tp.Tuple[int, ...]] = (-1, 3)  # i, j, idx-into-param-array
 
     @property
@@ -224,7 +224,7 @@ class BondsAccessor(_InteractionAccessor):
 
 
 class AnglesAccessor(_InteractionAccessor):
-    prefix: tp.ClassVar[str] = "ANGLES"
+    prefix: tp.ClassVar[str] = "ANGLE"
     shape: tp.ClassVar[tp.Tuple[int, ...]] = (-1, 4)  # i, j, k, idx-into-param-array
 
     @property
@@ -242,7 +242,7 @@ class DihedralsAccessor(_InteractionAccessor):
     'fftype_group_num' groups those dihedrals in the same term
     """
 
-    prefix: tp.ClassVar[str] = "DIHEDRALS"
+    prefix: tp.ClassVar[str] = "DIHEDRAL"
     shape: tp.ClassVar[tp.Tuple[int, ...]] = (-1, 5)  # i, j, k, l, idx-into-param-array
 
     @property
@@ -597,11 +597,10 @@ class Prmtop:
             pimd_slices_num=meta.pimd_slices_num,  # Only in POINTERS
         )
         # TODO check internal consistency with box, solv-cap and polarizability
-        # Not sure why mypy doesn't like this
-        obj.check_meta_consistency(meta)  # type: ignore
+        obj.check_meta_consistency(meta)
         return obj
 
-    def check_meta_consistenty(self, meta: PrmtopMeta) -> None:
+    def check_meta_consistency(self, meta: PrmtopMeta) -> None:
         if (
             self.version != meta.version
             or self.date_time != meta.date_time
@@ -802,7 +801,7 @@ def _remove_legacy_blocks(blocks: tp.Dict[Flag, NDArray[tp.Any]]) -> None:
     # Unused, filled with zeros
     for flag in (
         Flag.ATOM_FFTYPE_LEGACY_SOLTY,
-        Flag.ATOM_LEGACY_GRAPH_LABEL,
+        Flag.ATOM_LEGACY_GRAPH_JOIN_IDX,
         Flag.ATOM_LEGACY_ROTATION_IDX,
     ):
         if flag in blocks:
