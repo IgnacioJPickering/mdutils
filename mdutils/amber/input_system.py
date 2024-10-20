@@ -1,6 +1,7 @@
 r"""
 Private input system base class
 """
+
 import typing_extensions as tpx
 from pathlib import Path
 from numpy.typing import NDArray
