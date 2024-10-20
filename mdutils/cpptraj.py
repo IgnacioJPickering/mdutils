@@ -3,7 +3,7 @@ import typing as tp
 from pathlib import Path
 import subprocess
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+import jinja2
 
 from mdutils.amber.prmtop import (
     load as load_prmtop,
@@ -12,11 +12,12 @@ from mdutils.amber.prmtop import (
 from mdutils.aminoacid import AMINOACIDS_WITH_CO, AMINOACIDS
 
 
-templates_path = Path(__file__).parent.joinpath("cpptraj_templates")
-
-env = Environment(
-    loader=FileSystemLoader(templates_path),
-    autoescape=select_autoescape(),
+env = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(Path(__file__).parent / "cpptraj_templates"),
+    undefined=jinja2.StrictUndefined,
+    autoescape=jinja2.select_autoescape(),
+    trim_blocks=True,
+    lstrip_blocks=True,
 )
 
 
@@ -25,67 +26,69 @@ class CpptrajCommonArgs:
     name: str
     traj_fpath: Path
     prmtop_fpath: Path
-    initial_frame: int
-    final_frame: str
-    sample_step: int
+    sample_step: int = 1
+    initial_frame: int = 0
+    final_frame: tp.Union[tp.Literal["last"], int] = "last"
 
 
 class CpptrajExecutor:
+    # idx from 0 in constructor, as in python
     def __init__(
         self,
         name: str,
         prmtop_fpath: Path,
-        traj_fpath: Path = Path.cwd(),
+        traj_fpath: Path,
         initial_frame: int = 0,
-        final_frame: int = -1,
+        final_frame: tp.Union[tp.Literal["last"], int] = "last",
         sample_step: int = 1,
     ):
-        if final_frame != -1:
+        # Displace final and initial frames, since cpptraj idxs from 1, as in fortran
+        initial_frame += 1
+        if initial_frame < 0:
+            raise ValueError("initial_frame must be >= 0")
+        if final_frame != "last":
             final_frame += 1
-        if final_frame != -1 and final_frame <= 0:
-            raise ValueError("Index of last frame should be strictly positive or -1")
+            if final_frame <= initial_frame:
+                raise ValueError("final_frame must be > initial_frame")
+
         self._common_args = CpptrajCommonArgs(
             name=name,
             traj_fpath=traj_fpath,
             prmtop_fpath=prmtop_fpath,
-            initial_frame=initial_frame + 1,
-            final_frame=str(final_frame) if final_frame != -1 else "last",
+            initial_frame=initial_frame,
+            final_frame=final_frame,
             sample_step=sample_step,
         )
         self._prmtop_data = load_prmtop(prmtop_fpath)
 
     def _write_buffers(
         self,
-        out: subprocess.CompletedProcess,  # type: ignore
+        out: subprocess.CompletedProcess[str],
         path: Path,
         suffix: str,
     ) -> None:
-        stdout_path = path.with_suffix(f".{suffix}.stdout")
-        stderr_path = path.with_suffix(f".{suffix}.stderr")
-
-        with open(stdout_path, "w+", encoding="utf-8") as f:
-            f.write(out.stdout.decode("utf-8"))
-
-        with open(stderr_path, "w+", encoding="utf-8") as f:
-            f.write(out.stderr.decode("utf-8"))
+        path.with_suffix(f".{suffix}.stdout").write_text(out.stdout)
+        path.with_suffix(f".{suffix}.stderr").write_text(out.stderr)
 
     def execute(
         self,
         cpptraj_block: str,
         cpptraj_input_path: Path,
     ) -> None:
-        with open(cpptraj_input_path, "w+") as f:
+
+        with open(cpptraj_input_path, mode="w+", encoding="utf-8") as f:
             f.write(cpptraj_block)
-            f.seek(0)
-            out = subprocess.run(
-                ["cpptraj", "-i", f"{cpptraj_input_path.name}"],
-                cwd=cpptraj_input_path.parent,
-                capture_output=True,
-            )
-            self._write_buffers(
-                out, cpptraj_input_path.with_suffix("").with_suffix(""), "cpptraj"
-            )
-            out.check_returncode()
+
+        out = subprocess.run(
+            ["cpptraj", "-i", f"{cpptraj_input_path.name}"],
+            cwd=cpptraj_input_path.parent,
+            capture_output=True,
+            text=True,
+        )
+        self._write_buffers(
+            out, cpptraj_input_path.with_suffix("").with_suffix(""), "cpptraj"
+        )
+        out.check_returncode()
 
     def postprocess_input(
         self,
