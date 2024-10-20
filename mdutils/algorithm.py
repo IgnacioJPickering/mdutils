@@ -1,5 +1,5 @@
 r"""
-Algorithms for MD: Thermostats, Barostats, Tensionstats and optimizers.
+Iterative algorithmes useful in MD: Thermostats, Barostats, Tensionstats and Optimizers.
 Parameters and defaults for the different schemes.
 """
 
