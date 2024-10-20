@@ -1,4 +1,5 @@
 r"""Useful unit conversion factors"""
+
 import math
 
 SPEED_OF_LIGHT = 299792458  # exact, m / s
