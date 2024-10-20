@@ -28,7 +28,7 @@ def test_implicit() -> None:
 
 @pytest.mark.fast
 def test_polarizable() -> None:
-    kind = PolarizableKind.POLARIZABILITY_AND_DIPOLE_DAMP_FACTOR
+    kind = PolarizableKind.POLARIZABILITY_AND_DIPOLE_DAMP
     assert kind.prmtop_idx == 2
     kind = PolarizableKind.POLARIZABILITY
     assert kind.prmtop_idx == 1

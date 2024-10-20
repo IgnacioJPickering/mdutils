@@ -1,3 +1,4 @@
+import typing as tp
 from enum import Enum
 from dataclasses import dataclass, field
 
@@ -54,12 +55,25 @@ class BoxParams:
     )
 
 
-_BOX_PRMTOP_IDX_MAP = {
-    "no-box": 0,
-    "parallelepiped": 1,
-    "trunc-octahedron": 2,
-    "rect-cuboid": 3,
-}
+class SolvCapKind(Enum):
+    NO_SOLV_CAP = "no-solv-cap"
+    SPHERE = "sphere"
+
+    @property
+    def prmtop_idx(self) -> int:
+        return self._prmtop_idx_map()[self.value]
+
+    @classmethod
+    def from_prmtop_idx(cls, idx: int) -> tpx.Self:
+        value = {v: k for k, v in cls._prmtop_idx_map().items()}[idx]
+        return cls(value)
+
+    @staticmethod
+    def _prmtop_idx_map() -> tp.Dict[str, int]:
+        return {
+            "no-solv-cap": 0,
+            "sphere": 1,
+        }
 
 
 class BoxKind(Enum):
@@ -70,9 +84,18 @@ class BoxKind(Enum):
 
     @property
     def prmtop_idx(self) -> int:
-        return _BOX_PRMTOP_IDX_MAP[self.value]
+        return self._prmtop_idx_map()[self.value]
 
     @classmethod
     def from_prmtop_idx(cls, idx: int) -> tpx.Self:
-        value = {v: k for k, v in _BOX_PRMTOP_IDX_MAP.items()}[idx]
+        value = {v: k for k, v in cls._prmtop_idx_map().items()}[idx]
         return cls(value)
+
+    @staticmethod
+    def _prmtop_idx_map() -> tp.Dict[str, int]:
+        return {
+            "no-box": 0,
+            "parallelepiped": 1,
+            "trunc-octahedron": 2,
+            "rect-cuboid": 3,
+        }

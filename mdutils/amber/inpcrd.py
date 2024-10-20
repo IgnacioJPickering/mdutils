@@ -1,5 +1,5 @@
 r"""
-Utilities to deal with amber-style inpcrd files and their metadata (formatted ascii)
+Utilities to deal with Amber-style 'inpcrd' formatted ascii files and their metadata
 """
 
 import typing_extensions as tpx
@@ -13,6 +13,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from mdutils.geometry import BoxParams
+from mdutils.amber.input_system import _BaseInputSystem
 
 __all__ = ["Inpcrd", "InpcrdMeta"]
 
@@ -70,38 +71,10 @@ class InpcrdMeta:
 
 
 @dataclass
-class Inpcrd:
+class Inpcrd(_BaseInputSystem):
     name: str
     coordinates: NDArray[np.float_]
     box_params: tp.Optional[BoxParams] = None
-
-    @property
-    def atoms_num(self) -> int:
-        return self.coordinates.shape[0]
-
-    @property
-    def velocities(self) -> None:
-        return None
-
-    @property
-    def forces(self) -> None:
-        return None
-
-    @property
-    def box_lengths(self) -> NDArray[np.float64]:
-        if self.box_params is None:
-            raise ValueError("There should be box parameters to get box lengths")
-        return self.box_params.lengths
-
-    @property
-    def box_angles(self) -> NDArray[np.float64]:
-        if self.box_params is None:
-            raise ValueError("There should be box parameters to get box angles")
-        return self.box_params.angles
-
-    @property
-    def has_box(self) -> bool:
-        return self.box_params is not None
 
     @classmethod
     def load(
@@ -140,7 +113,7 @@ class Inpcrd:
                 final_row = self.coordinates[-1]
                 reshaped = self.coordinates[:-1].reshape(-1, 6)
             else:
-                final_row = np.array([], dtype=np.float32)
+                final_row = np.array([], dtype=np.float64)
                 reshaped = self.coordinates.reshape(-1, 6)
             for row in reshaped:
                 f.write("".join((f"{el:12.7f}" for el in row)))

@@ -1,4 +1,5 @@
 r"""Useful unit conversion factors"""
+
 import math
 
 SPEED_OF_LIGHT = 299792458  # exact, m / s
@@ -7,7 +8,10 @@ INV_FS_TO_INV_CM = 1e13 / SPEED_OF_LIGHT  # exact
 INV_CM_TO_INV_FS = 1 / INV_FS_TO_INV_CM
 DEGREE_TO_RADIAN = math.pi / 180.0
 
+# Multiply vel to obtain ps
 AMBER_VELOCITIES_SCALE_FACTOR = 20.455
+# multiply qatom to obtain e0
+AMBER_ATOM_CHARGE_SCALE_FACTOR = 18.2223
 
 AVOGADROS_NUMBER = 6.022140857e23  # Equal to ase.units._Nav
 GRAMS_PER_MILLILITER_TO_GRAMS_PER_MOLE_PER_ANGSTROM_CUBED = (
