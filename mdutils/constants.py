@@ -61,6 +61,25 @@ with open(Path(__file__).parent.resolve() / "atomic_constants.json", mode="rt") 
     ATOMIC_CONSTANTS = json.load(f)
 
 
+FF19SB_ATOMIC_MASS = {
+    "C": 12.01,
+    "Ca": 40.08,
+    "H": 1.008,
+    "F": 19.0,
+    "Cl": 35.45,
+    "Br": 79.9,
+    "I": 126.9,
+    "Mg": 24.305,
+    "N": 14.01,
+    "O": 16.0,
+    "P": 30.97,
+    "S": 32.06,
+    "Cu": 63.55,
+    "Fe": 55.0,
+    "Zn": 65.4,
+}
+
+
 # Populate convenience variables here
 ATOMIC_NUMBER: tp.Dict[str, int] = {}
 ATOMIC_HARDNESS: tp.Dict[str, float] = {}
