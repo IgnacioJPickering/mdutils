@@ -610,9 +610,7 @@ class Prmtop:
         # NOTE Not sure if the following is valid, also I sometimes see zeros
         # here, which is strange
         blocks[Flag.EXCLUDED_ATOMS_LIST] = np.array([], dtype=np.int64)
-        blocks[Flag.ATOM_FFTYPE] = np.array(
-            ["TP"] * len(_znums), dtype=np.str_
-        )
+        blocks[Flag.ATOM_FFTYPE] = np.array(["TP"] * len(_znums), dtype=np.str_)
         # NOTE not sure if this is valid
         blocks[Flag.SOLVENT_POINTERS] = np.array(
             [len(_znums), len(_znums), len(_znums) + 1], dtype=np.int64
