@@ -587,7 +587,7 @@ class Prmtop:
         )
         blocks[Flag.RESIDUE_FIRST_ATOM_IDX1] = np.arange(
             1,
-            len(_znums) - 1,
+            len(_znums) + 1,
             dtype=np.int64,
         )
         # BOND, ANGLE, DIHEDRAL FFTYPE (empty)
