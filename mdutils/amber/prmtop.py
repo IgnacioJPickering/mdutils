@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 from numpy.typing import NDArray
 
+from mdutils.constants import PERIODIC_TABLE, FF19SB_ATOMIC_MASS, ATOMIC_MASS
 from mdutils.geometry import BoxKind, SolvCapKind
 from mdutils.units import AMBER_ATOM_CHARGE_SCALE_FACTOR
 from mdutils.ff import PolarizableKind
@@ -19,7 +20,7 @@ from mdutils.amber.prmtop_blocks import (
     LARGE_FLOAT_FORMATS,
     LARGE_INTEGER_FORMATS,
     HBOND_FLAGS,
-    CMAP_PARAMETER_FLAGS,
+    OPTIONAL_FLAGS,
 )
 
 __all__ = [
@@ -42,11 +43,11 @@ class PrmtopMeta:
     atoms_num: int
     resids_num: int
     resids_max_atoms_num: int
-    # Valence interactions, with H: bond, angle, dihedral
+    # Bonded interactions, with H: bond, angle, dihedral
     bond_with_hydrogen_num: int
     angle_with_hydrogen_num: int
     dihedral_with_hydrogen_num: int
-    # Valence interactions, no H: bond, angle, dihedral
+    # Bonded interactions, no H: bond, angle, dihedral
     bond_without_hydrogen_num: int
     angle_without_hydrogen_num: int
     dihedral_without_hydrogen_num: int
@@ -61,7 +62,7 @@ class PrmtopMeta:
     excluded_atoms_num: int
     # Extra points
     extra_points_num: int
-    # Box and solvent cap enums
+    # Box and solv-cap enums
     box_kind: BoxKind
     solv_cap_kind: SolvCapKind
     # Path Integral MD (PIMD) slices (optional)
@@ -144,7 +145,7 @@ class PrmtopMeta:
             # Atoms
             atoms_num=block[0],
             atom_ljindex_num=block[1],  # Num distinct ljindex for atoms
-            # Valence interactions, with and without H: bond, angle, dihedral
+            # Bonded interactions, with and without H: bond, angle, dihedral
             bond_with_hydrogen_num=block[2],
             bond_without_hydrogen_num=block[3],
             angle_with_hydrogen_num=block[4],
@@ -191,13 +192,17 @@ class _InteractionAccessor(_Accessor):
     def num(self, kind: tp.Literal["with-H", "without-H", "all"]) -> int:
         if kind == "with-H":
             return (
-                self._prmtop.blocks[Flag[f"{self.prefix}_WITH_HYDROGEN"]]
+                self._prmtop.blocks.get(
+                    Flag[f"{self.prefix}_WITH_HYDROGEN"], np.array([])
+                )
                 .reshape(self.shape)
                 .shape[0]
             )
         if kind == "without-H":
             return (
-                self._prmtop.blocks[Flag[f"{self.prefix}_WITHOUT_HYDROGEN"]]
+                self._prmtop.blocks.get(
+                    Flag[f"{self.prefix}_WITHOUT_HYDROGEN"], np.array([])
+                )
                 .reshape(self.shape)
                 .shape[0]
             )
@@ -282,6 +287,7 @@ class SoltSolvAccessor(_Accessor):
         return 2
 
     # Not standard in amber, thus, non-settable by default
+    # Num of molecules in the solvent may be 0
     @property
     def label(self) -> NDArray[np.str_]:
         return np.arange(["SOLUTE", "SOLVENT"], dtype=np.str_)
@@ -470,7 +476,7 @@ class AtomsAccessor(_Accessor):
         block = self._prmtop.blocks.get(Flag.ATOM_LEGACY_GRAPH_LABEL, None)
         if block is not None:
             return block
-        return np.full(self.num, fill_value=" BLA", dtype=np.str_)
+        return np.array(["BLA"] * self.num, dtype=np.str_)
 
     @property
     def legacy_graph_join_idx(self) -> NDArray[np.int64]:
@@ -487,10 +493,9 @@ class AtomsAccessor(_Accessor):
 
 @dataclass
 class Prmtop:
-    date_time: str
+    date_time: tp.Optional[str] = None
     name: str = "default_name"
     version: str = "V0001.000"
-    block_order: tp.Iterable[Flag] = ()
     blocks: tp.Dict[Flag, NDArray[tp.Any]] = field(default_factory=dict)
     box_kind: BoxKind = BoxKind.NO_BOX
     solv_cap_kind: SolvCapKind = SolvCapKind.NO_SOLV_CAP
@@ -544,21 +549,95 @@ class Prmtop:
         return self.solv_cap_kind is not SolvCapKind.NO_SOLV_CAP
 
     @property
-    def has_cmap_params(self) -> bool:
+    def has_cmap(self) -> bool:
         return Flag.CMAP_COUNT in self.blocks
+
+    @classmethod
+    def dummy_from_znums(
+        cls,
+        znums: tp.Sequence[int],
+        name: str = "dummy",
+        date_time: tp.Optional[str] = None,
+    ) -> tpx.Self:
+        _znums = np.array(znums, dtype=np.int64)
+        blocks: tp.Dict[Flag, NDArray[tp.Any]] = {}
+        blocks[Flag.ATOM_LABEL] = np.array(
+            [f"{PERIODIC_TABLE[z]}".ljust(4) for z in _znums], dtype=np.str_
+        )
+        blocks[Flag.ATOM_CHARGE] = np.zeros(len(_znums), dtype=np.float32)
+        blocks[Flag.ATOM_ZNUM] = _znums
+        # Try first ff19SB mass, and if that doesn't work fall back to scipy
+        blocks[Flag.ATOM_MASS] = np.array(
+            [
+                FF19SB_ATOMIC_MASS.get(
+                    PERIODIC_TABLE[z], ATOMIC_MASS[PERIODIC_TABLE[z]]
+                )
+                for z in _znums
+            ],
+            dtype=np.float32,
+        )
+        blocks[Flag.ATOM_LJINDEX] = np.ones(len(_znums), dtype=np.int64)
+        # NOTE I never see zeros in amber, which is suspicious, not sure if valid
+        blocks[Flag.NUMBER_EXCLUDED_ATOMS] = np.zeros(len(_znums), dtype=np.int64)
+        # NOTE Not sure if the following is valid, LJ indexing in Amber is confusing
+        blocks[Flag.LJ_PARAM_INDEX] = np.array([1], dtype=np.int64)
+        blocks[Flag.RESIDUE_LABEL] = np.array(
+            ["BLA"] * len(_znums),
+            dtype=np.str_,
+        )
+        blocks[Flag.RESIDUE_FIRST_ATOM_IDX1] = np.arange(
+            1,
+            len(_znums) - 1,
+            dtype=np.int64,
+        )
+        # BOND, ANGLE, DIHEDRAL FFTYPE (empty)
+        # These lj params seem logical placeholders
+        blocks[Flag.LJ_PARAM_A] = np.array([2.0], dtype=np.float32)
+        blocks[Flag.LJ_PARAM_B] = np.array([0.1], dtype=np.float32)
+        # BONDS|ANGLES|DIHEDRALS_with(out)_... (check if possible to make empty)
+        blocks[Flag.BOND_FFTYPE_FORCE_CONSTANT] = np.array([1.0], dtype=np.float32)
+        blocks[Flag.BOND_FFTYPE_EQUIL_DISTANCE] = np.array([1.0], dtype=np.float32)
+        blocks[Flag.ANGLE_FFTYPE_FORCE_CONSTANT] = np.array([1.0], dtype=np.float32)
+        blocks[Flag.ANGLE_FFTYPE_EQUIL_ANGLE] = np.array([90.0], dtype=np.float32)
+        blocks[Flag.DIHEDRAL_FFTYPE_FORCE_CONSTANT] = np.array([0.0], dtype=np.float32)
+        blocks[Flag.DIHEDRAL_FFTYPE_PERIODICITY] = np.array([1.0], dtype=np.float32)
+        blocks[Flag.DIHEDRAL_FFTYPE_PHASE] = np.array([0.0], dtype=np.float32)
+        # 1.2 and 0 are std placeholder values for these in Amber
+        blocks[Flag.DIHEDRAL_FFTYPE_ELECTRO_ENDS_SCREEN] = np.array(
+            [1.2], dtype=np.float32
+        )
+        blocks[Flag.DIHEDRAL_FFTYPE_LJ_ENDS_SCREEN] = np.array([2.0], dtype=np.float32)
+        # NOTE Not sure if the following is valid, also I sometimes see zeros
+        # here, which is strange
+        blocks[Flag.EXCLUDED_ATOMS_LIST] = np.array([], dtype=np.int64)
+        blocks[Flag.ATOM_FFTYPE] = np.array(["TP"] * len(_znums), dtype=np.str_)
+        # NOTE not sure if this is valid
+        blocks[Flag.SOLVENT_POINTERS] = np.array(
+            [len(_znums), len(_znums), len(_znums) + 1], dtype=np.int64
+        )
+        blocks[Flag.ATOMS_PER_MOLECULE] = np.ones(len(_znums), dtype=np.int64)
+        blocks[Flag.RADIUS_SET] = np.array(["Dummy radii"], dtype=np.str_)
+        blocks[Flag.ATOM_IMPLSV_RADII] = np.ones(len(_znums), dtype=np.float32)
+        blocks[Flag.ATOM_IMPLSV_SCREEN] = np.ones(len(_znums), dtype=np.float32)
+        return cls(
+            name=name,
+            date_time=date_time,
+            blocks=blocks,
+        )
 
     @classmethod
     def load(cls, path: Path) -> tpx.Self:
         r"""Construct from blocks in an Amber '*.prmtop' file"""
         blocks: tp.Dict[Flag, NDArray[tp.Any]] = {}
-        block_order = [Flag.NAME]
         cmap_param_comments: tp.Dict[Flag, str] = {}
         with open(path, mode="r", encoding="utf-8") as f:
             raw_blocks: tp.Dict[Flag, tp.List[tp.Any]] = defaultdict(list)
             flag = Flag.NAME
             fmt = Format.STRING
             for line in f:
-                if line.startswith("%COMMENT") and flag in CMAP_PARAMETER_FLAGS:
+                if line.startswith("%COMMENT") and flag.value.startswith(
+                    "CMAP_PARAMETER"
+                ):
                     cmap_param_comments[flag] = line[10:].strip()
                 if (
                     not line
@@ -568,8 +647,6 @@ class Prmtop:
                     continue
                 elif line.startswith("%FLAG"):
                     flag = Flag(line.split()[-1])
-                    if flag is not Flag.NAME:
-                        block_order.append(flag)
                 elif line.startswith("%FORMAT"):
                     if flag is Flag.NAME:
                         # Override this format since it is incorrectly written in
@@ -591,7 +668,6 @@ class Prmtop:
         obj = cls(
             name=name,
             blocks=blocks,
-            block_order=block_order,
             cmap_param_comments=cmap_param_comments,
             # Fill from PrmtopMeta
             solv_cap_kind=meta.solv_cap_kind,  # Redundant
@@ -630,7 +706,7 @@ class Prmtop:
         ):
             raise PrmtopError("Prmtop is inconsistent with metadata")
 
-    def _raw_pointers_block(
+    def _create_raw_pointers_block(
         self,
     ) -> NDArray[np.int64]:
         pointers: tp.List[int] = [
@@ -685,24 +761,18 @@ class Prmtop:
             date_time=None if write_new_date else self.date_time,
         )
         # The flag specifies the format in whih the appended block is written
-        for flag in self.block_order:
+        for flag in list(Flag):
+            # These special flags don't come from blocks
             if flag is Flag.NAME:
                 self._append_block(np.array([self.name]), path, flag)
             elif flag is Flag.POINTERS:
-                self._append_block(self._raw_pointers_block(), path, flag)
-
-            # CMAP
-            elif flag in CMAP_PARAMETER_FLAGS:
+                self._append_block(self._create_raw_pointers_block(), path, flag)
+            elif flag is Flag.IPOL:
                 self._append_block(
-                    self.blocks[flag],
+                    np.array([self.polarizable_params_kind.prmtop_idx]),
                     path,
-                    flag,
-                    comment=self.cmap_param_comments.get(flag, None),
+                    Flag.IPOL,
                 )
-
-            # Legacy block, if present should be empty, which is allowed
-            elif flag in HBOND_FLAGS:
-                self._append_block(np.array([]), path, flag)
 
             # Unused legacy blocks that must be present
             elif flag is Flag.ATOM_FFTYPE_LEGACY_SOLTY:
@@ -711,18 +781,22 @@ class Prmtop:
                 self._append_block(self.atoms.legacy_graph_join_idx, path, flag)
             elif flag is Flag.ATOM_LEGACY_ROTATION_IDX:
                 self._append_block(self.atoms.legacy_rotation_idx, path, flag)
+            elif flag is Flag.ATOM_LEGACY_GRAPH_LABEL:
+                self._append_block(self.atoms.legacy_graph_label, path, flag)
 
-            # Polarizable ff
-            elif flag is Flag.IPOL:
-                self._append_block(
-                    np.array([self.polarizable_params_kind.prmtop_idx]),
-                    path,
-                    Flag.IPOL,
-                )
+            # Optional flags can be fully ommitted
+            elif flag in OPTIONAL_FLAGS:
+                if flag in self.blocks:
+                    if flag.value.startswith("CMAP_PARAMETER"):
+                        comment = self.cmap_param_comments.get(flag, None)
+                    else:
+                        comment = None
+                    self._append_block(self.blocks[flag], path, flag, comment=comment)
 
-            # All other flags
+            # All other flags must exist, but may be empty
             else:
-                self._append_block(self.blocks[flag], path, flag)
+                # TODO: double check which are actually required
+                self._append_block(self.blocks.get(flag, np.array([])), path, flag)
 
     @staticmethod
     def _append_block(
@@ -802,7 +876,7 @@ class Prmtop:
 
 
 def _remove_legacy_blocks(blocks: tp.Dict[Flag, NDArray[tp.Any]]) -> None:
-    # Unused, filled with zeros
+    # Unused, if present must be filled with zeros
     for flag in (
         Flag.ATOM_FFTYPE_LEGACY_SOLTY,
         Flag.ATOM_LEGACY_GRAPH_JOIN_IDX,
@@ -813,11 +887,10 @@ def _remove_legacy_blocks(blocks: tp.Dict[Flag, NDArray[tp.Any]]) -> None:
             if (block != 0).any():
                 raise RuntimeError(f"All values in the {flag.value} block should be 0")
 
-    # Unused, empty
+    # Unused or redundant
     blocks.pop(Flag.IPOL, None)
-    blocks.pop(Flag.HBOND_BCOEF, None)
-    blocks.pop(Flag.HBOND_ACOEF, None)
-    blocks.pop(Flag.HBCUT, None)
+    for flag in HBOND_FLAGS:
+        blocks.pop(flag, None)
 
 
 def load_single_raw_prmtop_block(prmtop: Path, flag: Flag) -> tp.List[tp.Any]:

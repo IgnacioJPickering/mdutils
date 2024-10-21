@@ -15,79 +15,79 @@ class Format(Enum):
     CMAP_FLOAT_ARRAY = "8F9.5"  # <=float32 prec
 
 
+# NOTE IMPORTANT!!! Order is used for printing (not sure if sander / pmemd
+# support alt order, technically they should)
 class Flag(Enum):
     # Global, general blocks
     NAME = "TITLE"
     POINTERS = "POINTERS"
-    IPOL = "IPOL"  # Flag that marks the use of polarizable ff
-    RADIUS_SET = "RADIUS_SET"  # String, kind of implicit solvent radii, always present
-    CAP_INFO2 = "CAP_INFO2"  # Only if 'sv-cap' flag set: Geometry of cap, 4 nums
-    BOX_DIMENSIONS = "BOX_DIMENSIONS"  # Only if 'box' flat set. Not zeros, but unused
-
-    # Nodes: atom-sized data
-    ATOM_ZNUM = "ATOMIC_NUMBER"
     ATOM_LABEL = "ATOM_NAME"
-    ATOM_FFTYPE = "AMBER_ATOM_TYPE"
-    ATOM_LJINDEX = "ATOM_TYPE_INDEX"  # "LJ" atom type index (fuses some fftype)
-    ATOM_MASS = "MASS"
     ATOM_CHARGE = "CHARGE"  # Electrostatics
-    ATOM_IMPLSV_RADII = "RADII"  # Implicit solv radii, 'GB radii'
-    ATOM_IMPLSV_SCREEN = "SCREEN"  # Implicit solv scren factor: 'GB screen'
-    ATOM_POLARIZABILITY = "POLARIZABILITY"  # Only used for polarizable ff
-    DIPOLE_DAMP = "DIPOLE_DAMP_FACTOR"  # TODO Not mentioned in the docs
-    ATOM_LEGACY_GRAPH_LABEL = "TREE_CHAIN_CLASSIFICATION"  # TODO: Not sure if unused
-    ATOM_LEGACY_GRAPH_JOIN_IDX = "JOIN_ARRAY"  # Unused, Must be int = zeros
-    ATOM_LEGACY_ROTATION_IDX = "IROTAT"  # Unused, Must be int = zeros
-    # Nodes: fftype-sized data
-    ATOM_FFTYPE_LEGACY_SOLTY = "SOLTY"  # Unused, zeros
-
-    # Groups of atoms (ress), residues (molecs) and molecs (solution-groups)
-    # Node groups (residues)
+    ATOM_ZNUM = "ATOMIC_NUMBER"
+    ATOM_MASS = "MASS"
+    ATOM_LJINDEX = "ATOM_TYPE_INDEX"  # "LJ" atom type index (fuses some fftype)
+    NUMBER_EXCLUDED_ATOMS = "NUMBER_EXCLUDED_ATOMS"
+    LJ_PARAM_INDEX = "NONBONDED_PARM_INDEX"  # idx into the LJ_PARAM arrays
     RESIDUE_LABEL = "RESIDUE_LABEL"
-    # Starting atom 1-idx of each. Can be used to obtain residue sizes
-    RESIDUE_FIRST_ATOM_IDX1 = "RESIDUE_POINTER"
-    # Residue groups (not enforced in prmtop) ("molecules", no amber labels)
-    ATOMS_PER_MOLECULE = "ATOMS_PER_MOLECULE"
-    # Molecule gruops ("SV/ST", no amber labels)
-    SOLVENT_POINTERS = "SOLVENT_POINTERS"  # Solvent must go at the end
-    # Solvent cap view
-    CAP_INFO = "CAP_INFO"  # Only if 'sv-cap' flag set. Last atom before start of cap
-
-    # Bonded interactions
-    # Edges
-    BOND_WITH_HYDROGEN = "BONDS_INC_HYDROGEN"
-    BOND_WITHOUT_HYDROGEN = "BONDS_WITHOUT_HYDROGEN"
+    RESIDUE_FIRST_ATOM_IDX1 = "RESIDUE_POINTER"  # Start atom of each, 1-idx
     BOND_FFTYPE_FORCE_CONSTANT = "BOND_FORCE_CONSTANT"
     BOND_FFTYPE_EQUIL_DISTANCE = "BOND_EQUIL_VALUE"
-    # Angles
-    ANGLE_WITH_HYDROGEN = "ANGLES_INC_HYDROGEN"
-    ANGLE_WITHOUT_HYDROGEN = "ANGLES_WITHOUT_HYDROGEN"
     ANGLE_FFTYPE_FORCE_CONSTANT = "ANGLE_FORCE_CONSTANT"
     ANGLE_FFTYPE_EQUIL_ANGLE = "ANGLE_EQUIL_VALUE"
-    # dihedrals
-    DIHEDRAL_WITH_HYDROGEN = "DIHEDRALS_INC_HYDROGEN"
-    DIHEDRAL_WITHOUT_HYDROGEN = "DIHEDRALS_WITHOUT_HYDROGEN"
     DIHEDRAL_FFTYPE_FORCE_CONSTANT = "DIHEDRAL_FORCE_CONSTANT"
     DIHEDRAL_FFTYPE_PERIODICITY = "DIHEDRAL_PERIODICITY"
     DIHEDRAL_FFTYPE_PHASE = "DIHEDRAL_PHASE"
     DIHEDRAL_FFTYPE_ELECTRO_ENDS_SCREEN = "SCEE_SCALE_FACTOR"  # Ends = 1-4 atoms
     DIHEDRAL_FFTYPE_LJ_ENDS_SCREEN = "SCNB_SCALE_FACTOR"  # Ends = 1-4 atoms
-
-    # Nonbonding interactions
-    # Exclusion for nonbonded calculations
-    # These two can be summarized in one ani-style neighborlist
-    NUMBER_EXCLUDED_ATOMS = "NUMBER_EXCLUDED_ATOMS"
-    EXCLUDED_ATOMS_LIST = "EXCLUDED_ATOMS_LIST"
-
+    ATOM_FFTYPE_LEGACY_SOLTY = "SOLTY"  # Unused, zeros, fftype-sized
     # Lennard Jones parameters
     # lj_param_idx[i, j]
     #  = lj_param_idx[num_ljtypes * ((atom_ljtype_idx[i] - 1) + atom_ljtype_idx[j])]
-    LJ_PARAM_INDEX = "NONBONDED_PARM_INDEX"  # idx into the LJ_PARAM arrays
     LJ_PARAM_A = "LENNARD_JONES_ACOEF"
     LJ_PARAM_B = "LENNARD_JONES_BCOEF"
+    # Bonded interactions
+    # Edges
+    BOND_WITH_HYDROGEN = "BONDS_INC_HYDROGEN"
+    BOND_WITHOUT_HYDROGEN = "BONDS_WITHOUT_HYDROGEN"
+    # Angles
+    ANGLE_WITH_HYDROGEN = "ANGLES_INC_HYDROGEN"
+    ANGLE_WITHOUT_HYDROGEN = "ANGLES_WITHOUT_HYDROGEN"
+    # dihedrals
+    DIHEDRAL_WITH_HYDROGEN = "DIHEDRALS_INC_HYDROGEN"
+    DIHEDRAL_WITHOUT_HYDROGEN = "DIHEDRALS_WITHOUT_HYDROGEN"
+    # Nonbonding interactions
+    # Exclusion for nonbonded calculations
+    # These two can be summarized in one ani-style neighborlist
+    EXCLUDED_ATOMS_LIST = "EXCLUDED_ATOMS_LIST"
+    # Hbond 10-12 interactions (legacy, should not be unused)
+    HBOND_ACOEF = "HBOND_ACOEF"  # should be empty, but present
+    HBOND_BCOEF = "HBOND_BCOEF"  # should be empty, but present
+    HBCUT = "HBCUT"  # should be empty, but present
+    # Nodes: atom-sized data
+    ATOM_FFTYPE = "AMBER_ATOM_TYPE"
+    ATOM_LEGACY_GRAPH_LABEL = "TREE_CHAIN_CLASSIFICATION"  # TODO: Not sure if unused
+    ATOM_LEGACY_GRAPH_JOIN_IDX = "JOIN_ARRAY"  # Unused, Must be int = zeros
+    ATOM_LEGACY_ROTATION_IDX = "IROTAT"  # Unused, Must be int = zeros
+    # Molecule gruops ("SV/ST", no amber labels)
+    SOLVENT_POINTERS = "SOLVENT_POINTERS"  # Solvent must go at the end
+    # Groups of atoms (ress), residues (molecs) and molecs (solution-groups)
+    # Node groups (residues)
+    # Residue groups (not enforced in prmtop) ("molecules", no amber labels)
+    ATOMS_PER_MOLECULE = "ATOMS_PER_MOLECULE"
+    # NOTE BOX_DIMENSIONS is optional, must be present box flag is set, but it is unused
+    BOX_DIMENSIONS = "BOX_DIMENSIONS"  # Not zeros, but unused
+    RADIUS_SET = "RADIUS_SET"  # String, kind of implicit solvent radii, always present
+    ATOM_IMPLSV_RADII = "RADII"  # Implicit solv radii, 'GB radii'
+    ATOM_IMPLSV_SCREEN = "SCREEN"  # Implicit solv scren factor: 'GB screen'
+    IPOL = "IPOL"  # Flag that marks the use of polarizable ff
 
-    # TODO implement LJ C4 manipulation
-    # Lennard Jones C4 (usually not needed)
+    # TODO Not sure what the "std" order for these is, they are optional
+    ATOM_POLARIZABILITY = "POLARIZABILITY"  # Only used for polarizable ff
+    DIPOLE_DAMP = "DIPOLE_DAMP_FACTOR"  # TODO Not mentioned in the docs
+    # Solvent cap view
+    CAP_INFO = "CAP_INFO"  # Only if 'sv-cap' flag set. Last atom before start of cap
+    CAP_INFO2 = "CAP_INFO2"  # Only if 'sv-cap' flag set: Geometry of cap, 4 nums
+    # Lennard Jones C4 (usually not needed) TODO implement manipulation maybe?
     LJ_PARAM_C = "LENNARD_JONES_CCOEF"
     LJ_PARAM_D = "LENNARD_JONES_DCOEF"
     LJ_VALUE_D = "LENNARD_JONES_DVALUE"
@@ -100,7 +100,6 @@ class Flag(Enum):
     # in sequence within a given file,
     # and the resolution seems to always be "24"
     CMAP_COUNT = "CMAP_COUNT"
-    CMAP_INDEX = "CMAP_INDEX"
     CMAP_RESOLUTION = "CMAP_RESOLUTION"  # just one int, always eq to 24 in ff19sb
     # There may be more than one of these, and they may have
     # Comment sections that specify the aminoacid
@@ -125,11 +124,7 @@ class Flag(Enum):
     CMAP_PARAMETER_18 = "CMAP_PARAMETER_18"
     CMAP_PARAMETER_19 = "CMAP_PARAMETER_19"
     CMAP_PARAMETER_20 = "CMAP_PARAMETER_20"
-
-    # Hbond 10-12 interactions (legacy, should not be unused)
-    HBOND_ACOEF = "HBOND_ACOEF"  # should be empty, but present
-    HBOND_BCOEF = "HBOND_BCOEF"  # should be empty, but present
-    HBCUT = "HBCUT"  # should be empty, but present
+    CMAP_INDEX = "CMAP_INDEX"
 
 
 # Perturbation information is not implemented:
@@ -148,29 +143,6 @@ class Flag(Enum):
 # PERT_BOND_PARAMS = "PERT_BOND_PARAMS"
 # PERT_BOND_ATOMS = "PERT_BOND_ATOMS"
 
-
-CMAP_PARAMETER_FLAGS = {
-    Flag.CMAP_PARAMETER_01,
-    Flag.CMAP_PARAMETER_02,
-    Flag.CMAP_PARAMETER_03,
-    Flag.CMAP_PARAMETER_04,
-    Flag.CMAP_PARAMETER_05,
-    Flag.CMAP_PARAMETER_06,
-    Flag.CMAP_PARAMETER_07,
-    Flag.CMAP_PARAMETER_08,
-    Flag.CMAP_PARAMETER_09,
-    Flag.CMAP_PARAMETER_10,
-    Flag.CMAP_PARAMETER_11,
-    Flag.CMAP_PARAMETER_12,
-    Flag.CMAP_PARAMETER_13,
-    Flag.CMAP_PARAMETER_14,
-    Flag.CMAP_PARAMETER_15,
-    Flag.CMAP_PARAMETER_16,
-    Flag.CMAP_PARAMETER_17,
-    Flag.CMAP_PARAMETER_18,
-    Flag.CMAP_PARAMETER_19,
-    Flag.CMAP_PARAMETER_20,
-}
 
 FLAG_FORMAT_MAP = {
     Flag.CMAP_PARAMETER_01: Format.CMAP_FLOAT_ARRAY,
@@ -268,4 +240,41 @@ LARGE_INTEGER_FORMATS = {
 LARGE_FLOAT_FORMATS = {
     Format.FLOAT_ARRAY,
     Format.ONE_FLOAT,
+}
+
+OPTIONAL_FLAGS = {
+    # only if polarizable ff
+    Flag.ATOM_POLARIZABILITY,
+    Flag.DIPOLE_DAMP,
+    # only if box and solv cap
+    Flag.BOX_DIMENSIONS,
+    Flag.CAP_INFO,
+    Flag.CAP_INFO2,
+    # only if C4
+    Flag.LJ_PARAM_C,
+    Flag.LJ_PARAM_D,
+    Flag.LJ_VALUE_D,
+    Flag.CMAP_COUNT,
+    Flag.CMAP_INDEX,
+    Flag.CMAP_RESOLUTION,
+    Flag.CMAP_PARAMETER_01,
+    Flag.CMAP_PARAMETER_02,
+    Flag.CMAP_PARAMETER_03,
+    Flag.CMAP_PARAMETER_04,
+    Flag.CMAP_PARAMETER_05,
+    Flag.CMAP_PARAMETER_06,
+    Flag.CMAP_PARAMETER_07,
+    Flag.CMAP_PARAMETER_08,
+    Flag.CMAP_PARAMETER_09,
+    Flag.CMAP_PARAMETER_10,
+    Flag.CMAP_PARAMETER_11,
+    Flag.CMAP_PARAMETER_12,
+    Flag.CMAP_PARAMETER_13,
+    Flag.CMAP_PARAMETER_14,
+    Flag.CMAP_PARAMETER_15,
+    Flag.CMAP_PARAMETER_16,
+    Flag.CMAP_PARAMETER_17,
+    Flag.CMAP_PARAMETER_18,
+    Flag.CMAP_PARAMETER_19,
+    Flag.CMAP_PARAMETER_20,
 }
