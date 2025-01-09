@@ -73,7 +73,7 @@ class InpcrdMeta:
 @dataclass
 class Inpcrd(_BaseInputSystem):
     name: str
-    coordinates: NDArray[np.float_]
+    coordinates: NDArray[np.float64]
     box_params: tp.Optional[BoxParams] = None
 
     @classmethod
