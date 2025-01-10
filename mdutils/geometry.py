@@ -1,4 +1,5 @@
 import typing as tp
+import math
 from enum import Enum
 from dataclasses import dataclass, field
 
@@ -99,3 +100,57 @@ class BoxKind(Enum):
             "trunc-octahedron": 2,
             "rect-cuboid": 3,
         }
+
+
+# These functions calculate bond distances, bond angles and dihedrals in batch
+def bond_dist(a: NDArray[np.float64], b: NDArray[np.float64]) -> NDArray[np.float64]:
+    r"""bond distance between atoms a, b. Accepts batched inputs"""
+    a = np.atleast_2d(a)
+    b = np.atleast_2d(b)
+    return np.linalg.norm(b - a, axis=1)
+
+
+def _angle(
+    vec_a: NDArray[np.float64],
+    vec_b: NDArray[np.float64],
+    deg: bool = True,
+) -> NDArray[np.float64]:
+    norm_a = np.linalg.norm(vec_a, axis=1)
+    norm_b = np.linalg.norm(vec_b, axis=1)
+    retval = np.arccos(np.sum(vec_a * vec_b, axis=1) / norm_a / norm_b)
+    if deg:
+        retval *= 180 / math.pi
+    return retval
+
+
+def bond_angle(
+    a: NDArray[np.float64],
+    b: NDArray[np.float64],
+    c: NDArray[np.float64]
+) -> NDArray[np.float64]:
+    r"""bond angle between atoms a, b, c in degrees. Accepts batched inputs"""
+    a = np.atleast_2d(a)
+    b = np.atleast_2d(b)
+    c = np.atleast_2d(c)
+    ba = a - b
+    bc = c - b
+    return _angle(ba, bc)
+
+
+def dih_angle(
+    a: NDArray[np.float64],
+    b: NDArray[np.float64],
+    c: NDArray[np.float64],
+    d: NDArray[np.float64]
+) -> NDArray[np.float64]:
+    r"""bond angle between atoms a, b, c, d in degrees. Accepts batched inputs"""
+    a = np.atleast_2d(a)
+    b = np.atleast_2d(b)
+    c = np.atleast_2d(c)
+    d = np.atleast_2d(d)
+    ab = b - a
+    bc = c - b
+    cd = d - c
+    norml_abc = np.cross(ab, bc)
+    norml_bcd = np.cross(bc, cd)
+    return _angle(norml_abc, norml_bcd)
