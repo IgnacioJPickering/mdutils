@@ -8,6 +8,12 @@ from numpy.typing import NDArray
 import typing_extensions as tpx
 
 
+class CoordKind(Enum):
+    BOND = "B"
+    ANGLE = "A"
+    DIHEDRAL = "D"
+
+
 # Useful for ANI models
 class NeighborlistKind(Enum):
     AUTO = "auto"
