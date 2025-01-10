@@ -1,7 +1,16 @@
 import numpy as np
 import pytest
 
-from mdutils.geometry import NeighborlistKind, Scaling, Plane, BoxKind, BoxParams, bond_dist, bond_angle, dih_angle
+from mdutils.geometry import (
+    NeighborlistKind,
+    Scaling,
+    Plane,
+    BoxKind,
+    BoxParams,
+    bond_dist,
+    bond_angle,
+    dih_angle,
+)
 from numpy.testing import assert_array_equal
 
 
@@ -49,13 +58,22 @@ def test_geom_params() -> None:
     )
 
     dists_expect = np.array(
-        [1.501240474721107, 1.1198620972341808,],
+        [
+            1.501240474721107,
+            1.1198620972341808,
+        ],
     )
     angles_expect = np.array(
-        [110.65164016749473, 112.56027209457403,],
+        [
+            110.65164016749473,
+            112.56027209457403,
+        ],
     )
     dihs_expect = np.array(
-        [95.60273763479434, 112.11908933655107,]
+        [
+            95.60273763479434,
+            112.11908933655107,
+        ]
     )
     dists = bond_dist(coords[[0, 1]], coords[[1, 7]])
     assert_array_equal(dists, dists_expect)

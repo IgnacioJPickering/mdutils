@@ -124,9 +124,7 @@ def _angle(
 
 
 def bond_angle(
-    a: NDArray[np.float64],
-    b: NDArray[np.float64],
-    c: NDArray[np.float64]
+    a: NDArray[np.float64], b: NDArray[np.float64], c: NDArray[np.float64]
 ) -> NDArray[np.float64]:
     r"""bond angle between atoms a, b, c in degrees. Accepts batched inputs"""
     a = np.atleast_2d(a)
@@ -141,7 +139,7 @@ def dih_angle(
     a: NDArray[np.float64],
     b: NDArray[np.float64],
     c: NDArray[np.float64],
-    d: NDArray[np.float64]
+    d: NDArray[np.float64],
 ) -> NDArray[np.float64]:
     r"""bond angle between atoms a, b, c, d in degrees. Accepts batched inputs"""
     a = np.atleast_2d(a)
