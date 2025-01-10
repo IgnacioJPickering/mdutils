@@ -158,3 +158,46 @@ def dih_angle(
     norml_abc = np.cross(ab, bc)
     norml_bcd = np.cross(bc, cd)
     return _angle(norml_abc, norml_bcd)
+
+
+def measure(
+    coords: NDArray[np.float64],
+    idxs: tp.Sequence[int],
+    kind: tp.Optional[tp.Union[CoordKind, str]] = None,
+) -> NDArray[np.float64]:
+    r"""Measure an internal coord
+
+    This function fails gracefully with a ValueError if the number of idxs passed is
+    inconsistent with the coord requested, if 'kind' is passed.
+    """
+    if isinstance(kind, str):
+        kind = CoordKind(kind)
+    if kind is None:
+        if len(idxs) == 2:
+            kind = CoordKind.BOND
+        elif len(idxs) == 3:
+            kind = CoordKind.ANGLE
+        elif len(idxs) == 4:
+            kind = CoordKind.DIHEDRAL
+        else:
+            raise ValueError("idxs must be 2, 3 or 4")
+    if coords.ndim == 2:
+        coords = np.expand_dims(coords, axis=0)
+    if kind is CoordKind.BOND:
+        if len(idxs) != 2:
+            raise ValueError("Two indices expected to measure bonds")
+        coords = coords[:, idxs, :]
+        val = bond_dist(coords[:, 0, :], coords[:, 1, :])
+    elif kind is CoordKind.ANGLE:
+        if len(idxs) != 3:
+            raise ValueError("Three indices expected to measure bond-angles")
+        coords = coords[:, idxs, :]
+        val = bond_angle(coords[:, 0, :], coords[:, 1, :], coords[:, 2, :])
+    elif kind is CoordKind.DIHEDRAL:
+        if len(idxs) != 4:
+            raise ValueError("Four indices expected to measure dihedral-angles")
+        coords = coords[:, idxs, :]
+        val = dih_angle(
+            coords[:, 0, :], coords[:, 1, :], coords[:, 2, :], coords[:, 3, :]
+        )
+    return val

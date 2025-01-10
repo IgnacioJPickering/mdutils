@@ -6,10 +6,12 @@ from mdutils.geometry import (
     Scaling,
     Plane,
     BoxKind,
+    CoordKind,
     BoxParams,
     bond_dist,
     bond_angle,
     dih_angle,
+    measure,
 )
 from numpy.testing import assert_array_equal
 
@@ -43,7 +45,7 @@ def test_box_and_plane_kinds() -> None:
 
 
 @pytest.mark.fast
-def test_geom_params() -> None:
+def test_geom_internals() -> None:
     coords = np.array(
         [
             [0.7602522636, -0.0609579136, 0.0483331909],
@@ -56,7 +58,6 @@ def test_geom_params() -> None:
             [-1.1597215955, -0.6615288149, -0.8322005095],
         ]
     )
-
     dists_expect = np.array(
         [
             1.501240474721107,
@@ -81,3 +82,35 @@ def test_geom_params() -> None:
     assert_array_equal(angles, angles_expect)
     dihs = dih_angle(coords[[6, 7]], coords[[1, 1]], coords[[0, 6]], coords[[3, 5]])
     assert_array_equal(dihs, dihs_expect)
+
+
+@pytest.mark.fast
+def test_measure() -> None:
+    # Add a test where I just measure a sequence of coordinate dists, angles and
+    # dihedrals, output from the orca scans may be a good idea.
+    coords = np.array(
+        [
+            [0.7602522636, -0.0609579136, 0.0483331909],
+            [-0.7320004592, 0.0455373733, -0.0764206792],
+            [1.2458543313, -0.6204581625, -0.7578283571],
+            [1.2162794535, 0.9554393715, 0.1535977060],
+            [0.9643670382, -0.6311932658, 0.9898894811],
+            [-1.0395388888, 1.0630463143, -0.4287016053],
+            [-1.2554921430, -0.0898849024, 0.9033307732],
+            [-1.1597215955, -0.6615288149, -0.8322005095],
+        ]
+    )
+    dists = measure(coords, [0, 1], CoordKind.BOND)
+    assert_array_equal(dists, np.array([1.501240474721107], dtype=np.float64))
+    angles = measure(coords, [2, 0, 3], CoordKind.ANGLE)
+    assert_array_equal(angles, np.array([110.65164016749473], dtype=np.float64))
+    dihedrals = measure(coords, [6, 1, 0, 3], CoordKind.DIHEDRAL)
+    assert_array_equal(dihedrals, np.array([95.60273763479434], dtype=np.float64))
+
+    # Infer kind from idxs
+    dists = measure(coords, [0, 1])
+    assert_array_equal(dists, np.array([1.501240474721107], dtype=np.float64))
+    angles = measure(coords, [2, 0, 3])
+    assert_array_equal(angles, np.array([110.65164016749473], dtype=np.float64))
+    dihedrals = measure(coords, [6, 1, 0, 3])
+    assert_array_equal(dihedrals, np.array([95.60273763479434], dtype=np.float64))
