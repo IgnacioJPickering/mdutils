@@ -13,9 +13,9 @@ class Backend(Enum):
     ASE = "ase"
     SANDER = "sander"
     PMEMD = "pmemd"
-    OPENMM = "openmm"
-    LAMMPS = "lammps"
-    GROMACS = "gromacs"
+    # OPENMM = "openmm"
+    # LAMMPS = "lammps"
+    # GROMACS = "gromacs"
 
 
 class Step(Enum):
