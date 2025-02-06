@@ -9,11 +9,11 @@ from enum import Enum
 
 from mdutils.geometry import Scaling, Plane
 
-__all__ = ["OptimizerKind", "ThermoKind", "BaroKind", "TensionKind"]
+__all__ = ["OptimKind", "ThermoKind", "BaroKind", "TensionKind"]
 
 
 # Optimizers
-class OptimizerKind(Enum):
+class OptimKind(Enum):
     LBFGS = "lbfgs"
     BFGS = "bfgs"
     FIRE = "fire"

@@ -1,7 +1,7 @@
 import pytest
 from mdutils.geometry import Scaling, Plane
 from mdutils.algorithm import (
-    OptimizerKind,
+    OptimKind,
     BaroKind,
     BerendsenBaro,
     McBaro,
@@ -19,7 +19,7 @@ from mdutils.algorithm import (
 
 @pytest.mark.fast
 def test_enums() -> None:
-    for e in (OptimizerKind, ThermoKind, BaroKind, TensionKind):
+    for e in (OptimKind, ThermoKind, BaroKind, TensionKind):
         assert all(isinstance(member.value, str) for member in e)
 
 

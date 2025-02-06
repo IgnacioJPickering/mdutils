@@ -42,8 +42,9 @@ class AniFF(FF):
     ANI1CCX = "ani1ccx"
     ANI2X = "ani2x"
     ANIMBIS = "animbis"
-    ANIALA = "aniala"
-    ANIDR = "anidr"
+    ANI2DR = "ani2dr"
+    ANI2XR = "ani2xr"
+    # ANIALA = "aniala"
 
 
 _IMPLICIT_MDIN_IDX_MAP = {

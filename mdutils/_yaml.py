@@ -8,7 +8,7 @@ import yaml
 from mdutils.amber.prmtop_blocks import Format, Flag
 from mdutils.dynamics import Step, Ensemble, Backend, InitVel
 from mdutils.geometry import Scaling, Plane, BoxKind, NeighborlistKind
-from mdutils.algorithm import ThermoKind, TensionKind, BaroKind, OptimizerKind
+from mdutils.algorithm import ThermoKind, TensionKind, BaroKind, OptimKind
 from mdutils.ff import WaterFF, GeneralFF, ProteinFF, ImplicitFF, AniFF
 
 __all__ = ["register_yaml_enum", "yaml_load", "yaml_dump"]
@@ -75,7 +75,7 @@ register_yaml_enum(BoxKind)
 register_yaml_enum(Plane)
 register_yaml_enum(Scaling)
 # Algorithms: Thermo, Baro, Tension, Optimizer
-register_yaml_enum(OptimizerKind)
+register_yaml_enum(OptimKind)
 register_yaml_enum(ThermoKind)
 register_yaml_enum(BaroKind)
 register_yaml_enum(TensionKind)
