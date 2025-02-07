@@ -27,7 +27,7 @@ _MAX_32_BIT_INT = 2147483647
 
 @dataclass
 class AniArgs:
-    neighborlist: AniNeighborlistKind = AniNeighborlistKind.INTERNAL_CELL_LIST
+    use_amber_neighborlist: bool = False
     use_cuda: bool = True
     use_cuaev: bool = False
     double_precision: bool = False
@@ -58,16 +58,7 @@ def parse_torchani_args(
     out["ani_use_cuaev"] = ".true." if args["use_cuaev"] else ".false."
     out["ani_use_cuda"] = ".true." if args["use_cuda"] else ".false."
     out["ani_double_precision"] = ".true." if args["double_precision"] else ".false."
-    out["ani_torch_cell_list"] = (
-        ".true."
-        if args["neighborlist"].value == AniNeighborlistKind.INTERNAL_CELL_LIST.value
-        else ".false."
-    )
-    out["ani_external_neighborlist"] = (
-        ".true."
-        if args["neighborlist"].value == AniNeighborlistKind.EXTERNAL.value
-        else ".false."
-    )
+    out["ani_amber_neighborlist"] = ".true." if args["use_amber_neighborlist"] else ".false."
     out["ani_device_idx"] = args["device_idx"]
     out["ani_network_idx"] = args["network_idx"]
     out["ani_model"] = args["model"]

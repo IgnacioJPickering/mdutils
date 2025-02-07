@@ -18,13 +18,13 @@ class AmberInpcrdMetadata:
     box_params: tp.Optional[BoxParams] = None
 
     @property
-    def box_lengths(self) -> NDArray[np.float_]:
+    def box_lengths(self) -> NDArray[np.float64]:
         if self.box_params is None:
             raise ValueError("There should be box parameters to get box lengths")
         return self.box_params.lengths
 
     @property
-    def box_angles(self) -> NDArray[np.float_]:
+    def box_angles(self) -> NDArray[np.float64]:
         if self.box_params is None:
             raise ValueError("There should be box parameters to get box angles")
         return self.box_params.angles
@@ -61,7 +61,7 @@ def load_metadata(inpcrd: Path, has_box: bool) -> AmberInpcrdMetadata:
 @dataclass
 class AmberInpcrd:
     name: str
-    coordinates: NDArray[np.float_]
+    coordinates: NDArray[np.float64]
     box_params: tp.Optional[BoxParams] = None
 
     @property
@@ -77,13 +77,13 @@ class AmberInpcrd:
         return None
 
     @property
-    def box_lengths(self) -> NDArray[np.float_]:
+    def box_lengths(self) -> NDArray[np.float64]:
         if self.box_params is None:
             raise ValueError("There should be box parameters to get box lengths")
         return self.box_params.lengths
 
     @property
-    def box_angles(self) -> NDArray[np.float_]:
+    def box_angles(self) -> NDArray[np.float64]:
         if self.box_params is None:
             raise ValueError("There should be box parameters to get box angles")
         return self.box_params.angles

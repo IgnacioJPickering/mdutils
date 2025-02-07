@@ -48,15 +48,14 @@ istep1={{ thermo_output_interval_frames }}  ! Umbrella restrained coord dump fre
 extprog = "torchani"  ! Use ani as an external potential
 /
 
-&torchani
+&ani
 use_cuaev = {{ ani_use_cuaev }}  ! Whether ani uses the cuAEV extension
 use_cuda_device = {{ ani_use_cuda }}  ! Whether ani uses GPU
 use_double_precision = {{ ani_double_precision }}  ! Whether ani uses float64
-use_torch_cell_list = {{ ani_torch_cell_list }}  ! Whether ani uses torch cell-list
-use_external_neighborlist = {{ ani_external_neighborlist }}  ! Use of amber neighborlist
-device_index = {{ ani_device_idx }}  ! GPU index (-1 -> CPU or first GPU)
-network_index = {{ ani_network_idx }}  ! Index of the ANI network (-1 -> full ensemble)
-torchani_model = "{{ ani_model }}" ! String with torchani model
+use_amber_neighborlist = {{ ani_amber_neighborlist }}  ! Use of amber neighborlist
+cuda_device_index = {{ ani_device_idx }}  ! GPU index (-1 -> CPU or first GPU)
+model_index = {{ ani_network_idx }}  ! Index of the ANI network (-1 -> full ensemble)
+model_type = "{{ ani_model }}" ! String with torchani model
 /
 {% endif %}
 

@@ -6,6 +6,8 @@ AMBER_ANI_INTERFACE_MAP = {
     "1ccx": "ani1ccx",
     "mbis2x": "animbis",
     "dr": "anidr",
+    "2dr": "ani2dr",
+    "2xr": "ani2xr",
     "ala": "aniala",
 }
 
