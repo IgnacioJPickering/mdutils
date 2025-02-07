@@ -18,6 +18,8 @@ class OptimKind(Enum):
     BFGS = "bfgs"
     FIRE = "fire"
     STEEPEST_DESCENT = "steepest-descent"
+    CONJUGATE_GRADIENT = "conjugate-grad"
+    SDCG = "sdcg"
 
 
 # Thermostats
