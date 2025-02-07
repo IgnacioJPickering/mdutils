@@ -117,8 +117,8 @@ class BussiThermo(BaseThermo):
 # NOSE_HOOVER = "nosehoover" for lammps and ase
 # LAMMPS does not have MC barostat
 class BaroKind(Enum):
-    MC = "mc-baro"
-    BERENDSEN = "berendsen-baro"
+    MC = "mcbaro"
+    BERENDSEN = "bbaro"
 
 
 @dataclass
@@ -130,14 +130,14 @@ class BaseBaro:
 
 @dataclass
 class BerendsenBaro(BaseBaro):
-    name: tp.ClassVar[str] = "berendsen-baro"
+    name: tp.ClassVar[str] = "bbaro"
     pressure_relax_time_ps: float = 1.0
     compressibility_inv_megabar: float = 44.6
 
 
 @dataclass
 class McBaro(BaseBaro):
-    name: tp.ClassVar[str] = "mc-baro"
+    name: tp.ClassVar[str] = "mcbaro"
     attempts_step_interval: int = 100
 
 
