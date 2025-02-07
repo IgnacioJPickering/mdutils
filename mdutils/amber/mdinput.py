@@ -8,10 +8,9 @@ import math
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from mdutils.ani import AniNeighborlistKind
 from mdutils.units import FEMTOSECOND_TO_PICOSECOND
 from mdutils.dynamics import calc_step_num
-from mdutils.solvent import ImplicitModelKind
+from mdutils.ff import ImplicitFF
 from mdutils.umbrella import UmbrellaArgs
 from mdutils.algorithm import (
     # Baro
@@ -26,12 +25,13 @@ from mdutils.algorithm import (
     OINHThermo,
     SINHThermo,
     BussiThermo,
+    # Tensionstat
+    BaseTension,
 )
-from mdutils.surface_tensionstats import SurfaceTensionstat
 
 __all__ = ["AniArgs", "MdArgs", "RunArgs", "MixedSdcgArgs", "MinArgs"]
 
-_TEMPLATES_PATH = Path(__file__).parent.joinpath("templates")
+_TEMPLATES_PATH = Path(__file__).parent.parent.joinpath("templates")
 
 env = Environment(
     loader=FileSystemLoader(_TEMPLATES_PATH),
@@ -45,7 +45,6 @@ _MAX_32_BIT_INT = 2147483647
 
 @dataclass
 class AniArgs:
-    neighborlist: AniNeighborlistKind = AniNeighborlistKind.INTERNAL_CELL_LIST
     use_cuda: bool = True
     use_cuaev: bool = False
     double_precision: bool = False
@@ -76,16 +75,6 @@ def parse_torchani_args(
     out["ani_use_cuaev"] = ".true." if args["use_cuaev"] else ".false."
     out["ani_use_cuda"] = ".true." if args["use_cuda"] else ".false."
     out["ani_double_precision"] = ".true." if args["double_precision"] else ".false."
-    out["ani_torch_cell_list"] = (
-        ".true."
-        if args["neighborlist"].value == AniNeighborlistKind.INTERNAL_CELL_LIST.value
-        else ".false."
-    )
-    out["ani_external_neighborlist"] = (
-        ".true."
-        if args["neighborlist"].value == AniNeighborlistKind.EXTERNAL.value
-        else ".false."
-    )
     out["ani_device_idx"] = args["device_idx"]
     out["ani_network_idx"] = args["network_idx"]
     out["ani_model"] = args["model"]
@@ -94,13 +83,13 @@ def parse_torchani_args(
 
 @dataclass
 class RunArgs:
-    scalars_output_interval_frames: int = 1
-    arrays_output_interval_frames: int = 1
+    scalars_dump_interval: int = 1
+    arrays_dump_interval: int = 1
     restraint_selection: str = ""
     restraint_constant: str = ""
-    write_forces: bool = False
+    dump_force: bool = False
     cutoff: float = 8.0
-    solvent_model: tp.Optional[ImplicitModelKind] = None
+    solvent_model: tp.Optional[ImplicitFF] = None
     umbrella_args: tp.Optional[UmbrellaArgs] = None
     torchani_args: tp.Optional[AniArgs] = None
     random_seed: tp.Optional[int] = None
@@ -126,7 +115,7 @@ class MixedSdcgArgs(MinArgs):
 # Procedure 2: Md
 @dataclass
 class MdArgs(RunArgs):
-    write_velocities: bool = False
+    dump_vel: bool = False
     timestep_fs: float = 1.0
     time_ps: float = 0.0
     restart: bool = False
@@ -134,7 +123,7 @@ class MdArgs(RunArgs):
     temperature_init_kelvin: tp.Optional[float] = None
     thermo: tp.Optional[BaseThermo] = None
     baro: tp.Optional[BaseBaro] = None
-    surface_tensionstat: tp.Optional[SurfaceTensionstat] = None
+    surface_tensionstat: tp.Optional[BaseTension] = None
 
 
 def _run(
@@ -211,6 +200,10 @@ def mixed_sdcg(args: MixedSdcgArgs) -> str:
     return _run(args, "min-mixed-sdcg.amber.in.jinja")
 
 
+def md(args: MdArgs) -> str:
+    return _run(args, "md.amber.in.jinja")
+
+
 # TODO: Validation should be performed by jinja somehow?
 def nve(args: MdArgs) -> str:
     if args.baro is not None or args.thermo is not None:
@@ -224,8 +217,8 @@ def single_point(args: MdArgs) -> str:
     if (
         args.timestep_fs != 1.0
         or args.time_ps != 0.0
-        or args.scalars_output_interval_frames != 1
-        or args.arrays_output_interval_frames != 1
+        or args.scalars_dump_interval != 1
+        or args.arrays_dump_interval != 1
     ):
         raise ValueError(
             "Timestep, time, output-freq shouldn't be specified for single-point"
@@ -248,7 +241,7 @@ def _register_input_maker(thermo: BaseThermo, baro: tp.Optional[BaseBaro]) -> No
                 args.baro, type(baro)
             ):
                 raise ValueError(
-                    f"Expected {thermo} thermo and {baro} baro arguments only"
+                    f"Expected {type(thermo)} thermo and {type(baro)} baro args"
                 )
             if args.surface_tensionstat is not None:
                 raise ValueError("No surface tension arguments expected")
@@ -261,8 +254,7 @@ def _register_input_maker(thermo: BaseThermo, baro: tp.Optional[BaseBaro]) -> No
             args: MdArgs,
         ) -> str:
             if not isinstance(args.thermo, type(thermo)) or args.baro is not None:
-                raise ValueError("Expected langevin thermostat arguments only")
-                raise ValueError(f"Expected {thermo} thermo arguments only")
+                raise ValueError(f"Expected {type(thermo)} thermo arguments only")
             if args.surface_tensionstat is not None:
                 raise ValueError("No surface tension arguments expected")
             return _run(args, "md.amber.in.jinja")

@@ -1,7 +1,7 @@
 {% extends "base.amber.in.jinja" %}
 {% block body %}
 imin = 0  ! Perform MD
-dt = {{ timestep_ps }}  ! Timestep [ps]
+dt = {{ timestep_ps }}  ! Timestep [ps], equal to {{ timestep_ps * 1000 }} [fs]
 nstlim = {{ total_md_steps }}  ! Total MD step num
 {% block md_body %}
 {% endblock md_body %}
