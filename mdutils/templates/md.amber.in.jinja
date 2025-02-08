@@ -46,11 +46,11 @@ baroscalingdir = 2  ! Baro anisotropic scaling dir: Y
     {% elif baro.scaling.value == "anisotropic-z" %}
 baroscalingdir = 3  ! Baro anisotropic scaling dir: Z
     {% endif %}
-    {% if baro.name == "berendsen" %}
+    {% if baro.name == "bbaro" %}
 barostat = 1  ! Berendsen barostat
 comp = {{ baro.compressibility_inv_megabar }}  ! Berendsen baro compressibility [1/Mbar]
 taup = {{ baro.pressure_relax_time_ps }}  ! Berendsen baro pressure relax time [ps]
-    {% elif baro.name == "mc" %}
+    {% elif baro.name == "mcbaro" %}
 barostat = 2  ! Monte Carlo barostat
 mcbarint = {{ baro.attempts_step_interval }}  ! MC baro attempts step interval
     {% endif %}
