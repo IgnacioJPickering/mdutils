@@ -10,9 +10,15 @@ from enum import Enum
 from mdutils.geometry import Scaling, Plane
 
 __all__ = [
-    "OptimKind", "ThermoKind", "BaroKind", "TensionKind",
-    "BerendsenThermo", "AndersenThermo", "LangevinThermo",
-    "McBaro", "BerendsenBaro",
+    "OptimKind",
+    "ThermoKind",
+    "BaroKind",
+    "TensionKind",
+    "BerendsenThermo",
+    "AndersenThermo",
+    "LangevinThermo",
+    "McBaro",
+    "BerendsenBaro",
 ]
 
 
@@ -83,6 +89,7 @@ class BerendsenThermo(BaseThermo):
     r"""
     AKA "Weak coupling scheme"
     """
+
     temperature_relax_time_ps: float = 1.0
 
 
@@ -106,6 +113,7 @@ class OINHThermo(BaseThermo):
 
     Writes 2 additional files for restarts
     """
+
     friction_inv_ps: float = 2.0
     substep_num: int = 1
     # TODO: default for idistr unknown
@@ -120,6 +128,7 @@ class SINHThermo(BaseThermo):
     are not canonical, and the temperature appears to be less than the actual
     temperature of the system
     """
+
     additional_dof_num: int = 1
     dof_mass: float = 1.0
 
@@ -129,6 +138,7 @@ class BussiThermo(BaseThermo):
     r"""
     AKA Stochastic Berendsen
     """
+
     temperature_relax_time_ps: float = 1.0
 
 
