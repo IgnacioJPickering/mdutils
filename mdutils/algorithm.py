@@ -9,7 +9,34 @@ from enum import Enum
 
 from mdutils.geometry import Scaling, Plane
 
-__all__ = ["OptimKind", "ThermoKind", "BaroKind", "TensionKind"]
+__all__ = [
+    "OptimKind", "ThermoKind", "BaroKind", "TensionKind",
+    "BerendsenThermo", "AndersenThermo", "LangevinThermo",
+    "McBaro", "BerendsenBaro",
+]
+
+
+def collect_baro_kwargs(d: tp.Dict[str, tp.Any]) -> tp.Dict[str, tp.Any]:
+    baro_keys = {
+        "scaling",
+        "pressure_relax_time_ps",
+        "compressibility_inv_megabar",
+        "attempts_step_interval",
+    }
+    return {k: v for k, v in d.items() if k in baro_keys}
+
+
+def collect_thermo_kwargs(d: tp.Dict[str, tp.Any]) -> tp.Dict[str, tp.Any]:
+    thermo_keys = {
+        "temperature_relax_time_ps",
+        "vel_randomization_step_interval",
+        "friction_inv_ps",
+        "substep_num",
+        "vel_distribution_accumulation_step_interval",
+        "additional_dof_num",
+        "dof_mass",
+    }
+    return {k: v for k, v in d.items() if k in thermo_keys}
 
 
 # Optimizers
@@ -38,10 +65,16 @@ class ThermoKind(Enum):
     SINH = "sinh"
     BUSSI = "bussi"
 
+    @property
+    def cls(self) -> str:
+        value = self.value
+        if value in ("oinh", "sinh"):
+            return f"{value.upper()}Thermo"
+        return f"{value.capitalize()}Thermo"
+
 
 @dataclass
 class BaseThermo:
-    name: tp.ClassVar[str] = ""
     temperature_kelvin: tp.Tuple[float, float] = (300.0, 300.0)
 
 
@@ -50,20 +83,16 @@ class BerendsenThermo(BaseThermo):
     r"""
     AKA "Weak coupling scheme"
     """
-
-    name: tp.ClassVar[str] = "berendsen"
     temperature_relax_time_ps: float = 1.0
 
 
 @dataclass
 class AndersenThermo(BaseThermo):
-    name: tp.ClassVar[str] = "andersen"
     vel_randomization_step_interval: int = 1000
 
 
 @dataclass
 class LangevinThermo(BaseThermo):
-    name: tp.ClassVar[str] = "langevin"
     friction_inv_ps: float = 2.0
 
 
@@ -77,8 +106,6 @@ class OINHThermo(BaseThermo):
 
     Writes 2 additional files for restarts
     """
-
-    name: tp.ClassVar[str] = "oinh"
     friction_inv_ps: float = 2.0
     substep_num: int = 1
     # TODO: default for idistr unknown
@@ -93,8 +120,6 @@ class SINHThermo(BaseThermo):
     are not canonical, and the temperature appears to be less than the actual
     temperature of the system
     """
-
-    name: tp.ClassVar[str] = "sinh"
     additional_dof_num: int = 1
     dof_mass: float = 1.0
 
@@ -104,8 +129,6 @@ class BussiThermo(BaseThermo):
     r"""
     AKA Stochastic Berendsen
     """
-
-    name: tp.ClassVar[str] = "bussi"
     temperature_relax_time_ps: float = 1.0
 
 
@@ -120,24 +143,26 @@ class BaroKind(Enum):
     MC = "mcbaro"
     BERENDSEN = "bbaro"
 
+    @property
+    def cls(self) -> str:
+        value = {"mcbaro": "mc", "bbaro": "berendsen"}[self.value]
+        return f"{value.capitalize()}Baro"
+
 
 @dataclass
 class BaseBaro:
-    name: tp.ClassVar[str] = ""
     pressure_bar: tp.Tuple[float, float] = (1.0, 1.0)
     scaling: Scaling = Scaling.ISOTROPIC
 
 
 @dataclass
 class BerendsenBaro(BaseBaro):
-    name: tp.ClassVar[str] = "bbaro"
     pressure_relax_time_ps: float = 1.0
     compressibility_inv_megabar: float = 44.6
 
 
 @dataclass
 class McBaro(BaseBaro):
-    name: tp.ClassVar[str] = "mcbaro"
     attempts_step_interval: int = 100
 
 
@@ -159,5 +184,4 @@ class BaseTension:
 
 @dataclass
 class McTension(BaseTension):
-    name: tp.ClassVar[str] = "mc-tension"
     attempts_step_interval: int = 100
