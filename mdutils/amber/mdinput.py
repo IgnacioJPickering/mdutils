@@ -10,22 +10,7 @@ from mdutils.units import FEMTOSECOND_TO_PICOSECOND
 from mdutils.dynamics import calc_step_num
 from mdutils.ff import ImplicitFF
 from mdutils.umbrella import UmbrellaArgs
-from mdutils.algorithm import (
-    # Baro
-    BaseBaro,
-    # BerendsenBaro,
-    # McBaro,
-    # Thermo
-    BaseThermo,
-    # BerendsenThermo,
-    # AndersenThermo,
-    # LangevinThermo,
-    # OINHThermo,
-    # SINHThermo,
-    # BussiThermo,
-    # Tensionstat
-    BaseTension,
-)
+from mdutils.algorithm import BaseBaro, BaseThermo, BaseTension
 
 __all__ = ["AniArgs", "MdArgs", "RunArgs", "MixedSdcgArgs", "MinArgs"]
 
@@ -88,7 +73,7 @@ class RunArgs:
     restraint_constant: str = ""
     dump_force: bool = False
     cutoff: float = 8.0
-    solvent_model: tp.Optional[ImplicitFF] = None
+    implicit_solvent: tp.Optional[ImplicitFF] = None
     umbrella_args: tp.Optional[UmbrellaArgs] = None
     torchani_args: tp.Optional[AniArgs] = None
     random_seed: tp.Optional[int] = None
@@ -134,7 +119,7 @@ def _run(
     args_dict.pop("baro", None)
     args_dict.pop("surface_tensionstat", None)
 
-    solvent = args_dict.pop("solvent_model")
+    implicit_solvent = args_dict.pop("implicit_solvent")
     restraint_selection = args_dict.pop("restraint_selection")
     restraint_constant = args_dict.pop("restraint_constant")
     args_dict.update(parse_umbrella_args(args_dict.pop("umbrella_args")))
@@ -153,8 +138,8 @@ def _run(
             args_dict["restraint_constant"] = restraint_constant
 
     # Implicit solvation
-    if solvent is not None:
-        args_dict["implicit_solvent_model"] = solvent.mdin_idx
+    if implicit_solvent is not None:
+        args_dict["implicit_solvent"] = implicit_solvent.mdin_idx
 
     if isinstance(args, MdArgs):
         if args.thermo is not None:
@@ -163,7 +148,7 @@ def _run(
             )
 
         if args.baro is not None:
-            if solvent is not None:
+            if implicit_solvent is not None:
                 raise ValueError(
                     "Can't perform pressure control in an implicit solvent calculation"
                 )

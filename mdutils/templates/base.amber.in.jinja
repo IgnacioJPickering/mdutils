@@ -19,9 +19,9 @@ restraint_wt = {{ restraint_constant }}  ! Restraint constant in kcal/mol/Ang^2
 {% else %}
 ntr = 0  ! No restraints
 {% endif %}
-{% if implicit_solvent_model is defined %}
+{% if implicit_solvent is defined %}
 cut = 9999  ! Infinite cutoff, for implicit solvent
-igb = {{ implicit_solvent_model }}  ! Implicit solvent model
+igb = {{ implicit_solvent }}  ! Implicit solvent model
 {% else %}
 cut = {{ cutoff }}  ! Cutoff radius
 {% endif %}
