@@ -95,6 +95,7 @@ class ThermoKind(Enum):
 
 @dataclass
 class BaseThermo:
+    name: tp.ClassVar[str] = "thermo"
     temperature_kelvin: tp.Tuple[float, float] = (300.0, 300.0)
 
 
@@ -104,16 +105,19 @@ class BerendsenThermo(BaseThermo):
     AKA "Weak coupling scheme"
     """
 
+    name: tp.ClassVar[str] = "berendsen"
     temperature_relax_time_ps: float = 1.0
 
 
 @dataclass
 class AndersenThermo(BaseThermo):
+    name: tp.ClassVar[str] = "andersen"
     vel_randomization_step_interval: int = 1000
 
 
 @dataclass
 class LangevinThermo(BaseThermo):
+    name: tp.ClassVar[str] = "langevin"
     friction_inv_ps: float = 2.0
 
 
@@ -128,6 +132,7 @@ class OINHThermo(BaseThermo):
     Writes 2 additional files for restarts
     """
 
+    name: tp.ClassVar[str] = "oinh"
     friction_inv_ps: float = 2.0
     substep_num: int = 1
     # TODO: default for idistr unknown
@@ -143,6 +148,7 @@ class SINHThermo(BaseThermo):
     temperature of the system
     """
 
+    name: tp.ClassVar[str] = "sinh"
     additional_dof_num: int = 1
     dof_mass: float = 1.0
 
@@ -153,6 +159,7 @@ class BussiThermo(BaseThermo):
     AKA Stochastic Berendsen
     """
 
+    name: tp.ClassVar[str] = "bussi"
     temperature_relax_time_ps: float = 1.0
 
 
@@ -175,18 +182,21 @@ class BaroKind(Enum):
 
 @dataclass
 class BaseBaro:
+    name: tp.ClassVar[str] = "baro"
     pressure_bar: tp.Tuple[float, float] = (1.0, 1.0)
     scaling: Scaling = Scaling.ISOTROPIC
 
 
 @dataclass
 class BerendsenBaro(BaseBaro):
+    name: tp.ClassVar[str] = "bbaro"
     pressure_relax_time_ps: float = 1.0
     compressibility_inv_megabar: float = 44.6
 
 
 @dataclass
 class McBaro(BaseBaro):
+    name: tp.ClassVar[str] = "mcbaro"
     attempts_step_interval: int = 100
 
 
@@ -200,7 +210,7 @@ class BaseTension:
     r"""
     Base Surface Tensionstat
     """
-
+    name: tp.ClassVar[str] = "tension"
     tension_dyne_per_cm: float = 1.0
     plane: Plane = Plane.XY
     interface_num: int = 2
@@ -208,4 +218,5 @@ class BaseTension:
 
 @dataclass
 class McTension(BaseTension):
+    name: tp.ClassVar[str] = "mctension"
     attempts_step_interval: int = 100
