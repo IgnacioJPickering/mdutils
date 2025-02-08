@@ -1,6 +1,4 @@
-import itertools
 import typing as tp
-import sys
 import random
 from dataclasses import dataclass, asdict
 from pathlib import Path
@@ -15,16 +13,16 @@ from mdutils.umbrella import UmbrellaArgs
 from mdutils.algorithm import (
     # Baro
     BaseBaro,
-    BerendsenBaro,
-    McBaro,
+    # BerendsenBaro,
+    # McBaro,
     # Thermo
     BaseThermo,
-    BerendsenThermo,
-    AndersenThermo,
-    LangevinThermo,
-    OINHThermo,
-    SINHThermo,
-    BussiThermo,
+    # BerendsenThermo,
+    # AndersenThermo,
+    # LangevinThermo,
+    # OINHThermo,
+    # SINHThermo,
+    # BussiThermo,
     # Tensionstat
     BaseTension,
 )
@@ -47,6 +45,7 @@ _MAX_32_BIT_INT = 2147483647
 class AniArgs:
     use_cuda: bool = True
     use_cuaev: bool = False
+    use_amber_neighborlist: bool = False
     double_precision: bool = False
     device_idx: int = -1
     network_idx: int = -1
@@ -101,11 +100,10 @@ class MinArgs(RunArgs):
 
 
 # Procedure 1: Mixed SteepestDescent + ConjugateGradient
+# I believe minimization halts either when the total number of steps
+# is exceeded, or when the force rms is smaller than the threshold"""
 @dataclass
 class MixedSdcgArgs(MinArgs):
-    """I believe minimization halts either when the total number of steps
-    is exceeded, or when the force rms is smaller than the threshold"""
-
     total_minimization_steps: int = 2000
     steepest_descent_fraction: float = 0.1
     initial_step_angstrom: float = 0.01
@@ -204,15 +202,6 @@ def md(args: MdArgs) -> str:
     return _run(args, "md.amber.in.jinja")
 
 
-# TODO: Validation should be performed by jinja somehow?
-def nve(args: MdArgs) -> str:
-    if args.baro is not None or args.thermo is not None:
-        raise ValueError("No barostat or thermostat arguments expected")
-    if args.surface_tensionstat is not None:
-        raise ValueError("No surface tension arguments expected")
-    return _run(args, "md.amber.in.jinja")
-
-
 def single_point(args: MdArgs) -> str:
     if (
         args.timestep_fs != 1.0
@@ -228,50 +217,3 @@ def single_point(args: MdArgs) -> str:
     if args.surface_tensionstat is not None:
         raise ValueError("No surface tension arguments expected")
     return _run(args, "md.amber.in.jinja")
-
-
-def _register_input_maker(thermo: BaseThermo, baro: tp.Optional[BaseBaro]) -> None:
-    if baro is not None:
-        name = f"npt_{thermo.name}_{baro.name}"
-
-        def input_maker(
-            args: MdArgs,
-        ) -> str:
-            if not isinstance(args.thermo, type(thermo)) or not isinstance(
-                args.baro, type(baro)
-            ):
-                raise ValueError(
-                    f"Expected {type(thermo)} thermo and {type(baro)} baro args"
-                )
-            if args.surface_tensionstat is not None:
-                raise ValueError("No surface tension arguments expected")
-            return _run(args, "md.amber.in.jinja")
-
-    else:
-        name = f"nvt_{thermo.name}"
-
-        def input_maker(
-            args: MdArgs,
-        ) -> str:
-            if not isinstance(args.thermo, type(thermo)) or args.baro is not None:
-                raise ValueError(f"Expected {type(thermo)} thermo arguments only")
-            if args.surface_tensionstat is not None:
-                raise ValueError("No surface tension arguments expected")
-            return _run(args, "md.amber.in.jinja")
-
-    input_maker.__name__ = name
-    setattr(sys.modules[__name__], name, input_maker)
-
-
-for thermo, baro in itertools.product(
-    (
-        BerendsenThermo,
-        AndersenThermo,
-        LangevinThermo,
-        OINHThermo,
-        SINHThermo,
-        BussiThermo,
-    ),
-    (McBaro, BerendsenBaro, None),
-):
-    _register_input_maker(thermo(), baro() if baro is not None else None)

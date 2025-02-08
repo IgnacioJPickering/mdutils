@@ -34,7 +34,6 @@ def test_thermos() -> None:
         BussiThermo(),
     ):
         assert thermo.temperature_kelvin == (300.0, 300.0)
-        assert bool(thermo.name)
 
 
 @pytest.mark.fast
@@ -45,7 +44,6 @@ def test_baros() -> None:
     ):
         assert baro.pressure_bar == (1.0, 1.0)
         assert baro.scaling == Scaling.ISOTROPIC
-        assert bool(baro.name)
 
 
 @pytest.mark.fast
