@@ -22,17 +22,27 @@ __all__ = [
 ]
 
 
-def collect_baro_kwargs(d: tp.Dict[str, tp.Any]) -> tp.Dict[str, tp.Any]:
+def collect_baro_kwargs(
+    d: tp.Dict[str, tp.Any],
+    remove_inplace: bool = False,
+) -> tp.Dict[str, tp.Any]:
     baro_keys = {
         "scaling",
         "pressure_relax_time_ps",
         "compressibility_inv_megabar",
         "attempts_step_interval",
     }
-    return {k: v for k, v in d.items() if k in baro_keys}
+    out = {k: v for k, v in d.items() if k in baro_keys}
+    if remove_inplace:
+        for k in baro_keys:
+            d.pop(k, None)
+    return out
 
 
-def collect_thermo_kwargs(d: tp.Dict[str, tp.Any]) -> tp.Dict[str, tp.Any]:
+def collect_thermo_kwargs(
+    d: tp.Dict[str, tp.Any],
+    remove_inplace: bool = False,
+) -> tp.Dict[str, tp.Any]:
     thermo_keys = {
         "temperature_relax_time_ps",
         "vel_randomization_step_interval",
@@ -42,7 +52,11 @@ def collect_thermo_kwargs(d: tp.Dict[str, tp.Any]) -> tp.Dict[str, tp.Any]:
         "additional_dof_num",
         "dof_mass",
     }
-    return {k: v for k, v in d.items() if k in thermo_keys}
+    out = {k: v for k, v in d.items() if k in thermo_keys}
+    if remove_inplace:
+        for k in thermo_keys:
+            d.pop(k, None)
+    return out
 
 
 # Optimizers
