@@ -44,6 +44,7 @@ class AniFF(FF):
     ANIMBIS = "animbis"
     ANI2DR = "ani2dr"
     ANI2XR = "ani2xr"
+    OVERRIDE = "override"
     # ANIALA = "aniala"
 
 
