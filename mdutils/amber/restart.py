@@ -27,6 +27,7 @@ class RestartMeta:
     program: str = ""
     program_version: str = ""
     box_params: tp.Optional[BoxParams] = None
+    atoms_num: tp.Optional[int] = None
 
     @property
     def box_lengths(self) -> NDArray[np.float64]:
@@ -48,6 +49,7 @@ class RestartMeta:
     def load(cls, path: Path) -> tpx.Self:
         netcdf_ds = netcdf.Dataset(str(path), "r", format="NETCDF3_64BIT_OFFSET")
         box_params: tp.Optional[BoxParams]
+        atoms_num = netcdf_ds["coordinates"].shape[0]
         try:
             box_params = BoxParams(
                 netcdf_ds["cell_lengths"][:].data,
@@ -62,6 +64,7 @@ class RestartMeta:
             application=getattr(netcdf_ds, "application", ""),
             program_version=getattr(netcdf_ds, "programVersion", ""),
             box_params=box_params,
+            atoms_num=atoms_num,
         )
         netcdf_ds.close()
         return obj
