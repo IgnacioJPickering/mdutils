@@ -28,6 +28,22 @@ class RestartMeta:
     program_version: str = ""
     box_params: tp.Optional[BoxParams] = None
 
+    @property
+    def box_lengths(self) -> NDArray[np.float64]:
+        if self.box_params is None:
+            raise ValueError("There should be box parameters to get box lengths")
+        return self.box_params.lengths
+
+    @property
+    def box_angles(self) -> NDArray[np.float64]:
+        if self.box_params is None:
+            raise ValueError("There should be box parameters to get box angles")
+        return self.box_params.angles
+
+    @property
+    def has_box(self) -> bool:
+        return self.box_params is not None
+
     @classmethod
     def load(cls, path: Path) -> tpx.Self:
         netcdf_ds = netcdf.Dataset(str(path), "r", format="NETCDF3_64BIT_OFFSET")
