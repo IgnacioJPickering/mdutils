@@ -54,6 +54,9 @@ use_cuda_device = {{ ani_use_cuda }}  ! Toggle GPU use
 cuda_device_index = {{ ani_device_idx }}  ! GPU index (-1 => CPU or first GPU)
 use_double_precision = {{ ani_double_precision }}  ! Toggle float64
 use_amber_neighborlist = {{ ani_amber_neighborlist }}  ! Toggle AMBER neighborlist
+{% if use_all_amber_nonbond %}
+use_all_amber_nonbond = .True.
+{% endif %}
 model_index = {{ ani_network_idx }}  ! Index of ANI network (-1 => full ensemble)
 model_type = "{{ ani_model }}" ! String with torchani model
 /
