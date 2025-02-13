@@ -3,12 +3,12 @@ Control Namelist
 {% block body %}
 {% endblock %}
 ntwx = {{ arrays_dump_interval }}  ! Trajectory output step interval
-ntpr = {{ scalars_dump_interval_interval }}  ! Scalars output step interval
+ntpr = {{ scalars_dump_interval }}  ! Scalars output step interval
 {% if dump_vel %}
-ntwv = {{ arrays_dump_interval }}  ! Velocities output step interval
+ntwv = -1  ! Velocities output to traj file
 {% endif %}
 {% if dump_force %}
-ntwf = {{ arrays_dump_interval }}  ! Forces output step interval
+ntwf = -1  ! Forces output to traj file
 {% endif %}
 {% if restraint_selection is defined %}
 ntr = 1  ! Use restraints
