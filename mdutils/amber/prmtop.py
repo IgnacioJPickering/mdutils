@@ -823,9 +823,8 @@ class Prmtop:
             atom_j = 3 * (atom_j - 1)
 
             for i, j in zip(atom_i, atom_j):
-                in_array = (
-                    np.all(bonded_atoms == np.array([i, j]), axis=1)
-                    | np.all(bonded_atoms == np.array([j, i]), axis=1)
+                in_array = np.all(bonded_atoms == np.array([i, j]), axis=1) | np.all(
+                    bonded_atoms == np.array([j, i]), axis=1
                 )
                 if not np.any(in_array):
                     extra_bonds.extend([i, j, num_bond_types + 1])
