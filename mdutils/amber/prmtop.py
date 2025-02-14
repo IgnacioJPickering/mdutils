@@ -189,7 +189,7 @@ class _InteractionAccessor(_Accessor):
     prefix: tp.ClassVar[str] = ""
     shape: tp.ClassVar[tp.Tuple[int, ...]] = (-1,)
 
-    def num(self, kind: tp.Literal["with-H", "without-H", "all"]) -> int:
+    def num(self, kind: tp.Literal["with-H", "without-H", "all"] = "all") -> int:
         if kind == "with-H":
             return (
                 self._prmtop.blocks.get(
@@ -833,7 +833,7 @@ class Prmtop:
         current_bonds_list.extend(extra_bonds)
         current_bondconst.append(0.0)
         current_bonddist.append(0.0)
-        self.blocks[Flag.BOND_WITHOUT_HYDROGEN] = np.array(current_bonds)
+        self.blocks[Flag.BOND_WITHOUT_HYDROGEN] = np.array(current_bonds_list)
         self.blocks[Flag.BOND_FFTYPE_FORCE_CONSTANT] = np.array(current_bondconst)
         self.blocks[Flag.BOND_FFTYPE_EQUIL_DISTANCE] = np.array(current_bonddist)
 
