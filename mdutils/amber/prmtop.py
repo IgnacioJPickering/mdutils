@@ -798,6 +798,45 @@ class Prmtop:
                 # TODO: double check which are actually required
                 self._append_block(self.blocks.get(flag, np.array([])), path, flag)
 
+    def add_intra_molecule_bonds(self) -> None:
+        current_bonds = self.blocks[Flag.BOND_WITHOUT_HYDROGEN]
+        current_h_bonds = self.blocks[Flag.BOND_WITH_HYDROGEN]
+        current_bondconst = self.blocks[Flag.BOND_FFTYPE_FORCE_CONSTANT].tolist()
+        current_bonddist = self.blocks[Flag.BOND_FFTYPE_EQUIL_DISTANCE].tolist()
+        num_bond_types = len(current_bonddist)
+
+        bonded_atoms = np.concatenate(
+            (current_bonds.reshape(-1, 3)[:, :2], current_h_bonds.reshape(-1, 3)[:, :2])
+        )
+        current_bonds_list = current_bonds.tolist()
+
+        extra_bonds = []
+        offset = 1
+        for num in self.molecs.atoms_num:
+            atom_i, atom_j = np.triu_indices(num, 1)
+            atom_i += offset
+            atom_j += offset
+
+            # Convert to topology idx. Topologies index the values as if they were in an
+            # unravelled array
+            atom_i = 3 * (atom_i - 1)
+            atom_j = 3 * (atom_j - 1)
+
+            for i, j in zip(atom_i, atom_j):
+                in_array = np.all(bonded_atoms == np.array([i, j]), axis=1) | np.all(
+                    bonded_atoms == np.array([j, i]), axis=1
+                )
+                if not np.any(in_array):
+                    extra_bonds.extend([i, j, num_bond_types + 1])
+            offset += num
+
+        current_bonds_list.extend(extra_bonds)
+        current_bondconst.append(0.0)
+        current_bonddist.append(0.0)
+        self.blocks[Flag.BOND_WITHOUT_HYDROGEN] = np.array(current_bonds)
+        self.blocks[Flag.BOND_FFTYPE_FORCE_CONSTANT] = np.array(current_bondconst)
+        self.blocks[Flag.BOND_FFTYPE_EQUIL_DISTANCE] = np.array(current_bonddist)
+
     @staticmethod
     def _append_block(
         data: tp.Iterable[tp.Any],
