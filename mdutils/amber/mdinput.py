@@ -112,6 +112,7 @@ class MdArgs(RunArgs):
     thermo: tp.Optional[BaseThermo] = None
     baro: tp.Optional[BaseBaro] = None
     surface_tensionstat: tp.Optional[BaseTension] = None
+    remd_exchanges: int = 0
 
 
 def _run(
