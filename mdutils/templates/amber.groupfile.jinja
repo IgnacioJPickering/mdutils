@@ -1,0 +1,7 @@
+{% for num in replicas %}
+{% if share_mdcrd %}
+-O -rem {{ 1 if do_remd else 0 }} -p {{ prmtop_path }}.prmtop -i {{ name }}.rep-{{ num }}.mdin -c {{ name }}.{{ coord_suffix }} -inf {{ name }}.rep-{{ num }}.mdinfo -x {{ name }}.rep-{{ num }}.md.nc -o {{ name }}.rep-{{ num }}.mdout -r {{ name }}.rep-{{ num }}.restrt
+{% else %}
+-O -rem {{ 1 if do_remd else 0 }} -p {{ prmtop_path }}.prmtop -i {{ name }}.rep-{{ num }}.mdin -c {{ name }}.rep-{{ num }}.{{ coord_suffix }} -inf {{ name }}.rep-{{ num }}.mdinfo -x {{ name }}.rep-{{ num }}.md.nc -o {{ name }}.rep-{{ num }}.mdout -r {{ name }}.rep-{{ num }}.restrt
+{% endif %}
+{% endfor %}

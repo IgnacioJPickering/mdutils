@@ -86,6 +86,9 @@ nmropt = 1  ! Applying harmonic restraints
 {% else %}
 nmropt = 0  ! Not changing scalars, and not applying harmonic restraints
 {% endif %}
+{% if remd_exchanges > 0 %}
+numexchg = {{ remd_exchanges }}
+{% endif %}
 {% endblock body %}
 
 {% block heating %}
