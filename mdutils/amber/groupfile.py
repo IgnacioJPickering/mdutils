@@ -14,8 +14,11 @@ env = Environment(
 
 
 def groupfile(
-    name: str, prmtop_path: Path,
-    replica_num: int = 1, do_remd: bool = False, ascii_input: bool = True,
+    name: str,
+    prmtop_path: Path,
+    replica_num: int = 1,
+    do_remd: bool = False,
+    ascii_input: bool = True,
     share_mdcrd: bool = False,
 ) -> str:
     renderer = env.get_template("amber.groupfile.jinja")
