@@ -30,6 +30,3 @@ def groupfile(
         coord_suffix="inpcrd" if ascii_input else "restrt",
         share_mdcrd=share_mdcrd,
     )
-
-
-print(groupfile("molecule", Path("./path/to/file"), 5, True, True, True))
