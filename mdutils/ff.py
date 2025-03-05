@@ -42,10 +42,14 @@ class AniFF(FF):
     ANI1CCX = "ani1ccx"
     ANI2X = "ani2x"
     ANIMBIS = "animbis"
+    ANIR2S = "anir2s"
+    ANIR2S_WATER = "anir2s_water"
+    ANIR2S_CH3CN = "anir2s_ch3cn"
+    ANIR2X_CHCL3 = "anir2s_chcl3"
     ANI2DR = "ani2dr"
     ANI2XR = "ani2xr"
+    ANIALA = "aniala"
     OVERRIDE = "override"
-    # ANIALA = "aniala"
 
 
 _IMPLICIT_MDIN_IDX_MAP = {
