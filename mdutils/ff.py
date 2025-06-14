@@ -48,6 +48,12 @@ class AniFF(FF):
     ANIR2X_CHCL3 = "anir2s_chcl3"
     ANI2DR = "ani2dr"
     ANI2XR = "ani2xr"
+    AIMNET2_WB97M_DSF = "aimnet2-wb97m-dsf"
+    AIMNET2_WB97M_EWALD = "aimnet2-wb97m-ewald"
+    AIMNET2_WB97M_NOCUT = "aimnet2-wb97m-nocut"
+    AIMNET2_B973C_DSF = "aimnet2-b973c-dsf"
+    AIMNET2_B973C_EWALD = "aimnet2-b973c-ewald"
+    AIMNET2_B973C_NOCUT = "aimnet2-b97ec-nocut"
     ANIALA = "aniala"
     OVERRIDE = "override"
 
