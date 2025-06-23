@@ -10,9 +10,9 @@ dependencies:
 
 # Specific
     # Utils
-    - netCDF4
-    - jinja2
-    - pyyaml
+    - conda-forge::netcdf4
+    - conda-forge::jinja2
+    - conda-forge::pyyaml
 
     # Numerical / Sci
     - numpy
