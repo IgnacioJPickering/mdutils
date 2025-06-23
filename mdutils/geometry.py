@@ -155,8 +155,8 @@ def dih_angle(
     ab = b - a
     bc = c - b
     cd = d - c
-    norml_abc = np.cross(ab, bc)
-    norml_bcd = np.cross(bc, cd)
+    norml_abc = np.cross(ab, bc).astype(np.float64)
+    norml_bcd = np.cross(bc, cd).astype(np.float64)
     return _angle(norml_abc, norml_bcd)
 
 

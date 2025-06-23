@@ -329,7 +329,7 @@ class MoleculesAccessor(_Accessor):
         labels = []
         cumu_resid_num = 0
         for j, s in enumerate(self.resids_num):
-            cumu_resid_num += s
+            cumu_resid_num += s.item()
             if s == 1:
                 labels.append(self._prmtop.resids.label[cumu_resid_num])
             else:
@@ -348,7 +348,7 @@ class MoleculesAccessor(_Accessor):
             resid_num = 0
             cumu_size = 0
             while cumu_size < size:
-                cumu_size += next(resid_iter)
+                cumu_size += next(resid_iter).item()
                 resid_num += 1
             if cumu_size != size:
                 raise RuntimeError("Inconsistency found in prmtop resids")
@@ -423,7 +423,9 @@ class AtomsAccessor(_Accessor):
 
     @property
     def charge(self) -> NDArray[np.float32]:
-        return self._prmtop.blocks[Flag.ATOM_CHARGE] * AMBER_ATOM_CHARGE_SCALE_FACTOR
+        return self._prmtop.blocks[Flag.ATOM_CHARGE] * np.float32(
+            AMBER_ATOM_CHARGE_SCALE_FACTOR
+        )
 
     @property
     def charge_amber_units(self) -> NDArray[np.float32]:
@@ -813,7 +815,7 @@ class Prmtop:
         extra_bonds = []
         offset = 1
         for num in self.molecs.atoms_num:
-            atom_i, atom_j = np.triu_indices(num, 1)
+            atom_i, atom_j = np.triu_indices(num.item(), 1)
             atom_i += offset
             atom_j += offset
 
@@ -828,7 +830,7 @@ class Prmtop:
                 )
                 if not np.any(in_array):
                     extra_bonds.extend([i, j, num_bond_types + 1])
-            offset += num
+            offset += num.item()
 
         current_bonds_list.extend(extra_bonds)
         current_bondconst.append(0.0)

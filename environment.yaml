@@ -5,18 +5,18 @@ channels:
 dependencies:
 # General
     # Python / pip
-    - python=3.10
+    - python=3.11
     - pip>=24.0  # python packaging tool
 
 # Specific
     # Utils
-    - netCDF4
-    - jinja2
-    - pyyaml
+    - conda-forge::netcdf4
+    - conda-forge::jinja2
+    - conda-forge::pyyaml
 
     # Numerical / Sci
-    - numpy=1.26  # multidimensional array support
-    - pandas  # csv support
+    - numpy
+    - pandas
 
 # Dev
     # Automatic linters / checkers / tests / CI
