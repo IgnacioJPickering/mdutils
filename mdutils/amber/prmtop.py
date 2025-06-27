@@ -874,6 +874,12 @@ class Prmtop:
                 specifier = "d"
                 decimals = ""
                 align = ">"
+            elif fmt is Format.SIX_INTEGERS_ARRAY:
+                num_per_line = 6
+                width = 8
+                specifier = "d"
+                decimals = ""
+                align = ">"
             elif fmt in LARGE_FLOAT_FORMATS:
                 num_per_line = 5
                 width = 16
@@ -972,7 +978,7 @@ def _read_line_with_format(line: str, format_: Format) -> tp.List[tp.Any]:
     if not line:
         return parsed_line
 
-    if format_ in LARGE_INTEGER_FORMATS:
+    if (format_ in LARGE_INTEGER_FORMATS) or (format_ is Format.SIX_INTEGERS_ARRAY):
         # Avoid flake8 warnings for slice operator
         parsed_line = [int(line[i : i + 8]) for i in range(0, len(line), 8)]  # noqa
     elif format_ is Format.SMALL_INT_ARRAY:

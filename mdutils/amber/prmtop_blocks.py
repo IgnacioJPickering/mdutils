@@ -6,7 +6,7 @@ class Format(Enum):
     ONE_INTEGER = "1I8"  # integer
     TWO_INTEGERS = "2I8"  # integer
     THREE_INTEGERS = "3I8"  # integer
-    SIX_INTEGERS = "6I8"  # integer
+    SIX_INTEGERS_ARRAY = "6I8"  # integer
     SMALL_INT_ARRAY = "20I4"  # integer
     STRING = "1A80"  # character
     SMALL_STRING_ARRAY = "20A4"  # character
@@ -171,7 +171,7 @@ FLAG_FORMAT_MAP = {
     Flag.CAP_INFO: Format.INT_ARRAY,
     Flag.CAP_INFO2: Format.FLOAT_ARRAY,
     Flag.CMAP_COUNT: Format.TWO_INTEGERS,
-    Flag.CMAP_INDEX: Format.SIX_INTEGERS,
+    Flag.CMAP_INDEX: Format.SIX_INTEGERS_ARRAY,
     Flag.CMAP_RESOLUTION: Format.SMALL_INT_ARRAY,
     Flag.BOND_WITH_HYDROGEN: Format.INT_ARRAY,
     Flag.BOND_WITHOUT_HYDROGEN: Format.INT_ARRAY,
@@ -234,7 +234,6 @@ LARGE_INTEGER_FORMATS = {
     Format.ONE_INTEGER,
     Format.TWO_INTEGERS,
     Format.THREE_INTEGERS,
-    Format.SIX_INTEGERS,
 }
 
 LARGE_FLOAT_FORMATS = {
