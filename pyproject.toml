@@ -18,6 +18,9 @@ homepage = "https://github.com/IgnacioJPickering/mdutils.git"
 repository = "https://github.com/IgnacioJPickering/mdutils.git"
 documentation = "https://github.com/IgnacioJPickering/mdutils.git"
 
+[project.scripts]
+mu="mdutils.cli:app"
+
 [tool.setuptools_scm]
 version_file = "mdutils/_version.py"
 fallback_version="0.0.0"
