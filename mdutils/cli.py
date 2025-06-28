@@ -27,7 +27,10 @@ def increase_nonbonded(
         tp.Optional[Path],
         Option("-o", "--out-path", show_default=False),
     ] = None,
-    factor: tpx.Annotated[int, Option("--factor"),] = 4,
+    factor: tpx.Annotated[
+        int,
+        Option("--factor"),
+    ] = 4,
 ) -> None:
     # Dummy function that does nothing
     if out_path is None:
@@ -36,7 +39,9 @@ def increase_nonbonded(
     num = prmtop.excluded_atoms_num
     # Make the excluded atoms list 10 times as large
     arr = prmtop.blocks[Flag.EXCLUDED_ATOMS_LIST]
-    prmtop.blocks[Flag.EXCLUDED_ATOMS_LIST] = np.pad(arr, (0, (factor - 1) * num), mode="constant")
+    prmtop.blocks[Flag.EXCLUDED_ATOMS_LIST] = np.pad(
+        arr, (0, (factor - 1) * num), mode="constant"
+    )
     prmtop.dump(out_path)
 
 
