@@ -1,0 +1,61 @@
+!! Amber Input File
+&cntrl
+!! General
+    imin = 0,  ! NTP Dynamics
+    nstlim = 5000,  ! Total MD steps [tsteps]
+    ! Total MD time: 10.0 ps (0.01 ns)
+
+!! Initial Vels
+    irest = 0, ntx = 1,  ! Read crds only (=0), input has no vels (=1) ("not restart")
+
+!! Timestep and Shake
+    dt = 0.002,  ! Timestep [ps] (2.0 fs)
+    ntc = 2, ntf = 2,  ! Shake ON, for all H-X bonds
+
+!! Thermostat
+    temp0 = 300.0,  ! Target temperature for thermo [K]
+    ntt = 3,  ! Langevin thermo
+    gamma_ln = 2.0,  ! Langevin thermo 'friction' [1/ps]
+
+!! Barostat
+    pres0 = 1.0,  ! Target pressure for baro [bar]
+    ntp = 1,  ! Isotropic baro scaling
+    barostat = 2,  ! Monte Carlo baro
+    mcbarint = 100,  ! MC baro attempt interval [tsteps]
+
+!! Output
+    iwrap = 0,  ! Do *not* wrap molecules in output
+    ntwx = 1,  ! Dump crds interval [tsteps]
+    ntpr = 1,  ! Dump logs interval [tsteps]
+    ioutfm = 1,  ! Dump crds and logs as netCDF3 (=1)
+    ntxo = 2,  ! Dump restart as netCDF3 (=2)
+
+!! Implicit Solvent, Cutoff, PBC
+    igb = 0,  ! Explicit solvent, PBC is ON
+    cut = 8.0,  ! Non-bonded interactions cutoff [ang]
+
+!! Random Seed
+    ig = 1,
+
+!! External Potential
+    iextpot = 2,  ! Fully override the FF with an external potential
+/
+&extpot
+!! External Potential Provider
+    extprog = "torchani",
+/
+&ani
+!! General Model Options
+    model_type = "ani2x", ! Model name or path to model
+    use_double_precision = .False.,  ! Toggle float64
+    use_amber_neighborlist = .False.,  ! Toggle AMBER neighborlist
+
+!! ANI-specific Model Options
+    use_cuaev = .False.,  ! Toggle cuAEV extension
+    model_index = -1,  ! Index of ANI network (-1 => full ensemble)
+
+!! CUDA Options
+    use_cuda_device = .True.,  ! Toggle GPU use
+    cuda_device_index = -1,  ! GPU index (-1 => CPU or first GPU)
+/
+! End Amber Input

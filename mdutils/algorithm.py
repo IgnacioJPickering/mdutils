@@ -202,7 +202,7 @@ class McBaro(BaseBaro):
 
 # Surface tension
 class TensionKind(Enum):
-    MC = "mc-tension"
+    MC = "mctension"
 
 
 @dataclass

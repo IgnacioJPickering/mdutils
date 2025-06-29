@@ -1,0 +1,25 @@
+!! Amber Input File
+&cntrl
+!! General
+    imin = 1,  ! Minimization
+    ntmin = 1,  ! Minimization Kind: Steepest descent, then conjugate gradient
+    ncyc = 200,  ! Steepest descent interval before starting CG [steps]
+    maxcyc = 2000,  ! Total minimization steps [steps]
+    drms = 0.0001, ! Convergence criteria for min (RMS total force) [kcal/mol/ang]
+    dx0 = 0.01,  ! Size of initial min. step [ang]
+
+!! Output
+    iwrap = 0,  ! Do *not* wrap molecules in output
+    ntwx = 1,  ! Dump crds interval [tsteps]
+    ntpr = 1,  ! Dump logs interval [tsteps]
+    ioutfm = 1,  ! Dump crds and logs as netCDF3 (=1)
+    ntxo = 2,  ! Dump restart as netCDF3 (=2)
+
+!! Implicit Solvent, Cutoff, PBC
+    igb = 0,  ! Explicit solvent, PBC is ON
+    cut = 8.0,  ! Non-bonded interactions cutoff [ang]
+
+!! Random Seed
+    ig = 1,
+/
+! End Amber Input

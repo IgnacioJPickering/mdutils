@@ -1,12 +1,12 @@
 import typing as tp
 import random
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from pathlib import Path
 import math
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+import jinja2
 
-from mdutils.units import FEMTOSECOND_TO_PICOSECOND
+from mdutils.units import FEMTOSECOND_TO_PICOSECOND, PICOSECOND_TO_NANOSECOND
 from mdutils.dynamics import calc_step_num
 from mdutils.ff import ImplicitFF
 from mdutils.umbrella import UmbrellaArgs
@@ -16,14 +16,13 @@ __all__ = ["AniArgs", "MdArgs", "RunArgs", "MixedSdcgArgs", "MinArgs"]
 
 _TEMPLATES_PATH = Path(__file__).parent.parent.joinpath("templates")
 
-env = Environment(
-    loader=FileSystemLoader(_TEMPLATES_PATH),
-    autoescape=select_autoescape(),
+env = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(_TEMPLATES_PATH),
+    undefined=jinja2.StrictUndefined,
+    autoescape=jinja2.select_autoescape(),
     trim_blocks=True,
     lstrip_blocks=True,
 )
-
-_MAX_32_BIT_INT = 2147483647
 
 
 @dataclass
@@ -38,55 +37,57 @@ class AniArgs:
     model: str = "ani2x"
 
 
-def parse_umbrella_args(
-    args: tp.Optional[tp.Dict[str, tp.Any]] = None,
-) -> tp.Dict[str, tp.Any]:
-    if args is not None:
-        return {
-            "umbrella_input_fpath": args["input_fpath"],
-            "umbrella_output_fpath": args["output_fpath"],
-        }
-    else:
-        return {}
+@dataclass
+class CartRestraints:
+    selection: str = ""
+    constant: float = 1.0
 
 
-def parse_torchani_args(
-    args: tp.Optional[tp.Dict[str, tp.Any]],
-) -> tp.Dict[str, tp.Any]:
-    if args is None:
-        return {"torchani": False}
-    out: tp.Dict[str, tp.Any] = {}
-    out["torchani"] = True
-    out["ani_use_cuaev"] = ".true." if args["use_cuaev"] else ".false."
-    out["ani_use_cuda"] = ".true." if args["use_cuda"] else ".false."
-    out["ani_double_precision"] = ".true." if args["double_precision"] else ".false."
-    out["ani_amber_neighborlist"] = (
-        ".true." if args["use_amber_neighborlist"] else ".false."
-    )
-    out["use_all_amber_nonbond"] = True if args["use_all_amber_nonbond"] else False
-    out["ani_device_idx"] = args["device_idx"]
-    out["ani_network_idx"] = args["network_idx"]
-    out["ani_model"] = args["model"]
-    return out
+@dataclass
+class FrozenAtoms:
+    selection: str = ""
 
 
 @dataclass
 class RunArgs:
     scalars_dump_interval: int = 1
     arrays_dump_interval: int = 1
-    restraint_selection: str = ""
-    restraint_constant: str = ""
+    restart_dump_interval: tp.Optional[int] = None
     dump_force: bool = False
-    cutoff: float = 8.0
+    input_cutoff: tp.Optional[float] = None
+    input_random_seed: tp.Optional[int] = None
     implicit_solvent: tp.Optional[ImplicitFF] = None
-    umbrella_args: tp.Optional[UmbrellaArgs] = None
-    torchani_args: tp.Optional[AniArgs] = None
-    random_seed: tp.Optional[int] = None
+    umbrella: tp.Optional[UmbrellaArgs] = None
+    cart_restraints: tp.Optional[CartRestraints] = None
+    frozen_atoms: tp.Optional[FrozenAtoms] = None
+    ani: tp.Optional[AniArgs] = None
+    use_netcdf: bool = True
+
+    @property
+    def random_seed(self) -> int:
+        if self.input_random_seed is None:
+            return random.randint(0, 2**31 - 2)
+        return self.input_random_seed
+
+    @property
+    def cutoff(self) -> float:
+        if self.input_cutoff is None:
+            if self.implicit_solvent:
+                return 9999.0
+            # TODO: Correctly select cutoff for ani models
+            return 8.0
+        return self.input_cutoff
 
 
 @dataclass
 class MinArgs(RunArgs):
-    pass
+    @property
+    def do_heating(self) -> bool:
+        return False
+
+    @property
+    def dump_vel(self) -> bool:
+        return False
 
 
 # Procedure 1: Mixed SteepestDescent + ConjugateGradient
@@ -96,101 +97,80 @@ class MinArgs(RunArgs):
 class MixedSdcgArgs(MinArgs):
     total_minimization_steps: int = 2000
     steepest_descent_fraction: float = 0.1
-    initial_step_angstrom: float = 0.01
+    initial_step_ang: float = 0.01
     force_rms_threshold_kcal_per_angmol: float = 1e-4
+
+    @property
+    def steepest_descent_steps(self) -> int:
+        return math.ceil(self.steepest_descent_fraction * self.total_minimization_steps)
 
 
 # Procedure 2: Md
 @dataclass
 class MdArgs(RunArgs):
     dump_vel: bool = False
-    timestep_fs: float = 1.0
-    time_ps: float = 0.0
+    input_timestep_fs: tp.Optional[float] = None
+    time_ps: float = 10.0
     restart: bool = False
     shake: bool = True
     temperature_init_kelvin: tp.Optional[float] = None
     thermo: tp.Optional[BaseThermo] = None
     baro: tp.Optional[BaseBaro] = None
     surface_tensionstat: tp.Optional[BaseTension] = None
-    remd_exchanges: int = 0
+    remd_time_interval_ps: float = 0.0  # 1.0 or 2.0 are typical values
 
+    def __post_init__(self) -> None:
+        if self.baro is not None and self.implicit_solvent is not None:
+            raise ValueError("Implicit solvent not supported with NPT dynamics")
 
-def _run(
-    args: RunArgs,
-    template: str,
-) -> str:
-    template_renderer = env.get_template(template)
-    args_dict = asdict(args)
-    args_dict.pop("thermo", None)
-    args_dict.pop("baro", None)
-    args_dict.pop("surface_tensionstat", None)
+    @property
+    def do_heating(self) -> bool:
+        if self.thermo is None:
+            return False
+        return self.thermo.temperature_kelvin[0] != self.thermo.temperature_kelvin[1]
 
-    implicit_solvent = args_dict.pop("implicit_solvent")
-    restraint_selection = args_dict.pop("restraint_selection")
-    restraint_constant = args_dict.pop("restraint_constant")
-    args_dict.update(parse_umbrella_args(args_dict.pop("umbrella_args")))
-    args_dict.update(parse_torchani_args(args_dict.pop("torchani_args")))
+    @property
+    def do_pressure_change(self) -> bool:
+        if self.baro is None:
+            return False
+        return self.baro.pressure_bar[0] != self.baro.pressure_bar[1]
 
-    random_seed = args_dict.pop("random_seed")
-    if random_seed is None:
-        args_dict["random_seed"] = random.randint(0, _MAX_32_BIT_INT - 1)
-    else:
-        args_dict["random_seed"] = random_seed
+    @property
+    def timestep_fs(self) -> float:
+        if self.input_timestep_fs is None:
+            return 2.0 if self.shake else 1.0
+        return self.input_timestep_fs
 
-    # Restraints
-    if restraint_selection:
-        args_dict["restraint_selection"] = restraint_selection
-        if restraint_constant:
-            args_dict["restraint_constant"] = restraint_constant
+    @property
+    def time_ns(self) -> float:
+        return self.time_ps * PICOSECOND_TO_NANOSECOND
 
-    # Implicit solvation
-    if implicit_solvent is not None:
-        args_dict["implicit_solvent"] = implicit_solvent.mdin_idx
+    @property
+    def timestep_ps(self) -> float:
+        return self.timestep_fs * FEMTOSECOND_TO_PICOSECOND
 
-    if isinstance(args, MdArgs):
-        if args.thermo is not None:
-            args_dict["heating"] = (
-                args.thermo.temperature_kelvin[0] != args.thermo.temperature_kelvin[1]
-            )
+    @property
+    def remd_exchange_num(self) -> int:
+        if self.remd_time_interval_ps == 0.0:
+            return 1
+        return math.ceil(self.time_ps / self.remd_time_interval_ps)
 
-        if args.baro is not None:
-            if implicit_solvent is not None:
-                raise ValueError(
-                    "Can't perform pressure control in an implicit solvent calculation"
-                )
-            args_dict["changing_pressure"] = (
-                args.baro.pressure_bar[0] != args.baro.pressure_bar[1]
-            )
+    @property
+    def total_md_steps(self) -> int:
+        return calc_step_num(self.time_ps, self.timestep_fs)
 
-        timestep_fs = args_dict.pop("timestep_fs")
-        args_dict["timestep_ps"] = timestep_fs * FEMTOSECOND_TO_PICOSECOND
-        args_dict["total_md_steps"] = calc_step_num(
-            args_dict.pop("time_ps"), timestep_fs
-        )
-        return template_renderer.render(
-            thermo=args.thermo,
-            baro=args.baro,
-            surface_tensionstat=args.surface_tensionstat,
-            **args_dict,
-        )
-    elif isinstance(args, MinArgs):
-        steepest_descent_fraction = args_dict.pop("steepest_descent_fraction", None)
-        if steepest_descent_fraction is not None:
-            args_dict["steepest_descent_steps"] = math.ceil(
-                steepest_descent_fraction * args_dict["total_minimization_steps"]
-            )
-        return template_renderer.render(**args_dict)
-    else:
-        raise ValueError("Unknown procedure type")
+    @property
+    def md_steps_per_remd_exchange(self) -> int:
+        return calc_step_num(self.remd_time_interval_ps, self.timestep_fs)
 
 
 # User-facing functions
 def mixed_sdcg(args: MixedSdcgArgs) -> str:
-    return _run(args, "min-mixed-sdcg.amber.in.jinja")
+    return env.get_template("min-mixed-sdcg.mdin.jinja").render(config=args)
 
 
 def md(args: MdArgs) -> str:
-    return _run(args, "md.amber.in.jinja")
+    return env.get_template("md.mdin.jinja").render(config=args)
 
 
 def single_point(args: MdArgs) -> str:
@@ -207,4 +187,4 @@ def single_point(args: MdArgs) -> str:
         raise ValueError("No barostat or thermostat arguments expected")
     if args.surface_tensionstat is not None:
         raise ValueError("No surface tension arguments expected")
-    return _run(args, "md.amber.in.jinja")
+    return env.get_template("md.mdin.jinja").render(config=args)

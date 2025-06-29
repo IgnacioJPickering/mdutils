@@ -23,6 +23,14 @@ class UmbrellaArgs:
     output_fpath: Path
     input_fpath: Path
 
+    @property
+    def input_fpath_str(self) -> str:
+        return str(self.input_fpath)
+
+    @property
+    def output_fpath_str(self) -> str:
+        return str(self.output_fpath)
+
 
 class HarmonicRestraint:
     atom_indices: tp.Tuple[int, ...]
