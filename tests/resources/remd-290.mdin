@@ -1,0 +1,38 @@
+!! Amber Input File
+&cntrl
+!! General
+    imin = 0,  ! NVT Dynamics
+    nstlim = 500, numexchg = 10,  ! MD steps *per exchange* [tsteps], and num. REMD exchanges
+    ! REMD exchange time interval: 0.05 ps
+    ! Total MD time: 0.5 ps (0.0005 ns)
+
+!! Initial Vels
+    irest = 0, ntx = 1,  ! Read crds only (=0), input has no vels (=1) ("not restart")
+
+!! Timestep and Shake
+    dt = 0.001,  ! Timestep [ps] (1.0 fs)
+    ntc = 1, ntf = 1,  ! Shake OFF
+
+!! Thermostat
+    temp0 = 290,  ! Target temperature for thermo [K]
+    ntt = 3,  ! Langevin thermo
+    gamma_ln = 2.0,  ! Langevin thermo 'friction' [1/ps]
+
+!! Barostat
+    ntp = 0, ! No barostat
+
+!! Output
+    iwrap = 0,  ! Do *not* wrap molecules in output
+    ntwx = 1,  ! Dump crds interval [tsteps]
+    ntpr = 1,  ! Dump logs interval [tsteps]
+    ioutfm = 1,  ! Dump crds and logs as netCDF3 (=1)
+    ntxo = 2,  ! Dump restart as netCDF3 (=2)
+
+!! Implicit Solvent, Cutoff, PBC
+    igb = 6,  ! Implicit solvent: vacuum, PBC is OFF
+    cut = 9999.0,  ! No cutoff for non-bonded interactions [ang]
+
+!! Random Seed
+    ig = 1,
+/
+! End Amber Input

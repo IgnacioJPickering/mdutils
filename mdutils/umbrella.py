@@ -2,13 +2,14 @@ from dataclasses import dataclass
 from pathlib import Path
 import typing as tp
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+import jinja2
 
 _TEMPLATES_PATH = Path(__file__).parent / "templates"
 
-env = Environment(
-    loader=FileSystemLoader(_TEMPLATES_PATH),
-    autoescape=select_autoescape(),
+env = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(_TEMPLATES_PATH),
+    undefined=jinja2.StrictUndefined,
+    autoescape=jinja2.select_autoescape(),
     trim_blocks=True,
     lstrip_blocks=True,
 )
@@ -97,8 +98,7 @@ class DistanceRestraint(HarmonicRestraint):
         atom_indices: tp.Sequence[int] = (),
         residue_indices: tp.Sequence[int] = (),
         atom_names: tp.Sequence[str] = (),
-        # kcalpermol / ang**2
-        force_constant_amber_units: float = _DEFAULT_RESTRAINT_DISTANCE_CONST,
+        force_const_kcal_per_molang2: float = _DEFAULT_RESTRAINT_DISTANCE_CONST,
     ):
         self.atom_indices, self.residue_indices, self.atom_names = self._parse_indices(
             atom_indices,
@@ -111,8 +111,8 @@ class DistanceRestraint(HarmonicRestraint):
         self.distance_lower_middle_bound = distance_ang
         self.distance_upper_middle_bound = distance_ang
         self.distance_upper_bound = 8.0
-        self.lower_force_constant = force_constant_amber_units
-        self.upper_force_constant = force_constant_amber_units
+        self.lower_force_constant = force_const_kcal_per_molang2
+        self.upper_force_constant = force_const_kcal_per_molang2
 
 
 class AngleRestraint(HarmonicRestraint):
@@ -122,8 +122,7 @@ class AngleRestraint(HarmonicRestraint):
         atom_indices: tp.Sequence[int] = (),
         residue_indices: tp.Sequence[int] = (),
         atom_names: tp.Sequence[str] = (),
-        # kcalpermol / rad**2
-        force_constant_amber_units_rad: float = _DEFAULT_RESTRAINT_ANGLE_CONST,
+        force_const_kcal_per_molrad2: float = _DEFAULT_RESTRAINT_ANGLE_CONST,
     ):
         self.atom_indices, self.residue_indices, self.atom_names = self._parse_indices(
             atom_indices,
@@ -136,8 +135,8 @@ class AngleRestraint(HarmonicRestraint):
         self.angle_lower_middle_bound = angle_deg
         self.angle_upper_middle_bound = angle_deg
         self.angle_upper_bound = angle_deg + 180.0
-        self.lower_force_constant = force_constant_amber_units_rad
-        self.upper_force_constant = force_constant_amber_units_rad
+        self.lower_force_constant = force_const_kcal_per_molrad2
+        self.upper_force_constant = force_const_kcal_per_molrad2
 
 
 class DihedralRestraint(HarmonicRestraint):
@@ -147,8 +146,7 @@ class DihedralRestraint(HarmonicRestraint):
         atom_indices: tp.Sequence[int] = (),
         residue_indices: tp.Sequence[int] = (),
         atom_names: tp.Sequence[str] = (),
-        # kcalpermol / rad**2
-        force_constant_amber_units_rad: float = _DEFAULT_RESTRAINT_DIHEDRAL_CONST,
+        force_const_kcal_per_molrad2: float = _DEFAULT_RESTRAINT_DIHEDRAL_CONST,
     ):
         self.atom_indices, self.residue_indices, self.atom_names = self._parse_indices(
             atom_indices,
@@ -161,8 +159,8 @@ class DihedralRestraint(HarmonicRestraint):
         self.angle_lower_middle_bound = angle_deg
         self.angle_upper_middle_bound = angle_deg
         self.angle_upper_bound = angle_deg + 180.0
-        self.lower_force_constant = force_constant_amber_units_rad
-        self.upper_force_constant = force_constant_amber_units_rad
+        self.lower_force_constant = force_const_kcal_per_molrad2
+        self.upper_force_constant = force_const_kcal_per_molrad2
 
 
 def dump_harmonic_restraints(
@@ -172,8 +170,7 @@ def dump_harmonic_restraints(
     ],
     path: Path,
 ) -> None:
-    path = Path(path)
-    path.write_text(harmonic_restraints_block(restraints))
+    Path(path).write_text(harmonic_restraints_block(restraints))
 
 
 def harmonic_restraints_block(
@@ -195,7 +192,7 @@ def harmonic_restraints_block(
         elif isinstance(restraint, AngleRestraint):
             angle_restraints.append(restraint)
 
-    template_renderer = env.get_template("harmonic.restraints.in.jinja")
+    template_renderer = env.get_template("harmonic.restraint.jinja")
     return template_renderer.render(
         dihedral_restraints=dihedral_restraints,
         angle_restraints=angle_restraints,
@@ -203,6 +200,8 @@ def harmonic_restraints_block(
     )
 
 
+# These functions parse a "simple" restraint specification, for instance of the form
+# 1.00,1,2 to a restraint object
 def convert_distance_restraints(
     distance_restraints_str: str,
 ) -> tp.List[DistanceRestraint]:
@@ -218,7 +217,7 @@ def convert_distance_restraints(
             DistanceRestraint(
                 float(target),
                 (int(idx0), int(idx1)),
-                force_constant_amber_units=float(const),
+                force_const_kcal_per_molang2=float(const),
             )
         )
     return distance_restraints
@@ -229,7 +228,7 @@ def convert_angle_restraints(angle_restraints_str: str) -> tp.List[AngleRestrain
     for s in angle_restraints_str:
         parts = s.split(",")
         if len(parts) == 5:
-            target, const, idx0, idx1, idx2 = parts
+            target, _const, idx0, idx1, idx2 = parts
         else:
             target, idx0, idx1, idx2 = parts
             const = str(_DEFAULT_RESTRAINT_ANGLE_CONST)
@@ -237,7 +236,7 @@ def convert_angle_restraints(angle_restraints_str: str) -> tp.List[AngleRestrain
             AngleRestraint(
                 float(target),
                 (int(idx0), int(idx1), int(idx2)),
-                force_constant_amber_units_rad=float(const),
+                force_const_kcal_per_molrad2=float(const),
             )
         )
     return angle_restraints
@@ -258,7 +257,7 @@ def convert_dihedral_restraints(
             DihedralRestraint(
                 float(target),
                 (int(idx0), int(idx1), int(idx2), int(idx3)),
-                force_constant_amber_units_rad=float(const),
+                force_const_kcal_per_molrad2=float(const),
             )
         )
     return dihedral_restraints

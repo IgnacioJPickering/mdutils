@@ -11,9 +11,28 @@ from mdutils.amber.mdinput import (
     MdArgs,
     MixedSdcgArgs,
 )
+from mdutils.ff import ImplicitFF
 from mdutils.algorithm import LangevinThermo, BerendsenBaro, McBaro
 
 _RESOURCES = Path(Path(__file__).parent, "resources")
+
+
+@pytest.mark.fast
+def test_remd_inputs() -> None:
+    for temperature in (280, 290, 300, 310):
+        input_str = md(
+            MdArgs(
+                shake=False,
+                input_random_seed=1,
+                time_ps=0.5,
+                remd_time_interval_ps=0.05,
+                implicit_solvent=ImplicitFF.VACUUM,
+                thermo=LangevinThermo(temperature_kelvin=(temperature, temperature)),
+            )
+        )
+        expect = f90nml.read(_RESOURCES / f"remd-{temperature}.mdin")
+        actual = f90nml.read(io.StringIO(input_str))
+        assert expect == actual
 
 
 @pytest.mark.fast
