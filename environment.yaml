@@ -13,6 +13,7 @@ dependencies:
     - conda-forge::netcdf4
     - conda-forge::jinja2
     - conda-forge::pyyaml
+    - conda-forge::f90nml
 
     # Numerical / Sci
     - numpy

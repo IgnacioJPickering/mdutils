@@ -1,32 +1,72 @@
+import typing as tp
 from pathlib import Path
-from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
-_TEMPLATES_PATH = Path(__file__).parent.parent.joinpath("templates")
-
-
-env = Environment(
-    loader=FileSystemLoader(_TEMPLATES_PATH),
-    autoescape=select_autoescape(),
-    trim_blocks=True,
-    lstrip_blocks=True,
-)
-
-
-def groupfile(
-    name: str,
-    prmtop_path: Path,
-    replica_num: int = 1,
+def write_groupfile_block(
+    prefixes: tp.Optional[tp.Sequence[str]] = None,
+    temperatures_kelvin: tp.Optional[tp.Sequence[int]] = None,
     do_remd: bool = False,
-    ascii_input: bool = True,
-    share_mdcrd: bool = False,
+    ascii_inpcrd: bool = True,
+    ascii_output: bool = False,
+    share_inpcrd: bool = True,
+    share_prmtop: bool = True,
 ) -> str:
-    renderer = env.get_template("amber.groupfile.jinja")
-    return renderer.render(
-        name=name,
-        prmtop_path=str(prmtop_path),
-        replicas=list(range(replica_num)),
-        do_remd=do_remd,
-        coord_suffix="inpcrd" if ascii_input else "restrt",
-        share_mdcrd=share_mdcrd,
+    if prefixes is None and temperatures_kelvin is None:
+        raise ValueError(
+            "At least one of 'prefixes' and 'temperatures' must be specified"
+        )
+    if prefixes is None:
+        assert temperatures_kelvin is not None
+        prefixes = [f"{t}K." for t in temperatures_kelvin]
+    assert prefixes is not None
+
+    lines = []
+    for i, prefix in enumerate(prefixes):
+        parts = [
+            "-O",
+            "-rem",
+            "1" if do_remd else "0",
+            "-p",
+            f"{'' if share_prmtop else prefix}prmtop",
+            "-i",
+            f"{prefix}mdin",
+            "-inf",
+            f"{prefix}mdinfo",
+            "-o",
+            f"{prefix}mdout",
+            "-r",
+            f"{prefix}restart{'.nc' if ascii_output else ''}",
+            "-x",
+            f"{prefix}mdcrd{'.nc' if ascii_output else ''}",
+            "-c",
+            f"{'' if share_inpcrd else prefix}inpcrd{'' if ascii_inpcrd else '.nc'}",
+        ]
+        if do_remd:
+            parts.extend(["-remlog", "rem.log"])
+        if i == len(prefixes) - 1:
+            parts.append("\n")
+        lines.append(" ".join(parts))
+    return "\n".join(lines)
+
+
+def dump_groupfile(
+    path: Path,
+    prefixes: tp.Optional[tp.Sequence[str]] = None,
+    temperatures_kelvin: tp.Optional[tp.Sequence[int]] = None,
+    do_remd: bool = False,
+    ascii_inpcrd: bool = True,
+    ascii_output: bool = False,
+    share_inpcrd: bool = True,
+    share_prmtop: bool = True,
+) -> None:
+    Path(path).write_text(
+        write_groupfile_block(
+            prefixes,
+            temperatures_kelvin,
+            do_remd,
+            ascii_inpcrd,
+            ascii_output,
+            share_inpcrd,
+            share_prmtop,
+        )
     )

@@ -1,0 +1,99 @@
+!! Amber Input File
+&cntrl
+{% block body %}
+{% endblock %}
+
+!! Output
+    iwrap = 0,  ! Do *not* wrap molecules in output
+    ntwx = {{ config.arrays_dump_interval }},  ! Dump crds interval [tsteps]
+    ntpr = {{ config.scalars_dump_interval }},  ! Dump logs interval [tsteps]
+    {% if config.restart_dump_interval %}
+    ntwr = {{ config.restart_dump_interval }},  ! Dump restart interval [tsteps]
+    {% endif %}
+{% if config.use_netcdf %}
+    ioutfm = 1,  ! Dump crds and logs as netCDF3 (=1)
+    ntxo = 2,  ! Dump restart as netCDF3 (=2)
+{% else %}
+    ioutfm = 0,  ! Dump crds and logs as netCDF3 (=0)
+    ntxo = 1,  ! Dump restart as netCDF3 (=1)
+{% endif %}
+{% if config.dump_vel %}
+    ntwv = -1,  ! Dump vels to crds file
+{% endif %}
+{% if config.dump_force %}
+    ntwv = -1,  ! Dump frcs to crds file
+{% endif %}
+{% if config.cart_restraints %}
+
+!! Harmonic Cartesian Atomic Restraints
+    ntr = 1,  ! Apply restraints V(x) = w (x-x0)^2
+    restraintmask = {{ '"' + config.cart_restraints.selection + '"' }},  ! Restraint selection
+    restraint_wt = {{ config.cart_restraints.constant }},  ! Restraint constant 'w' [kcal/mol/ang^2]
+{% endif %}
+{% if config.frozen_atoms %}
+
+!! Frozen Atoms ("Belly")
+    ibelly = 1,  ! Freeze specified atoms
+    bellymask = {{ config.frozen_atoms.selection }}, ! Frozen atoms selection
+{% endif %}
+
+!! Implicit Solvent, Cutoff, PBC
+{% if config.implicit_solvent %}
+    igb = {{ config.implicit_solvent.mdin_idx }},  ! Implicit solvent: {{ config.implicit_solvent.value }}, PBC is OFF
+    cut = 9999.0,  ! No cutoff for non-bonded interactions [ang]
+{% else %}
+    igb = 0,  ! Explicit solvent, PBC is ON
+    cut = {{ config.cutoff }},  ! Non-bonded interactions cutoff [ang]
+{% endif %}
+
+!! Random Seed
+    ig = {{ config.random_seed}},
+{% if config.ani %}
+
+!! External Potential
+    iextpot = 2,  ! Fully override the FF with an external potential
+{% endif %}
+/
+{% if config.ani %}
+&extpot
+!! External Potential Provider
+    extprog = "torchani",
+/
+&ani
+!! General Model Options
+    model_type = {{ '"' + config.ani.model + '"' }}, ! Model name or path to model
+    use_double_precision = .{{ config.ani.double_precision }}.,  ! Toggle float64
+    use_amber_neighborlist = .{{ config.ani.use_amber_neighborlist }}.,  ! Toggle AMBER neighborlist
+{% if config.ani.use_all_amber_nonbond %}
+    use_all_amber_nonbond = .True., ! Toggle AMBER non-bonded terms
+{% endif %}
+
+!! ANI-specific Model Options
+    use_cuaev = .{{ config.ani.use_cuaev }}.,  ! Toggle cuAEV extension
+    model_index = {{ config.ani.network_idx }},  ! Index of ANI network (-1 => full ensemble)
+
+!! CUDA Options
+    use_cuda_device = .{{ config.ani.use_cuda }}.,  ! Toggle GPU use
+    cuda_device_index = {{ config.ani.device_idx }},  ! GPU index (-1 => CPU or first GPU)
+/
+{% endif %}
+{% block heating %}
+{% endblock %}
+{% if config.umbrella %}
+&wt
+!! Umbrella Restraints Weight Config
+    type = 'DUMPFREQ',  ! Set the restrained coord output interval
+    istep1 = {{ config.scalars_dump_interval }},  ! Restrained coord output interval [steps]
+/
+{% endif %}
+{% if config.umbrella or config.do_heating %}
+&wt
+!! End of weight-style configs
+    type = 'END',
+/
+{% endif %}
+{% if config.umbrella %}
+DISANG={{ config.umbrella.input_fpath_str }}
+DUMPAVE={{ config.umbrella.output_fpath_str }}
+{% endif %}
+! End Amber Input

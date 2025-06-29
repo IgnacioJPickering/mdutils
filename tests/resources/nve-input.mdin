@@ -1,0 +1,35 @@
+!! Amber Input File
+&cntrl
+!! General
+    imin = 0,  ! NVE Dynamics
+    nstlim = 5000,  ! Total MD steps [tsteps]
+    ! Total MD time: 10.0 ps (0.01 ns)
+
+!! Initial Vels
+    irest = 0, ntx = 1,  ! Read crds only (=0), input has no vels (=1) ("not restart")
+
+!! Timestep and Shake
+    dt = 0.002,  ! Timestep [ps] (2.0 fs)
+    ntc = 2, ntf = 2,  ! Shake ON, for all H-X bonds
+
+!! Thermostat
+    ntt = 0, ! No thermostat
+
+!! Barostat
+    ntp = 0, ! No barostat
+
+!! Output
+    iwrap = 0,  ! Do *not* wrap molecules in output
+    ntwx = 1,  ! Dump crds interval [tsteps]
+    ntpr = 1,  ! Dump logs interval [tsteps]
+    ioutfm = 1,  ! Dump crds and logs as netCDF3 (=1)
+    ntxo = 2,  ! Dump restart as netCDF3 (=2)
+
+!! Implicit Solvent, Cutoff, PBC
+    igb = 0,  ! Explicit solvent, PBC is ON
+    cut = 8.0,  ! Non-bonded interactions cutoff [ang]
+
+!! Random Seed
+    ig = 1,
+/
+! End Amber Input

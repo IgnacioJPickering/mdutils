@@ -1,0 +1,126 @@
+{% extends "base.mdin.jinja" %}
+{% block body %}
+!! General
+    {% if config.thermo and config.baro %}
+    imin = 0,  ! NTP Dynamics
+    {% elif config.thermo %}
+    imin = 0,  ! NVT Dynamics
+    {% else %}
+    imin = 0,  ! NVE Dynamics
+    {% endif %}
+{% if config.remd_exchange_num > 1 %}
+    nstlim = {{ config.total_md_steps }}, numexchg = {{ config.remd_exchange_num }},  ! MD steps *per exchange* [tsteps], and num. REMD exchanges
+    ! REMD exchange time interval: {{ config.remd_time_interval_ps }} ps
+{% else %}
+    nstlim = {{ config.total_md_steps }},  ! Total MD steps [tsteps]
+{% endif %}
+    ! Total MD time: {{ config.time_ps }} ps ({{ config.time_ns }} ns)
+
+!! Initial Vels
+{% if config.restart %}
+    irest = 1, ntx = 5,  ! Read crds and vels (=1), input has vels (=5) ("restart")
+{% else %}
+    irest = 0, ntx = 1,  ! Read crds only (=0), input has no vels (=1) ("not restart")
+    {% if config.temperature_init_kelvin %}
+    tempi = {{ config.temperature_init_kelvin }}, ! Initial temperature (for init vels) [K]
+    {% endif %}
+{% endif %}
+
+!! Timestep and Shake
+    dt = {{ config.timestep_ps }},  ! Timestep [ps] ({{ config.timestep_fs }} fs)
+{% if config.shake %}
+    ntc = 2, ntf = 2,  ! Shake ON, for all H-X bonds
+{% else %}
+    ntc = 1, ntf = 1,  ! Shake OFF
+{% endif %}
+
+!! Thermostat
+{% if config.thermo %}
+    temp0 = {{ config.thermo.temperature_kelvin[0] }},  ! Target temperature for thermo [K]
+    {% if config.thermo.name == "berendsen" %}
+    ntt = 1, ! Berendsen (AKA Weak coupling) thermo
+    tautp = {{ config.thermo.temperature_relax_time_ps }},  ! Berendsen thermo 'T relax time' [ps]
+    {% elif config.thermo.name == "andersen" %}
+    ntt = 2,  ! Andersen thermo
+    vrand = {{ config.thermo.vel_randomization_step_interval }},  ! Andersen thermo 'vel randomization interval' [tsteps]
+    {% elif config.thermo.name == "langevin" %}
+    ntt = 3,  ! Langevin thermo
+    gamma_ln = {{ config.thermo.friction_inv_ps }},  ! Langevin thermo 'friction' [1/ps]
+    {% elif config.thermo.name == "oinh" %}
+    ntt = 9,  ! Optimized Isokinetic Nose-Hoover (AKA OINH) thermo
+    gamma_ln = {{ config.thermo.friction_inv_ps }},  ! OINH thermo 'friction' [1/ps]
+    nkija = {{ config.thermo.sub }},  ! OINH thermo 'num. substeps'
+    idistr = {{ config.thermo.vel_distribution_accumulation_step_interval }},  ! OINH thermo 'vel distrib. accum. interval' [tsteps]
+    {% elif config.thermo.name == "sinh" %}
+    ntt = 10,  ! Stochastic Isokinetic Nose-Hoover (AKA SINH) thermo
+    nkija = {{ config.thermo.additional_dof_num }},  ! SINH thermo 'num. additional DoF'
+    sinrtau = {{ config.thermo.dof_mass }},  ! SINH thermo 'mass of additional DoF'
+    {% elif config.thermo.name == "bussi" %}
+    ntt = 11, ! Bussi (AKA Stochastic Berendsen) thermo
+    tautp = {{ config.thermo.temperature_relax_time_ps }},  ! Bussi thermo 'T relax time' [ps]
+    {% endif %}
+{% else %}
+    ntt = 0, ! No thermostat
+{% endif %}
+
+!! Barostat
+{% if config.baro %}
+    pres0 = {{ config.baro.pressure_bar[0] }},  ! Target pressure for baro [bar]
+    {% if config.baro.scaling.value == "isotropic" %}
+    ntp = 1,  ! Isotropic baro scaling
+    {% else %}
+    ntp = 2,  ! Anisotropic baro scaling
+    {% endif %}
+    {% if config.baro.scaling.value == "anisotropic-random" %}
+    baroscalingdir = 0,  ! Baro anisotropic scaling dir: Random each time, either X Y Z
+    {% elif config.baro.scaling.value == "anisotropic-x" %}
+    baroscalingdir = 1,  ! Baro anisotropic scaling dir: X
+    {% elif config.baro.scaling.value == "anisotropic-y" %}
+    baroscalingdir = 2,  ! Baro anisotropic scaling dir: Y
+    {% elif config.baro.scaling.value == "anisotropic-z" %}
+    baroscalingdir = 3,  ! Baro anisotropic scaling dir: Z
+    {% endif %}
+    {% if config.baro.name == "bbaro" %}
+    barostat = 1,  ! Berendsen baro
+    comp = {{ config.baro.compressibility_inv_megabar }},  ! Berendsen baro compressibility [1/Mbar], 44.6 1/Mbar (default) is water
+    taup = {{ config.baro.pressure_relax_time_ps }},  ! Berendsen baro pressure relax time [ps]
+    {% elif config.baro.name == "mcbaro" %}
+    barostat = 2,  ! Monte Carlo baro
+    mcbarint = {{ config.baro.attempts_step_interval }},  ! MC baro attempt interval [tsteps]
+    {% endif %}
+{% else %}
+    ntp = 0, ! No barostat
+{% endif %}
+{% if config.surface_tensionstat %}
+
+!! Surface Tensionstat
+    csurften = {{ config.surface_tensionstat.plane.value }},  ! Plane for surftensionstat interfaces (1=YZ, 2=XZ, 3=XY)
+    gamma_ten = {{ config.surface_tensionstat.tension_dyne_per_cm }},  ! Target surface tension for surftensionstat [dyne/cm]
+    ninterface = {{ config.surface_tensionstat.interface_num }},  ! Num. interfaces for surftensionstat
+{% endif %}
+{% if config.do_heating or config.umbrella %}
+
+{% if config.do_heating and config.umbrella %}
+!! Heating and Harmonic Umbrella Restraints
+    nmropt = 1,
+{% elif config.do_heating %}
+!! Heating
+    nmropt = 1,
+{% else %}
+!! Harmonic Umbrella Restraints
+    nmropt = 1,
+{% endif %}
+{% endif %}
+{% endblock body %}
+{% block heating %}
+{% if config.do_heating %}
+&wt
+!! Heating Config
+    type = 'TEMP0',  ! Set the heating config for MD
+    istep1 = 0,  ! Start heating at the initial MD step (0)
+    istep2 = {{ config.total_md_steps}},  ! Stop heating at the final MD step ({{ config.total_md_steps }})
+    value1 = {{ config.thermo.temperature_kelvin[0] }},  ! Start target temperature [K]
+    value2 = {{ config.thermo.temperature_kelvin[1] }},  ! Final target temperature [K]
+/
+{% endif %}
+{% endblock heating %}

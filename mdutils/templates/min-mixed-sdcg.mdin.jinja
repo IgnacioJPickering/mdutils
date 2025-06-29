@@ -1,0 +1,15 @@
+{% extends "base.mdin.jinja" %}
+{% block body %}
+!! General
+    imin = 1,  ! Minimization
+    ntmin = 1,  ! Minimization Kind: Steepest descent, then conjugate gradient
+    ncyc = {{ config.steepest_descent_steps }},  ! Steepest descent interval before starting CG [steps]
+    maxcyc = {{ config.total_minimization_steps }},  ! Total minimization steps [steps]
+    drms = {{ config.force_rms_threshold_kcal_per_angmol }}, ! Convergence criteria for min (RMS total force) [kcal/mol/ang]
+    dx0 = {{ config.initial_step_ang }},  ! Size of initial min. step [ang]
+{% if config.umbrella %}
+
+!! Harmonic Umbrella Restraints
+    nmropt = 1,
+{% endif %}
+{% endblock %}

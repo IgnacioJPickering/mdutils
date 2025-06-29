@@ -65,7 +65,6 @@ CODE3_TO_LETTER_MAP = {
 
 LETTER_TO_CODE3_MAP = {v: k for k, v in CODE3_TO_LETTER_MAP.items()}
 
-# these aminoacids are fully protonated
 LETTER_TO_FULLY_PROTONATED_SMILES_MAP = {
     "^": "C(C=O)O",
     "A": "N[C@@]([H])(C)C(=O)O",
