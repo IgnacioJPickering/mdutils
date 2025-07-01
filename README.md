@@ -6,6 +6,8 @@
 
 From source:
 
+This package is experimental and meant for personal use, nothing about it is stable
+
 First install submodules, afterwards run:
 
 ```bash
