@@ -122,6 +122,16 @@ class MdArgs(RunArgs):
     def __post_init__(self) -> None:
         if self.baro is not None and self.implicit_solvent is not None:
             raise ValueError("Implicit solvent not supported with NPT dynamics")
+        if self.restart and self.temperature_init_kelvin is not None:
+            raise ValueError("temperature_init_kelvin has no effect for restarts")
+
+    @property
+    def actual_temperature_init_kelvin(self) -> float:
+        if self.temperature_init_kelvin is not None:
+            return self.temperature_init_kelvin
+        if self.thermo is not None:
+            return self.thermo.temperature_kelvin[0]
+        return 0.0
 
     @property
     def do_heating(self) -> bool:

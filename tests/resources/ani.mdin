@@ -7,6 +7,7 @@
 
 !! Initial Vels
     irest = 0, ntx = 1,  ! Read crds only (=0), input has no vels (=1) ("not restart")
+    tempi = 300.0, ! Initial temperature (for init vels) [K]
 
 !! Timestep and Shake
     dt = 0.002,  ! Timestep [ps] (2.0 fs)

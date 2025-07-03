@@ -21,9 +21,7 @@
     irest = 1, ntx = 5,  ! Read crds and vels (=1), input has vels (=5) ("restart")
 {% else %}
     irest = 0, ntx = 1,  ! Read crds only (=0), input has no vels (=1) ("not restart")
-    {% if config.temperature_init_kelvin %}
-    tempi = {{ config.temperature_init_kelvin }}, ! Initial temperature (for init vels) [K]
-    {% endif %}
+    tempi = {{ config.actual_temperature_init_kelvin }}, ! Initial temperature (for init vels) [K]
 {% endif %}
 
 !! Timestep and Shake
