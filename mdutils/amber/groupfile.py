@@ -6,10 +6,8 @@ def write_groupfile_block(
     prefixes: tp.Optional[tp.Sequence[str]] = None,
     temperatures_kelvin: tp.Optional[tp.Sequence[int]] = None,
     do_remd: bool = False,
-    ascii_inpcrd: bool = True,
+    relative_to_cwd: bool = True,
     ascii_output: bool = False,
-    share_inpcrd: bool = True,
-    share_prmtop: bool = True,
 ) -> str:
     if prefixes is None and temperatures_kelvin is None:
         raise ValueError(
@@ -17,8 +15,10 @@ def write_groupfile_block(
         )
     if prefixes is None:
         assert temperatures_kelvin is not None
-        prefixes = [f"{t}K." for t in temperatures_kelvin]
+        prefixes = [f"{t}K" for t in temperatures_kelvin]
     assert prefixes is not None
+    if relative_to_cwd:
+        prefixes = [f"./{p}" for p in prefixes]
 
     lines = []
     for i, prefix in enumerate(prefixes):
@@ -27,19 +27,19 @@ def write_groupfile_block(
             "-rem",
             "1" if do_remd else "0",
             "-p",
-            f"{'' if share_prmtop else prefix}prmtop",
+            f"{prefix}/prmtop",
             "-i",
-            f"{prefix}mdin",
+            f"{prefix}/mdin",
             "-inf",
-            f"{prefix}mdinfo",
+            f"{prefix}/mdinfo",
             "-o",
-            f"{prefix}mdout",
+            f"{prefix}/mdout",
             "-r",
-            f"{prefix}restart{'.nc' if ascii_output else ''}",
+            f"{prefix}/restrt",
             "-x",
-            f"{prefix}mdcrd{'.nc' if ascii_output else ''}",
+            f"{prefix}/mdcrd{'' if ascii_output else '.nc'}",
             "-c",
-            f"{'' if share_inpcrd else prefix}inpcrd{'' if ascii_inpcrd else '.nc'}",
+            f"{prefix}/inpcrd",
         ]
         if do_remd:
             parts.extend(["-remlog", "rem.log"])
@@ -54,19 +54,15 @@ def dump_groupfile(
     prefixes: tp.Optional[tp.Sequence[str]] = None,
     temperatures_kelvin: tp.Optional[tp.Sequence[int]] = None,
     do_remd: bool = False,
-    ascii_inpcrd: bool = True,
     ascii_output: bool = False,
-    share_inpcrd: bool = True,
-    share_prmtop: bool = True,
+    relative_to_cwd: bool = True,
 ) -> None:
     Path(path).write_text(
         write_groupfile_block(
             prefixes,
             temperatures_kelvin,
             do_remd,
-            ascii_inpcrd,
             ascii_output,
-            share_inpcrd,
-            share_prmtop,
+            relative_to_cwd,
         )
     )
