@@ -9,8 +9,9 @@
     imin = 0,  ! NVE Dynamics
     {% endif %}
 {% if config.remd_exchange_num > 1 %}
-    nstlim = {{ config.total_md_steps }}, numexchg = {{ config.remd_exchange_num }},  ! MD steps *per exchange* [tsteps], and num. REMD exchanges
+    nstlim = {{ config.md_steps_per_remd_exchange }}, numexchg = {{ config.remd_exchange_num }},  ! MD steps *per exchange* [tsteps], and num. REMD exchanges
     ! REMD exchange time interval: {{ config.remd_time_interval_ps }} ps
+    ! Total MD steps: {{ config.total_md_steps }}
 {% else %}
     nstlim = {{ config.total_md_steps }},  ! Total MD steps [tsteps]
 {% endif %}
