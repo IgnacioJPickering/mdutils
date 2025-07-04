@@ -2,7 +2,7 @@
 &cntrl
 !! General
     imin = 0,  ! NVT Dynamics
-    nstlim = 500, numexchg = 10,  ! MD steps *per exchange* [tsteps], and num. REMD exchanges
+    nstlim = 50, numexchg = 10,  ! MD steps *per exchange* [tsteps], and num. REMD exchanges
     ! REMD exchange time interval: 0.05 ps
     ! Total MD time: 0.5 ps (0.0005 ns)
 

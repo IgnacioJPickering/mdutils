@@ -41,11 +41,12 @@ def seq_of_temperature_kelvin(
 # To recover the values from the original article (Met-Enkephaline) use
 # num=8, lo=200, hi=700, num_below=0
 # Which results in [200, 239, 286, 342, 409, 489, 585, 700]
+# and a factor of 1.19
 def seq_of_temperature_kelvin_from_temperature_range(
     replicas_num: int,
     temperature_kelvin_lo: int = 300,
     temperature_kelvin_hi: int = 630,
-    num_below: int = 1,  # How many temperatures to add below the low part of the range
+    num_below: int = 0,  # How many temperatures to add below the low part of the range
     verbose: bool = False,
 ) -> list[int]:
     factor = (temperature_kelvin_hi / temperature_kelvin_lo) ** (
