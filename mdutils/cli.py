@@ -11,6 +11,7 @@ from rich.console import Console
 from typer import Typer, Option, Argument
 
 from mdutils.amber.prmtop import Prmtop, Flag
+from mdutils.paths import make_path_relative
 
 console = Console()
 app = Typer()
@@ -64,8 +65,8 @@ def add_intra_bonds(
     prmtop.dump(out_path)
 
 
-@app.command("untangle-tremd")
-def untangle_tremd(
+@app.command("untangle-remd")
+def untangle_remd(
     path: tpx.Annotated[
         tp.Optional[Path],
         Option(
@@ -86,10 +87,6 @@ def untangle_tremd(
         str,
         Option("--mdcrd-glob"),
     ] = "*mdcrd",
-    cleanup: tpx.Annotated[
-        bool,
-        Option("--cleanup/--no-cleanup"),
-    ] = True,
     untangle_temp: tpx.Annotated[
         bool,
         Option("--untangle-temp/--no-untangle-temp"),
@@ -131,8 +128,8 @@ def untangle_tremd(
         mdcrds = list(p.parent.glob(mdcrd_glob))
         if len(mdcrds) != 1:
             raise ValueError(f"No mdcrd found in {p.parent}")
-        mdcrd_paths.append(mdcrds[0])
-        prmtop_paths.append(prmtops[0])
+        mdcrd_paths.append(mdcrds[0].resolve())
+        prmtop_paths.append(prmtops[0].resolve())
         if untangle_kind == "temperature":
             with open(p, mode="rt", encoding="utf-8") as f:
                 for line in f:
@@ -159,36 +156,37 @@ def untangle_tremd(
         trim_blocks=True,
         lstrip_blocks=True,
     )
-    template = env.get_template("untangle-tremd.cpptraj.in.jinja")
-    for val, prmtop_path in zip(values, prmtop_paths):
+    template = env.get_template("untangle-remd.cpptraj.in.jinja")
+    for val, prmtop_fpath in zip(values, prmtop_paths):
         if untangle_kind == "temperature":
             if val.is_integer():
-                val_str = format(val, ".0f")
+                val_str = f"{val:.0f}K"
             else:
-                val_str = str(val).replace(".", "_")
+                val_str = f"{str(val).replace('.', '_')}K"
+            dir_name = f"{val_str}-remd-temp"
         else:
-            val_str = str(val - 1).zfill(4)
+            val_str = str(val - 1).zfill(3 if len(values) < 1000 else 4)
+            dir_name = f"{val_str}-remd-idx"
         render = template.render(
             untangle_kind=untangle_kind,
             value=val,
-            value_str=val_str,
-            prmtop_name=str(prmtop_path.name),
+            prmtop_name=str(prmtop_fpath),
             first_replica_traj_name=str(mdcrd_paths[0]),
             replica_traj_names=",".join(map(str, mdcrd_paths[1:])),
         )
-        suffix = f"{val_str}{'K' if untangle_kind == 'temperature' else ''}"
-        cpptraj_in = path / f"untangle-tremd-{suffix}.cpptraj.in"
+        out_dir = path / dir_name
+        out_dir.mkdir()
+        cpptraj_in = out_dir / "untangle-remd.cpptraj.in"
         cpptraj_in.write_text(render)
         out = subprocess.run(
             ["cpptraj", cpptraj_in.name],
-            cwd=cpptraj_in.parent,
+            cwd=out_dir,
             text=True,
             capture_output=True,
         )
+        (out_dir / "prmtop").symlink_to(make_path_relative(out_dir, prmtop_fpath))
         console.print(out.stdout)
         console.print(out.stderr)
-        if out.returncode == 0 and cleanup:
-            cpptraj_in.unlink()
 
 
 if __name__ == "__main__":
