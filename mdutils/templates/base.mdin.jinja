@@ -82,8 +82,8 @@
 {% if config.umbrella %}
 &wt
 !! Umbrella Restraints Weight Config
-    type = 'DUMPFREQ',  ! Set the restrained coord output interval
-    istep1 = {{ config.scalars_dump_interval }},  ! Restrained coord output interval [steps]
+    type = 'DUMPFREQ',  ! Set the restrained crd output interval
+    istep1 = {{ config.scalars_dump_interval }},  ! Restrained crd output interval [tsteps]
 /
 {% endif %}
 {% if config.umbrella or config.do_heating %}

@@ -1,0 +1,5 @@
+parm {{ prmtop_name }}
+trajin {{ first_replica_traj_name }} remdtraj remdtrajtemp {{ temp }}
+trajout {{ temp_str }}K.mdcrd format netcdf
+run
+exit
