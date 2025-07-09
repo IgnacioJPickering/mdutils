@@ -1,5 +1,23 @@
+from pathlib import Path
 import typing as tp
 import math
+
+import netCDF4 as netcdf
+from numpy.typing import NDArray
+import numpy as np
+
+
+def get_remd_trace(path: Path) -> tuple[int, NDArray[np.float64], NDArray[np.float64]]:
+    # Returns a tuple with the replica index and associated target temperatures
+    # throughout the dynamics
+    netcdf_ds = netcdf.Dataset(str(path), "r", format="NETCDF3_64BIT_OFFSET")
+    temps_kelvin = netcdf_ds["remd_values"][:]
+    times_ps = netcdf_ds["time"][:].astype(np.float64)
+    idxs = netcdf_ds["remd_repidx"][:]
+    if not len(np.unique(idxs)) == 1:
+        raise ValueError("More than one replica idx found in dataset")
+    idx = idxs[0].item()
+    return (idx, temps_kelvin, times_ps)
 
 
 # TODO: This is incorrect, the actual way to get it uses the sqrt but is not direct
