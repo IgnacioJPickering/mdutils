@@ -30,7 +30,6 @@ class _CustomLoader(yaml.SafeLoader):
 
 # decorate enums to make them yaml-dumpable
 def register_yaml_enum(cls: _T) -> _T:
-    global ENUM_VALUES
     tag = f"!{cls.__name__}"
     if not issubclass(cls, Enum):
         raise ValueError("Only enums can be wrapped with register_yaml_enum")
