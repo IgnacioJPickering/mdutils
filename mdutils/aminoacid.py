@@ -1,5 +1,5 @@
 r"""
-Aminoacid sequence 3-letter-codes and single-letter-codes
+Aminoacid sequence 3-letter-codes, single-letter-codes, and SMILES
 """
 
 __all__ = [
