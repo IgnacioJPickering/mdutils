@@ -10,9 +10,11 @@ import re
 import jinja2
 from rich.console import Console
 from typer import Typer, Option, Argument
+import matplotlib.pyplot as plt
 
 from mdutils.amber.prmtop import Prmtop, Flag
 from mdutils.paths import make_path_relative
+from mdutils.remd import get_remd_trace
 
 console = Console()
 app = Typer()
@@ -86,15 +88,42 @@ def copy_prmtops(
             shutil.copy2(original, d)
 
 
+@app.command("remd-trips")
+def remd_trips(
+    path: tpx.Annotated[
+        tp.Optional[Path], Argument(help="Root path where T-REMD dirs are located")
+    ] = None,
+    suffix: tpx.Annotated[
+        str,
+        Option("--suffix"),
+    ] = "-remd-idx",
+    y_label: tpx.Annotated[
+        str,
+        Option("--y-label", "--ylabel"),
+    ] = "Temperature (K)",
+) -> None:
+    r"""Plot trips of the replicas for a remd simulation"""
+    if path is None:
+        path = Path.cwd()
+    traces = {}
+    for p in sorted(path.iterdir(), reverse=True):
+        if p.is_dir() and p.name.endswith(suffix):
+            idx, temps, times = get_remd_trace(p / "mdcrd")
+            traces[idx] = (temps, times)
+
+    fig, ax = plt.subplots()
+    for idx, (trace, times) in traces.items():
+        ax.plot(times, trace, label=f"Replica {idx}")
+    ax.set_xlabel(r"Time (ps)")
+    ax.set_ylabel(y_label)
+    ax.legend(loc="upper right")
+    plt.show()
+
+
 @app.command("untangle-remd")
 def untangle_remd(
     path: tpx.Annotated[
-        tp.Optional[Path],
-        Option(
-            "--path",
-            show_default=False,
-            help="Root path were T-REMD directories are located",
-        ),
+        tp.Optional[Path], Argument(help="Root path where T-REMD dirs are located")
     ] = None,
     mdin_glob: tpx.Annotated[
         str,
