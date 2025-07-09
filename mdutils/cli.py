@@ -90,7 +90,10 @@ def untangle_tremd(
         str,
         Option("--first-replica", help="Name of first replica"),
     ] = "mdcrd.000",
-    cleanup: tpx.Annotated[bool, Option("--cleanup/--no-cleanup"),] = True,
+    cleanup: tpx.Annotated[
+        bool,
+        Option("--cleanup/--no-cleanup"),
+    ] = True,
 ) -> None:
     # By default this function assumes a structure:
     #  - root
