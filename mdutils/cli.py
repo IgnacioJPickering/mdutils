@@ -124,7 +124,6 @@ def untangle_tremd(
         path = Path.cwd()
     temps_kelvin = []
     prmtop_paths = []
-    path = Path(__file__).parent
     for p in path.rglob(mdin_glob):
         prmtops = list(p.parent.glob(prmtop_glob))
         if len(prmtops) != 1:
