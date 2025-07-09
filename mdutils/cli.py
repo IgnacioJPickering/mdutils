@@ -64,10 +64,6 @@ def add_intra_bonds(
     prmtop.dump(out_path)
 
 
-if __name__ == "__main__":
-    app()
-
-
 @app.command("untangle-tremd")
 def untangle_tremd(
     path: tpx.Annotated[
@@ -174,3 +170,7 @@ def untangle_tremd(
         console.print(out.stderr)
         if out.returncode == 0 and cleanup:
             cpptraj_in.unlink()
+
+
+if __name__ == "__main__":
+    app()
