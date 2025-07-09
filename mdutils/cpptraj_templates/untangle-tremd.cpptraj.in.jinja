@@ -1,5 +1,12 @@
 parm {{ prmtop_name }}
-trajin {{ first_replica_traj_name }} remdtraj remdtrajtemp {{ temp }}
-trajout {{ temp_str }}K.mdcrd format netcdf
+{% if untangle_kind == "temperature" %}
+trajin {{ first_replica_traj_name }} remdtraj remdtrajtemp {{ value }} trajnames {{ replica_traj_names }}
+trajout {{ value_str }}K.mdcrd format netcdf
+{% elif untangle_kind == "idx" %}
+trajin {{ first_replica_traj_name }} remdtraj remdtrajidx {{ value }} trajnames {{ replica_traj_names }}
+trajout {{ value_str }}-idx.mdcrd format netcdf
+{% else %}
+ERROR: Incorrect untangle kind
+{% endif %}
 run
 exit

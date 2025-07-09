@@ -82,62 +82,75 @@ def untangle_tremd(
         str,
         Option("--prmtop-glob"),
     ] = "*prmtop",
-    first_replica_traj_name: tpx.Annotated[
+    mdcrd_glob: tpx.Annotated[
         str,
-        Option("--first-replica", help="Name of first replica"),
-    ] = "mdcrd.000",
+        Option("--mdcrd-glob"),
+    ] = "*mdcrd",
     cleanup: tpx.Annotated[
         bool,
         Option("--cleanup/--no-cleanup"),
     ] = True,
+    untangle_temp: tpx.Annotated[
+        bool,
+        Option("--untangle-temp/--no-untangle-temp"),
+    ] = False,
 ) -> None:
     # By default this function assumes a structure:
     #  - root
-    #    - mdcrd.000 -> traj0/mdcrd
-    #    - mdcrd.001 -> traj1/mdcrd
-    #    - mdcrd.002 -> traj2/mdcrd
-    #    - mdcrd.003 -> traj3/mdcrd
-    #    - ...
-    #    - traj0
+    #    - traj-300K
     #      - mdcrd
     #      - mdin
     #      - prmtop
-    #    - traj1
+    #    - traj-310K
     #      - mdcrd
     #      - mdin
     #      - prmtop
-    #    - traj2
+    #    - traj-320K
     #      - mdcrd
     #      - mdin
     #      - prmtop
-    #    - traj3
+    #    - traj-330K
     #      - mdcrd
     #      - mdin
     #      - prmtop
     #    - ...
+    # By default the "replica idx" is untangled. The temperature can be untangled by
+    # passing --untangle-temp, but the default in Amber is to print untangled
+    # temperatures
+    untangle_kind = "temperature" if untangle_temp else "idx"
     _TEMPLATES_PATH = Path(__file__).parent / "cpptraj_templates"
     if path is None:
         path = Path.cwd()
-    temps_kelvin = []
+    values = []
     prmtop_paths = []
+    mdcrd_paths = []
     for p in path.rglob(mdin_glob):
         prmtops = list(p.parent.glob(prmtop_glob))
         if len(prmtops) != 1:
             raise ValueError(f"No prmtop found in {p.parent}")
+        mdcrds = list(p.parent.glob(mdcrd_glob))
+        if len(mdcrds) != 1:
+            raise ValueError(f"No mdcrd found in {p.parent}")
+        mdcrd_paths.append(mdcrds[0])
         prmtop_paths.append(prmtops[0])
-        with open(p, mode="rt", encoding="utf-8") as f:
-            for line in f:
-                match = re.match(r".*temp0\s*=\s*([0-9.eE]+).*", line)
-                if match:
-                    temp_kelvin = float(match[1])
-                    if not temp_kelvin.is_integer():
-                        warnings.warn(
-                            f"non-integer temperature {temp_kelvin} found in {p}"
-                        )
-                    temps_kelvin.append(temp_kelvin)
-                    break
-            else:
-                raise ValueError(f"No temp0 found in {p}")
+        if untangle_kind == "temperature":
+            with open(p, mode="rt", encoding="utf-8") as f:
+                for line in f:
+                    match = re.match(r".*temp0\s*=\s*([0-9.eE]+).*", line)
+                    if match:
+                        temp_kelvin = float(match[1])
+                        if not temp_kelvin.is_integer():
+                            warnings.warn(
+                                f"non-integer temperature {temp_kelvin} found in {p}"
+                            )
+                        values.append(temp_kelvin)
+                        break
+                else:
+                    raise ValueError(f"No temp0 found in {p}")
+    if untangle_kind == "idx":
+        # Confusingly, cpptraj requires replica idx1, but inside netCDF the
+        # value is idx0
+        values = list(range(1, len(mdcrd_paths) + 1))
 
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(_TEMPLATES_PATH),
@@ -147,18 +160,24 @@ def untangle_tremd(
         lstrip_blocks=True,
     )
     template = env.get_template("untangle-tremd.cpptraj.in.jinja")
-    for temp, prmtop_path in zip(temps_kelvin, prmtop_paths):
-        if temp.is_integer():
-            temp_str = format(temp, ".0f")
+    for val, prmtop_path in zip(values, prmtop_paths):
+        if untangle_kind == "temperature":
+            if val.is_integer():
+                val_str = format(val, ".0f")
+            else:
+                val_str = str(val).replace(".", "_")
         else:
-            temp_str = str(temp).replace(".", "_")
+            val_str = str(val - 1).zfill(4)
         render = template.render(
-            temp=temp,
-            temp_str=temp_str,
+            untangle_kind=untangle_kind,
+            value=val,
+            value_str=val_str,
             prmtop_name=str(prmtop_path.name),
-            first_replica_traj_name=first_replica_traj_name,
+            first_replica_traj_name=str(mdcrd_paths[0]),
+            replica_traj_names=",".join(map(str, mdcrd_paths[1:])),
         )
-        cpptraj_in = path / f"untangle-tremd-{temp_str}.cpptraj.in"
+        suffix = f"{val_str}{'K' if untangle_kind == 'temperature' else ''}"
+        cpptraj_in = path / f"untangle-tremd-{suffix}.cpptraj.in"
         cpptraj_in.write_text(render)
         out = subprocess.run(
             ["cpptraj", cpptraj_in.name],
