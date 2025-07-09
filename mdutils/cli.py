@@ -1,3 +1,4 @@
+import shutil
 import numpy as np
 from pathlib import Path
 import typing as tp
@@ -63,6 +64,26 @@ def add_intra_bonds(
     prmtop = Prmtop.load(prmtop_path)
     prmtop.add_intra_molecule_bonds()
     prmtop.dump(out_path)
+
+
+@app.command("copy-prmtops")
+def copy_prmtops(
+    path: tpx.Annotated[tp.Optional[Path], Argument()] = None,
+    prmtop_glob: tpx.Annotated[
+        str,
+        Option("--prmtop-glob"),
+    ] = "*prmtop",
+) -> None:
+    r"""Recursively walk a subtree and convert all prmtop files that are symlinks
+    to actual prmtop files
+    """
+    if path is None:
+        path = Path.cwd()
+    for d in path.rglob(prmtop_glob):
+        if d.is_symlink():
+            original = d.resolve(strict=True)
+            d.unlink()
+            shutil.copy2(original, d)
 
 
 @app.command("untangle-remd")
