@@ -189,6 +189,47 @@ class _InteractionAccessor(_Accessor):
     prefix: tp.ClassVar[str] = ""
     shape: tp.ClassVar[tp.Tuple[int, ...]] = (-1,)
 
+    # TODO: Currently things with and without H are handled separately,
+    # but they should not be
+    @property
+    def idxs_with_hydrogen(self) -> NDArray[np.int64]:
+        # NOTE: These are guaranteed to divide evenly into 3
+        return self._prmtop.blocks.get(
+            Flag[f"{self.prefix}_WITH_HYDROGEN"], np.array([])
+        ).reshape(self.shape)[:, :-1] // 3
+
+    @property
+    def idxs_without_hydrogen(self) -> NDArray[np.int64]:
+        return self._prmtop.blocks.get(
+            Flag[f"{self.prefix}_WITHOUT_HYDROGEN"], np.array([])
+        ).reshape(self.shape)[:, :-1] // 3
+
+    @property
+    def raw_with_hydrogen(self) -> NDArray[np.int64]:
+        return self._prmtop.blocks.get(
+            Flag[f"{self.prefix}_WITH_HYDROGEN"], np.array([])
+        ).reshape(self.shape)
+
+    @property
+    def raw_without_hydrogen(self) -> NDArray[np.int64]:
+        return self._prmtop.blocks.get(
+            Flag[f"{self.prefix}_WITHOUT_HYDROGEN"], np.array([])
+        ).reshape(self.shape)
+
+    @property
+    def force_consts_with_hydrogen(self) -> NDArray[np.int64]:
+        _values = self._prmtop.blocks.get(
+            Flag[f"{self.prefix}_WITH_HYDROGEN"], np.array([])
+        ).reshape(self.shape)
+        return self.fftype_force_const[_values[:, -1] - 1]
+
+    @property
+    def force_consts_without_hydrogen(self) -> NDArray[np.int64]:
+        _values = self._prmtop.blocks.get(
+            Flag[f"{self.prefix}_WITHOUT_HYDROGEN"], np.array([])
+        ).reshape(self.shape)
+        return self.fftype_force_const[_values[:, -1] - 1]
+
     def num(self, kind: tp.Literal["with-H", "without-H", "all"] = "all") -> int:
         if kind == "with-H":
             return (
@@ -227,6 +268,20 @@ class BondsAccessor(_InteractionAccessor):
     def fftype_equil_distance(self) -> NDArray[np.float32]:
         return self._prmtop.blocks[Flag.BOND_FFTYPE_EQUIL_DISTANCE]
 
+    @property
+    def equil_distances_with_hydrogen(self) -> NDArray[np.int64]:
+        _values = self._prmtop.blocks.get(
+            Flag[f"{self.prefix}_WITH_HYDROGEN"], np.array([])
+        ).reshape(self.shape)
+        return self.fftype_equil_distance[_values[:, -1] - 1]
+
+    @property
+    def equil_distances_without_hydrogen(self) -> NDArray[np.int64]:
+        _values = self._prmtop.blocks.get(
+            Flag[f"{self.prefix}_WITHOUT_HYDROGEN"], np.array([])
+        ).reshape(self.shape)
+        return self.fftype_equil_distance[_values[:, -1] - 1]
+
 
 class AnglesAccessor(_InteractionAccessor):
     prefix: tp.ClassVar[str] = "ANGLE"
@@ -235,6 +290,20 @@ class AnglesAccessor(_InteractionAccessor):
     @property
     def fftype_equil_angle(self) -> NDArray[np.float32]:
         return self._prmtop.blocks[Flag.ANGLE_FFTYPE_EQUIL_ANGLE]
+
+    @property
+    def equil_angles_with_hydrogen(self) -> NDArray[np.int64]:
+        _values = self._prmtop.blocks.get(
+            Flag[f"{self.prefix}_WITH_HYDROGEN"], np.array([])
+        ).reshape(self.shape)
+        return self.fftype_equil_angle[_values[:, -1] - 1]
+
+    @property
+    def equil_angles_without_hydrogen(self) -> NDArray[np.int64]:
+        _values = self._prmtop.blocks.get(
+            Flag[f"{self.prefix}_WITHOUT_HYDROGEN"], np.array([])
+        ).reshape(self.shape)
+        return self.fftype_equil_angle[_values[:, -1] - 1]
 
 
 class DihedralsAccessor(_InteractionAccessor):

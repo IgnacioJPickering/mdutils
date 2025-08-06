@@ -13,6 +13,23 @@ class CoordKind(Enum):
     ANGLE = "A"
     DIHEDRAL = "D"
 
+    @classmethod
+    def from_string(cls, string: str) -> tpx.Self:
+        # Input string is case insensitive and -_ insensitive
+        string = (
+            string.upper()
+            .replace("-", "_")
+            .replace("BOND_DISTANCE", "B")
+            .replace("BOND_DIST", "B")
+            .replace("DISTANCE", "B")
+            .replace("BOND_ANGLE", "A")
+            .replace("DIHEDRAL_ANGLE", "D")
+            .replace("BOND", "B")
+            .replace("DIHEDRAL", "D")
+            .replace("ANGLE", "A")
+        )
+        return cls(string)
+
 
 # Useful for ANI models
 class NeighborlistKind(Enum):
@@ -60,6 +77,20 @@ class BoxParams:
     angles: NDArray[np.float64] = field(
         default_factory=lambda: np.full(3, fill_value=90.0, dtype=np.float64)
     )
+
+
+@dataclass
+class BoxParamsTraj:
+    lengths: NDArray[np.float32] = field(
+        default_factory=lambda: np.full((0, 3), fill_value=1.0, dtype=np.float64)
+    )
+    angles: NDArray[np.float32] = field(
+        default_factory=lambda: np.full((0, 3), fill_value=90.0, dtype=np.float64)
+    )
+
+    def __post_init__(self) -> None:
+        if not self.lengths.shape == self.angles.shape:
+            raise ValueError("lengths and angles must have the same shape")
 
 
 class SolvCapKind(Enum):
@@ -171,7 +202,7 @@ def measure(
     inconsistent with the coord requested, if 'kind' is passed.
     """
     if isinstance(kind, str):
-        kind = CoordKind(kind)
+        kind = CoordKind.from_string(kind)
     if kind is None:
         if len(idxs) == 2:
             kind = CoordKind.BOND
