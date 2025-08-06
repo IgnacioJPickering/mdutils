@@ -194,15 +194,21 @@ class _InteractionAccessor(_Accessor):
     @property
     def idxs_with_hydrogen(self) -> NDArray[np.int64]:
         # NOTE: These are guaranteed to divide evenly into 3
-        return self._prmtop.blocks.get(
-            Flag[f"{self.prefix}_WITH_HYDROGEN"], np.array([])
-        ).reshape(self.shape)[:, :-1] // 3
+        return (
+            self._prmtop.blocks.get(
+                Flag[f"{self.prefix}_WITH_HYDROGEN"], np.array([])
+            ).reshape(self.shape)[:, :-1]
+            // 3
+        )
 
     @property
     def idxs_without_hydrogen(self) -> NDArray[np.int64]:
-        return self._prmtop.blocks.get(
-            Flag[f"{self.prefix}_WITHOUT_HYDROGEN"], np.array([])
-        ).reshape(self.shape)[:, :-1] // 3
+        return (
+            self._prmtop.blocks.get(
+                Flag[f"{self.prefix}_WITHOUT_HYDROGEN"], np.array([])
+            ).reshape(self.shape)[:, :-1]
+            // 3
+        )
 
     @property
     def raw_with_hydrogen(self) -> NDArray[np.int64]:
