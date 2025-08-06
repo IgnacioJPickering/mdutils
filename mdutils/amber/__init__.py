@@ -1,6 +1,8 @@
 from mdutils.amber.prmtop import Prmtop, PrmtopMeta
 from mdutils.amber.restart import Restart, RestartMeta
 from mdutils.amber.inpcrd import Inpcrd, InpcrdMeta
+from mdutils.amber.mdcrd import Mdcrd, MdcrdMeta
+from mdutils.amber.traj import AmberTraj
 from mdutils.amber.groupfile import write_groupfile_block, dump_groupfile
 
 __all__ = [
@@ -12,4 +14,7 @@ __all__ = [
     "RestartMeta",
     "Inpcrd",
     "InpcrdMeta",
+    "Mdcrd",
+    "MdcrdMeta",
+    "AmberTraj",
 ]
